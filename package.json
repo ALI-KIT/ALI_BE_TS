@@ -25,9 +25,13 @@
     "@server": "dist/Server"
   },
   "dependencies": {
+    "@types/cheerio": "^0.22.21",
     "@types/mongoose": "^5.7.34",
+    "@types/nodemon": "^1.19.0",
     "@types/unidecode": "^0.1.1",
+    "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
+    "cheerio": "^1.0.0-rc.3",
     "command-line-args": "^5.1.1",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
