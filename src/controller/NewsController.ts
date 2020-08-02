@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import unidecode from 'unidecode'  
-import { AppDatabase } from '@daos/AppDatabase';
+import AppDatabase from '../daos/AppDatabase';
 import { Place } from '@entities/Place';
 import { News} from '@entities/News';
 
@@ -8,7 +8,8 @@ const newsDao = AppDatabase.getInstance().newsDao;
 const placeDao = AppDatabase.getInstance().placeDao;
 const router = Router();
 
-router.get('/', async (req: Request, res:Response) => {
+router.get('/',async (req: Request, res:Response) => {
+    console.log('call this');
     const { page, per_page, location } = req.query
     const loc = unidecode(location?.toString() || "all").trim().toLowerCase()
     const limit = Number(per_page || 21)
@@ -45,7 +46,7 @@ router.get('/', async (req: Request, res:Response) => {
         console.log(error);
         res.status(500).send(error)
     }
-})
+});
 
 router.get('/content/:id', async (req, res, next) => {
     const id = unidecode(req.params.id).trim().toLowerCase() || "null"
@@ -92,4 +93,4 @@ const IsCorrectCondition = (obj: News, regex: RegExp) => {
     return false
 }
 
-module.exports = router
+export default router 

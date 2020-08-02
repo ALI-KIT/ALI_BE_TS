@@ -1,8 +1,9 @@
+import { Document, Schema, model } from 'mongoose'
 
 export interface IDomain {
-    name: string,
-    displayName: string,
-    url: string,
+    name: string;
+    displayName: string;
+    url: string;
 }
 
 export class Domain implements IDomain {

@@ -19,11 +19,18 @@ export interface News extends Document {
     categories: string[]
 }
 
+/* const DomainSchema: Schema = new Schema({
+    name: { type: String, required: true, default: '' },
+    displayName: { type: String, default: "" },
+    baseUrl: { type: String, default: '' },
+    url: { type: String, default: '' }
+}) */
+
 export const NewsSchema: Schema = new Schema({
-    title: { type: String, required: true, default :'' },
+    title: { type: String, required: true, default: '' },
     summary: { type: String, required: true, default: '' },
     content: { type: String, required: true, default: '' },
-    thumbnail: { type: String, required: false, default: ''},
+    thumbnail: { type: String, required: false, default: '' },
 
     /* ngày kéo dữ liệu */
     crawlDate: {
@@ -38,10 +45,22 @@ export const NewsSchema: Schema = new Schema({
     },
 
     /* thông tin của trang tổng hợp tin tức */
-    aggregator: {type: Domain, required: false},
+    aggregator: {
+        name: { type: String, default: '' },
+        displayName: { type: String, default: '' },
+        baseUrl: { type: String, default: '' },
+        url: { type: String, default: '' },
+        required: false
+    },
 
     /* thông tin của trang bài viết gốc */
-    source: {type: Domain, required: false},
+    source: {
+        name: { type: String, default: '' },
+        displayName: { type: String, default: '' },
+        baseUrl: { type: String, default: '' },
+        url: { type: String, default: '' },
+        required: false
+    },
 
     /* keywords, hay tags của tin bài */
     keywords: { type: Array, default: [] },

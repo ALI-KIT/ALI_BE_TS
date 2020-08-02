@@ -3,7 +3,7 @@ import { IDao } from '@daos/IDao';
 
 export class NewsDao extends IDao<News> {
     constructor() {
-        super('news', NewsSchema);
+        super('news-2', NewsSchema);
     }
     
     public async create(item: News): Promise<News | Error | null> {
