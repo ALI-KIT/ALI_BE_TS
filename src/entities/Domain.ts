@@ -23,6 +23,6 @@ export class Domain implements IDomain {
 /**
  * Domain dùng để crawl nội dung
  */
-export class CrawlerDomain extends Domain {
+export class WebDomain extends Domain {
     public priority: number = 5;
 }

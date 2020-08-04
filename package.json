@@ -28,6 +28,7 @@
     "@types/cheerio": "^0.22.21",
     "@types/mongoose": "^5.7.34",
     "@types/nodemon": "^1.19.0",
+    "@types/p-limit": "^2.2.0",
     "@types/unidecode": "^0.1.1",
     "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
@@ -43,6 +44,7 @@
     "module-alias": "^2.2.2",
     "mongoose": "^5.9.26",
     "morgan": "^1.10.0",
+    "p-queue": "^6.6.0",
     "randomstring": "^1.1.5",
     "unidecode": "^0.1.8",
     "winston": "^3.3.3"
