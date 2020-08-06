@@ -16,16 +16,6 @@ export class NewsDao extends IDao<News> {
         super('news', NewsSchema)
     }
 
-    public async create(item: News): Promise<News | Error | null> {
-        try {
-            const data = await this.model.create(item);
-            return data;
-        }
-        catch (error) {
-            return error;
-        }
-    }
-
     public async getAllPaging(limit: number, skip: number) : Promise<News[]> {
         const result = this.model.find({}).skip(skip).limit(limit);
         return result;

@@ -4,7 +4,7 @@ import { PlaceDao } from './PlaceDao';
 
 export default class AppDatabase {
     public newsDao = new NewsDao();
-  //  public news2Dao = new News2Dao();
+    public news2Dao = new News2Dao();
     public placeDao = new PlaceDao();
     private constructor() {}
 

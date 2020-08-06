@@ -8,7 +8,7 @@ const newsDao = AppDatabase.getInstance().newsDao;
 const placeDao = AppDatabase.getInstance().placeDao;
 const router = Router();
 
-router.get('/',async (req: Request, res:Response) => {
+router.get('/', async (req: Request, res:Response) => {
     console.log('call this');
     const { page, per_page, location } = req.query
     const loc = unidecode(location?.toString() || "all").trim().toLowerCase()
@@ -48,7 +48,7 @@ router.get('/',async (req: Request, res:Response) => {
     }
 });
 
-router.get('/content/:id', async (req, res, next) => {
+router.get('/content/:id', async (req, res) => {
     const id = unidecode(req.params.id).trim().toLowerCase() || "null"
     try {
         const data = await newsDao.findById(id) || { error: "¯\_(ツ)_/¯" };
@@ -59,7 +59,7 @@ router.get('/content/:id', async (req, res, next) => {
 
 })
 
-router.get('/quan9', async (req, res, next) => {
+router.get('/quan9', async (req: Request, res: Response, next) => {
     try {
         const id = '5f0ae0263a55493258285092';
         const np = await Promise.all<News[], Place | null>([newsDao.findAll({}), placeDao.findById(id)])
@@ -72,7 +72,7 @@ router.get('/quan9', async (req, res, next) => {
     }
 })
 
-router.get('/regex', async (req, res, next) => {
+router.get('/regex', async (req: Request, res: Response, next) => {
     const id = '5f0ae0263a55493258285092';
     try {
         const data = await placeDao.findById(id)

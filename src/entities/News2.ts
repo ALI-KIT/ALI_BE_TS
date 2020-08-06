@@ -1,6 +1,6 @@
-import { Domain } from 'domain'
 import { Local } from './Local'
 import { Document, Schema, model } from 'mongoose'
+import { Domain } from './Domain'
 
 export interface News extends Document {
     title: string
@@ -10,8 +10,8 @@ export interface News extends Document {
 
     crawlDate: Date
     publicationDate: Date
-    aggregator?: Domain
-    source?: Domain
+    aggregator: Domain
+    source: Domain
 
     keywords: string[]
     locals: Local[]
