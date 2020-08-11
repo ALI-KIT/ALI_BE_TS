@@ -1,4 +1,4 @@
-import logger from './Logger';
+import logger from '@shared/Logger';
 
 
 export const pErr = (err: Error) => {

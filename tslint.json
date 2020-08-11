@@ -6,7 +6,13 @@
     "ordered-imports": false,
     "quotemark": [true, "single"],
     "no-consecutive-blank-lines": false,
-    "lines-between-class-members": [true, 2]
+    "lines-between-class-members": false,
+    "max-classes-per-file": false,
+    "trailing whitespace": false,
+    "no-console": false,
+    "no-trailing-whitespace": false,
+    "comment-format": false,
+    "no-empty-interface": false
   },
   "linterOptions": {
     "exclude": [

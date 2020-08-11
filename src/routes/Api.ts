@@ -4,10 +4,9 @@ import { ParamsDictionary } from 'express-serve-static-core';
 
 import UserDao from '@daos/User/UserDao.mock';
 import { paramMissingError } from '@shared/constants';
-import { adminMW } from './middleware';
 import { UserRoles } from '@entities/User';
-import newController from '../controller/NewsController';
-import controlCenter from '../controller/ControlCenterController';
+import newController from '@controller/NewsController';
+import controlCenter from '@controller/ControlCenterController';
 
 
 // Init shared

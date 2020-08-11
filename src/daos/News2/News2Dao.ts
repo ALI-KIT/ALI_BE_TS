@@ -7,7 +7,8 @@ export class NewsDao extends IDao<News> {
         super('news-2', NewsSchema);
     }
 
-    public async getAllPaging(limit: number, skip: number) : Promise<News[]> {
+
+    public async getAllPaging(limit: number, skip: number): Promise<News[]> {
         const result = this.model.find({}).skip(skip).limit(limit);
         return result;
     }

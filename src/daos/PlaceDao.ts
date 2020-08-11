@@ -1,10 +1,11 @@
-import {  Place, PlaceSchema } from '@entities/Place'
-import { IDao } from './IDao';
+import { Place, PlaceSchema } from '@entities/Place'
+import { IDao } from '@daos/IDao';
 
 export class PlaceDao extends IDao<Place> {
     constructor() {
-        super("place", PlaceSchema);
+        super('place', PlaceSchema);
     }
+
 
     async create(item: Place): Promise<Place | Error | null> {
         try {

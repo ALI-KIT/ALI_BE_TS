@@ -13,6 +13,7 @@ export default class CrawlUtil {
             });
     }
 
+
     public static async loadWebsiteWithCheerIo(url: string): Promise<any> {
         return await axios
             .get(url)

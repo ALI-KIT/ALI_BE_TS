@@ -18,7 +18,9 @@ export class ShortNews {
     public summary: string
     public author: string
     public thumbnail: string
-    public constructor(title: string, summary: string, author: string = "", thumbnail: string = "") {
+
+
+    public constructor(title: string, summary: string, author: string = '', thumbnail: string = '') {
         this.title = title;
         this.summary = summary;
         this.author = author;
@@ -30,46 +32,46 @@ export const NewsSchema = new Schema({
     title: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     category: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     summary: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     content: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     auth: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     site: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     url: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
-    source:{
+    source: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     },
     thumbnail: {
         type: String,
         required: true,
-        default: ""
+        default: ''
     }
 })

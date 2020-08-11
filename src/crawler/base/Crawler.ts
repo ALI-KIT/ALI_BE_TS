@@ -1,6 +1,6 @@
 import { WebDomain } from '@entities/Domain';
-import { CrawlerManager } from './CrawlerManager';
-import CrawlUtil from 'src/utils/crawlUtils';
+import { CrawlerManager } from '@crawler/base/CrawlerManager'; 
+import CrawlUtil from '@utils/crawlUtils';
 
 export interface ICrawler {
     name: string;
@@ -46,7 +46,7 @@ export abstract class Crawler<T> implements ICrawler {
     private _state: State = State.PENDING;
     public get state() { return this._state}
     public set state(value: State) { 
-        if(value != this._state) {
+        if(value !== this._state) {
             const old  = this._state;
             this._state = value;
             this.notifyStateChanged(old, value);
@@ -54,7 +54,7 @@ export abstract class Crawler<T> implements ICrawler {
     } 
 
     public notifyStateChanged(oldState?: State, newState?: State) {
-        
+        // TODO
     }
 
     constructor(url: string, piority: number = 5, manager?: CrawlerManager) {

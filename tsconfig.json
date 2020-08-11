@@ -19,14 +19,29 @@
       "@entities/*": [
         "src/entities/*"
       ],
+      "@crawler/*": [
+        "src/crawler/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
       "@shared/*": [
         "src/shared/*"
       ],
       "@server": [
         "src/Server"
       ],
+      "@loadenv": [
+        "src/LoadEnv"
+      ],
+      "@mongodb": [
+        "src/MongoDb"
+      ],
       "@controller/*": [
         "src/controller/*"
+      ],
+      "@routes/*": [
+        "src/routes/*"
       ]
     },
     "types": [

@@ -1,11 +1,13 @@
 
-import { Crawler, State } from './Crawler';
+import { Crawler, State } from '@crawler/base/Crawler';
 import PQueue from 'p-queue'
 import { pid } from 'process';
 import AppDatabase from '@daos/AppDatabase';
 import { CreateQuery } from 'mongoose';
 
-export interface ICrawlerManager { }
+export interface ICrawlerManager {
+    //TODO
+ }
 export enum RepeatMode {
     ONCE_TIME,
     IMMEDIATELY_AFTER,
@@ -37,6 +39,7 @@ export class CrawlerManager implements ICrawlerManager {
     public status: State = State.PENDING;
     public callback?: CollectorCallback
 
+
     public constructor(name?: string, session?: string) {
         this.name = name || this.startTime.toString();
         this.currentSession = session || this.startTime.toString();
@@ -58,7 +61,7 @@ export class CrawlerManager implements ICrawlerManager {
         // push vào list
         // push vào promise queue
         if (this.crawlUrlList.indexOf(crawler.url) > -1) {
-            console.log("duplicated url: "+ crawler.url);
+            console.log('duplicated url: ' + crawler.url);
         } else {
 
             this.crawlUrlList.push(crawler.url);
@@ -76,98 +79,100 @@ export class CrawlerManager implements ICrawlerManager {
         return null;
     }
 
+
     public addCrawlerByUrl(priority: number, url: string, name: string = '') {
         const crawler = this.findCrawlerByUrl(url, name);
-        if(crawler)
-        crawler.priority = priority ;
-        
+        if (crawler)
+            crawler.priority = priority;
+
         if (crawler)
             this.addNewCrawler(crawler)
     }
+
 
     public findCrawlerById(id: number): Crawler<any> | null {
         return this.crawlingList.find((crawler) => crawler.id === id) || null
     }
 
     private addToQueue(crawlerId: number, priority: number) {
-            this.promiseQueue.add(async () => {
-               // console.log("manager: starting new crawler")
-                // TODO: 
-                // - Chuyển state của domain sang starting
-                const crawler = this.findCrawlerById(crawlerId);
-                if (!crawler) return;
+        this.promiseQueue.add(async () => {
+            // console.log('manager: starting new crawler')
+            // TODO: 
+            // - Chuyển state của domain sang starting
+            const crawler = this.findCrawlerById(crawlerId);
+            if (!crawler) return;
 
-                crawler.manager = this;
-                crawler.state = State.STARTING;
-                // TODO: check crawler validation here
+            crawler.manager = this;
+            crawler.state = State.STARTING;
+            // TODO: check crawler validation here
 
-                crawler.state = State.RUNNING
+            crawler.state = State.RUNNING
 
-                const url = crawler.url;
-                let error: string = ''
+            const url = crawler.url;
+            let error: string = ''
 
-                const html = await crawler.loadHtml(url);
-                let result;
-                if(!html) error = "crawler "+ crawler.name + " "+ crawler.id+ " getting html failed with url "+ crawler.url;
-                else if (error=='') {
-                    result = await crawler.parseHtml(html);
-                    if(!result) error = "crawler "+ crawler.name+" "+ crawler.id +" failed to parsing html with url "+ crawler.url;
+            const html = await crawler.loadHtml(url);
+            let result;
+            if (!html) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' getting html failed with url ' + crawler.url;
+            else if (error === '') {
+                result = await crawler.parseHtml(html);
+                if (!result) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parsing html with url ' + crawler.url;
 
-                   
-                }
 
-                if(error =='') {
-                    const saveR = await crawler.saveResult(result);
-                    this.onCrawlerResult(result);
-                    if(saveR && saveR != '') error = saveR;
-                }
+            }
 
-                if(error == '')
+            if (error === '') {
+                const saveR = await crawler.saveResult(result);
+                this.onCrawlerResult(result);
+                if (saveR && saveR !== '') error = saveR;
+            }
+
+            if (error === '')
                 crawler.state = State.FINISHED;
-                else {
-                    crawler.state = State.FAILED;
-                    console.log(error);
-                }
+            else {
+                crawler.state = State.FAILED;
+                console.log(error);
+            }
 
-                crawler.manager = null;
+            crawler.manager = null;
 
-                // remove from crawling list
-                const currentPosition = this.crawlingList.indexOf(crawler);
-                if (currentPosition >= -1)
-                    this.crawlingList.splice(currentPosition, 1)
+            // remove from crawling list
+            const currentPosition = this.crawlingList.indexOf(crawler);
+            if (currentPosition >= -1)
+                this.crawlingList.splice(currentPosition, 1)
 
-                // - bắt đầu khởi tạo
-                //   + Tìm Crawler phù hợp
-                //   + Chạy crawler đó, attach vào collector
-                //   + Ơ thế crawler là hữu hạn ?
-                // - Chuyển state của domain sang running
-                // - chạy crawl
-                // - chuyển state về finished
+            // - bắt đầu khởi tạo
+            //   + Tìm Crawler phù hợp
+            //   + Chạy crawler đó, attach vào collector
+            //   + Ơ thế crawler là hữu hạn ?
+            // - Chuyển state của domain sang running
+            // - chạy crawl
+            // - chuyển state về finished
 
-            }, { priority : priority})
+        }, { priority })
     }
 
-    private result : any[] = []
+    private result: any[] = []
     public onCrawlerResult(result: any) {
-     
+        //TODO
     }
 
     public start(): void {
-
+        //TODO
     }
 
     public cancel(): void {
-
+        //TODO
     }
 
     public pause(): void {
-
+        //TODO
     }
 
 
 
     public resume(): void {
-
+        //TODO
     }
 
 

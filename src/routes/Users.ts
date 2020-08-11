@@ -4,12 +4,11 @@ import { ParamsDictionary } from 'express-serve-static-core';
 
 import UserDao from '@daos/User/UserDao.mock';
 import { paramMissingError } from '@shared/constants';
-import { adminMW } from './middleware';
 import { UserRoles } from '@entities/User';
 
 
 // Init shared
-const router = Router();//.use(adminMW);
+const router = Router(); // .use(adminMW);
 const userDao = new UserDao();
 
 

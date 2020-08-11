@@ -1,3 +1,5 @@
+/* tslint:disable:max-classes-per-file */
+
 import { Document, Schema, model } from 'mongoose'
 
 export interface IDomain {
@@ -11,7 +13,9 @@ export class Domain implements IDomain {
     public displayName: string;
     public baseUrl: string;
     public url: string;
-    public constructor(name: string, currentUrl: string, displayName: string = "", baseUrl: string = "") {
+
+
+    public constructor(name: string, currentUrl: string, displayName: string = '', baseUrl: string = '') {
         this.name = name;
         this.url = currentUrl;
         this.displayName = displayName;

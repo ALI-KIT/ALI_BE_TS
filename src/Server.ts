@@ -7,11 +7,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST } from 'http-status-codes';
 import 'express-async-errors';
 
-import BaseRouter from './routes/Api';
+import BaseRouter from '@routes/Api';
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
-import './MongoDb'
+import '@mongodb'
 
 // Init express
 const app = express();

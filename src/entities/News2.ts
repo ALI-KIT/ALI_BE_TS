@@ -1,6 +1,6 @@
-import { Local } from './Local'
+import { Local } from '@entities/Local'
 import { Document, Schema, model } from 'mongoose'
-import { Domain } from './Domain'
+import { Domain } from '@entities/Domain'
 
 export interface News extends Document {
     title: string
