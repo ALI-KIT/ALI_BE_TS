@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { BAD_REQUEST, OK, UNAUTHORIZED } from 'http-status-codes';
 import { SuperTest, Test } from 'supertest';
 

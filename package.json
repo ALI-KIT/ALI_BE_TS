@@ -31,11 +31,9 @@
     "@loadenv": "dist/LoadEnv"
   },
   "dependencies": {
+    "axios": "^0.19.2",
+    "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.3",
-    "mongoose": "^5.9.26",
-    "p-limit": "^3.0.2",
-    "unidecode": "^0.1.8",
-    "bcrypt": "^5.0.0",
     "command-line-args": "^5.1.1",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
@@ -45,14 +43,16 @@
     "http-status-codes": "^1.4.0",
     "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.2",
+    "mongoose": "^5.9.26",
     "morgan": "^1.10.0",
+    "p-limit": "^3.0.2",
     "p-queue": "^6.6.0",
     "randomstring": "^1.1.5",
-    "winston": "^3.3.3",
-    "axios": "^0.19.2"
+    "unidecode": "^0.1.8",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/cheerio": "^0.22.21",
     "@types/command-line-args": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",

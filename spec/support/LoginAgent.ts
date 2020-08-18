@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { SuperTest, Test } from 'supertest';
 
 import { User, UserRoles } from '@entities/User';
