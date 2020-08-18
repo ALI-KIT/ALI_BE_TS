@@ -1,6 +1,7 @@
 import { WebDomain } from '@entities/Domain';
-import { CrawlerManager } from '@crawler/base/CrawlerManager'; 
+import { ICrawlerManager } from '@crawler/base/CrawlerManager'; 
 import CrawlUtil from '@utils/crawlUtils';
+import { DefaultCrawlerManager } from './CrawlerManager';
 
 export interface ICrawler {
     name: string;
@@ -24,7 +25,7 @@ export enum State {
  */
 export abstract class Crawler<T> implements ICrawler {
 
-    public id: number = CrawlerManager.generateId();
+    public id: number = DefaultCrawlerManager.generateId();
     public name: string = this.getName();
     public displayName: string = this.getName();
     public baseUrl: string = this.getBaseUrl();
@@ -35,9 +36,9 @@ export abstract class Crawler<T> implements ICrawler {
     public abstract getDisplayName(): string;
     public abstract getBaseUrl(): string ;
 
-    private _manager? : CrawlerManager;
-    get manager(): CrawlerManager | null { return this._manager || null}
-    set manager(value: CrawlerManager| null) {
+    private _manager? : ICrawlerManager;
+    get manager(): ICrawlerManager | null { return this._manager || null}
+    set manager(value: ICrawlerManager| null) {
         this._manager = value || undefined;
     }
     
@@ -57,7 +58,7 @@ export abstract class Crawler<T> implements ICrawler {
         // TODO
     }
 
-    constructor(url: string, piority: number = 5, manager?: CrawlerManager) {
+    constructor(url: string, piority: number = 5, manager?: ICrawlerManager) {
         this.url = url;
         this.manager = manager || null;
         this.priority = piority;

@@ -4,29 +4,25 @@ import PQueue from 'p-queue'
 import { pid } from 'process';
 import AppDatabase from '@daos/AppDatabase';
 import { CreateQuery } from 'mongoose';
+import { ICrawlerManager, RepeatMode } from './CrawlerManager';
 
-export interface ICrawlerManager {
-    addNewCrawler(crawler: Crawler<any>): any;
-
-}
-
-export abstract class DefaultCrawlerManager implements ICrawlerManager {
+export class CrawlerManager2 implements ICrawlerManager {
     public static readonly TIMEOUT_ENDLESS = -1;
-    protected static _count = 1;
+    private static _count = 1;
     public static generateId(): number { return this._count++; }
 
-    public id: number = CrawlerManager.generateId();
+    public id: number = CrawlerManager2.generateId();
     public name: string;
     public currentSession: string;
 
-    protected promiseQueue: PQueue;
+    private promiseQueue: PQueue;
 
-    protected crawlingList: Crawler<any>[] = [];
-    protected crawlUrlList: string[] = [];
+    private crawlingList: Crawler<any>[] = [];
+    private crawlUrlList: string[] = [];
 
     public repeatMode: RepeatMode = RepeatMode.IMMEDIATELY_AFTER;
 
-    public timeout: number = CrawlerManager.TIMEOUT_ENDLESS;
+    public timeout: number = CrawlerManager2.TIMEOUT_ENDLESS;
     public startTime: number = Date.now();
     public endTime: number = 0;
     public status: State = State.PENDING;
@@ -42,26 +38,6 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
         });
     }
-    addNewCrawler(crawler: Crawler<any>) {
-        throw new Error("Method not implemented.");
-    }
-}
-
-export enum RepeatMode {
-    ONCE_TIME,
-    IMMEDIATELY_AFTER,
-    PER_HOUR,
-    PER_HALF_HOUR,
-    PER_SIX_HOUR,
-    DAILY
-}
-
-export class CrawlerManager extends DefaultCrawlerManager {
-    
-    public constructor(name?: string, session?: string)
-    {
-        super(name, session)
-    }
 
     /**
      * Thêm crawler cho collector
@@ -73,10 +49,19 @@ export class CrawlerManager extends DefaultCrawlerManager {
 
         // push vào list
         // push vào promise queue
+        // if (this.crawlUrlList.indexOf(crawler.url) > -1) {
+        //     console.log('duplicated url: ' + crawler.url);
+        // } else {
+        //     this.crawlUrlList.push(crawler.url);
+        //     this.crawlingList.push(crawler);
+        //     this.addToQueue(crawler.id, crawler.priority);
+        // }
         if (this.crawlUrlList.indexOf(crawler.url) > -1) {
             console.log('duplicated url: ' + crawler.url);
-        } else {
-
+        } else if(crawler.priority===0) {
+            console.log("enough!!! crawler.priority: "+ crawler.priority);
+        }
+        else{
             this.crawlUrlList.push(crawler.url);
             this.crawlingList.push(crawler);
             this.addToQueue(crawler.id, crawler.priority);
@@ -193,5 +178,5 @@ export class CrawlerManager extends DefaultCrawlerManager {
 
 export interface CollectorCallback {
     onUpdateCrawler(crawler: Crawler<any>): void;
-    onUpdateCollector(collector: CrawlerManager): void;
+    onUpdateCollector(collector: CrawlerManager2): void;
 }
