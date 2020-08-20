@@ -120,7 +120,8 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
             if (!html) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' getting html failed with url ' + crawler.url;
             else if (error === '') {
                 result = await crawler.parseHtml(html);
-                if (!result) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parsing html with url ' + crawler.url;
+                if (result === undefined) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parse html with url ' + crawler.url;
+                else if(result === null) error = 'crawler found no data';
             }
 
             if (error === '') {
