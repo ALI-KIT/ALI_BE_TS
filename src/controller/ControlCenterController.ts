@@ -14,15 +14,15 @@ router.get('/pretty', async (req: Request, res: Response, next) => {
 });
 
 router.get('/begin-crawler', async (req: Request, res: Response, next) => {
-    const manager: CrawlerManager = new CrawlerManager('app-crawler-manager');
-    manager.addNewCrawler(new BaoMoiTinMoiCrawler(1))
+    // const manager: CrawlerManager = new CrawlerManager('app-crawler-manager');
+    // manager.addNewCrawler(new BaoMoiTinMoiCrawler(1))
 
-    try {
-        res.status(200).send('Success')
-    } catch (error) {
-        console.log(error)
-        res.status(500).send(error)
-    }
+    // try {
+    //     res.status(200).send('Success')
+    // } catch (error) {
+    //     console.log(error)
+    //     res.status(500).send(error)
+    // }
 })
 
 export default router;

@@ -1,28 +1,28 @@
-
 import { Crawler, State } from '@crawler/base/Crawler';
 import PQueue from 'p-queue'
-import { pid } from 'process';
-import AppDatabase from '@daos/AppDatabase';
-import { CreateQuery } from 'mongoose';
 
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): any;
-
+    isAllowRecursion: boolean;
 }
 
 export abstract class DefaultCrawlerManager implements ICrawlerManager {
-    public static readonly TIMEOUT_ENDLESS = -1;
     protected static _count = 1;
+    
+    protected promiseQueue: PQueue;
+    
+    protected crawlingList: Crawler<any>[] = [];
+    protected crawlUrlList: string[] = [];
+    
+    protected result: any[] = []
+    
+    public static readonly TIMEOUT_ENDLESS = -1;
     public static generateId(): number { return this._count++; }
 
     public id: number = CrawlerManager.generateId();
     public name: string;
     public currentSession: string;
 
-    protected promiseQueue: PQueue;
-
-    protected crawlingList: Crawler<any>[] = [];
-    protected crawlUrlList: string[] = [];
 
     public repeatMode: RepeatMode = RepeatMode.IMMEDIATELY_AFTER;
 
@@ -31,7 +31,16 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
     public endTime: number = 0;
     public status: State = State.PENDING;
     public callback?: CollectorCallback
+    public _isAllowRecursion: boolean = false
 
+    // k phai
+    get isAllowRecursion(): boolean {
+        return this._isAllowRecursion
+    }
+
+    set isAllowRecursion(value:  boolean) {
+        this._isAllowRecursion=value
+    }
 
     public constructor(name?: string, session?: string) {
         this.name = name || this.startTime.toString();
@@ -41,26 +50,6 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
         this.promiseQueue.on('idle', () => {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
         });
-    }
-    addNewCrawler(crawler: Crawler<any>) {
-        throw new Error("Method not implemented.");
-    }
-}
-
-export enum RepeatMode {
-    ONCE_TIME,
-    IMMEDIATELY_AFTER,
-    PER_HOUR,
-    PER_HALF_HOUR,
-    PER_SIX_HOUR,
-    DAILY
-}
-
-export class CrawlerManager extends DefaultCrawlerManager {
-    
-    public constructor(name?: string, session?: string)
-    {
-        super(name, session)
     }
 
     /**
@@ -73,6 +62,10 @@ export class CrawlerManager extends DefaultCrawlerManager {
 
         // push vào list
         // push vào promise queue
+
+        //if(crawler.priority < 4) return; 
+
+
         if (this.crawlUrlList.indexOf(crawler.url) > -1) {
             console.log('duplicated url: ' + crawler.url);
         } else {
@@ -88,7 +81,6 @@ export class CrawlerManager extends DefaultCrawlerManager {
      * @param domain vào hàng đợi
      */
     public findCrawlerByUrl(url: string, name: string = ''): Crawler<any> | null {
-
         return null;
     }
 
@@ -97,7 +89,6 @@ export class CrawlerManager extends DefaultCrawlerManager {
         const crawler = this.findCrawlerByUrl(url, name);
         if (crawler)
             crawler.priority = priority;
-
         if (crawler)
             this.addNewCrawler(crawler)
     }
@@ -107,7 +98,7 @@ export class CrawlerManager extends DefaultCrawlerManager {
         return this.crawlingList.find((crawler) => crawler.id === id) || null
     }
 
-    private addToQueue(crawlerId: number, priority: number) {
+    protected addToQueue(crawlerId: number, priority: number) {
         this.promiseQueue.add(async () => {
             // console.log('manager: starting new crawler')
             // TODO: 
@@ -130,8 +121,6 @@ export class CrawlerManager extends DefaultCrawlerManager {
             else if (error === '') {
                 result = await crawler.parseHtml(html);
                 if (!result) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parsing html with url ' + crawler.url;
-
-
             }
 
             if (error === '') {
@@ -165,7 +154,6 @@ export class CrawlerManager extends DefaultCrawlerManager {
         }, { priority })
     }
 
-    private result: any[] = []
     public onCrawlerResult(result: any) {
         //TODO
     }
@@ -182,13 +170,27 @@ export class CrawlerManager extends DefaultCrawlerManager {
         //TODO
     }
 
-
-
     public resume(): void {
         //TODO
     }
 
+}
 
+export enum RepeatMode {
+    ONCE_TIME,
+    IMMEDIATELY_AFTER,
+    PER_HOUR,
+    PER_HALF_HOUR,
+    PER_SIX_HOUR,
+    DAILY
+}
+
+export class CrawlerManager extends DefaultCrawlerManager {
+    
+    public constructor(name?: string, session?: string)
+    {
+        super(name, session)
+    }    
 }
 
 export interface CollectorCallback {

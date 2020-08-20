@@ -50,7 +50,7 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
 
         if(items.length !== 0) {
             console.log('found new loadmore page: '+ this.page++);
-            this.manager?.addNewCrawler(new BaoMoiTinMoiCrawler(this.page++, this.priority - 1));
+            this.manager?.addNewCrawler(new BaoMoiTinMoiCrawler(this.page++, this.priority));
         }
 
         return null;
