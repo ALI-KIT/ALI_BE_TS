@@ -33,6 +33,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
+    "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.3",
     "command-line-args": "^5.1.1",
     "cookie-parser": "^1.4.5",
@@ -53,6 +54,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/bluebird": "^3.5.32",
     "@types/cheerio": "^0.22.21",
     "@types/command-line-args": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",
