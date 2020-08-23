@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
+import cors from 'cors'
 
 import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST } from 'http-status-codes';
@@ -12,6 +13,7 @@ import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
 import '@mongodb'
+
 
 // Init express
 const app = express();
@@ -25,6 +27,29 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser(cookieProps.secret));
+
+//options for cors midddleware
+const options: cors.CorsOptions = {
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'X-Access-Token',
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+    origin: ['54.169.227.141:3000', "http://localhost:3000","http://localhost:4000"],
+    preflightContinue: false,
+  };
+  
+  //use cors middleware
+  app.use(cors(options));
+  
+  //add your routes
+  
+  //enable pre-flight
+  app.options('*', cors(options));
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === 'development') {
