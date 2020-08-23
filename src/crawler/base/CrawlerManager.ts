@@ -1,6 +1,7 @@
 import { Crawler, State } from '@crawler/base/Crawler';
 import {each} from 'bluebird'
 import PQueue from 'p-queue/dist';
+import Bluebird from 'bluebird';
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): any;
     isAllowRecursion: boolean;
@@ -45,7 +46,6 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
     public constructor(name?: string, session?: string) {
         this.name = name || this.startTime.toString();
         this.currentSession = session || this.startTime.toString();
-
         this.promiseQueue = new PQueue({ concurrency: 100 })
         this.promiseQueue.on('idle', () => {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
