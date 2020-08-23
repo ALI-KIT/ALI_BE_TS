@@ -9,14 +9,14 @@ export interface ICrawlerManager {
 
 export abstract class DefaultCrawlerManager implements ICrawlerManager {
     protected static _count = 1;
-    
+
     protected promiseQueue: PQueue;
-    
+
     protected crawlingList: Crawler<any>[] = [];
     protected crawlUrlList: string[] = [];
-    
+
     protected result: any[] = []
-    
+
     public static readonly TIMEOUT_ENDLESS = -1;
     public static generateId(): number { return this._count++; }
 
@@ -39,8 +39,8 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
         return this._isAllowRecursion
     }
 
-    set isAllowRecursion(value:  boolean) {
-        this._isAllowRecursion=value
+    set isAllowRecursion(value: boolean) {
+        this._isAllowRecursion = value
     }
 
     public constructor(name?: string, session?: string) {
@@ -121,11 +121,13 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
             else if (error === '') {
                 result = await crawler.parseHtml(html);
                 if (result === undefined) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parse html with url ' + crawler.url;
-                else if(result === null) error = 'crawler found no data';
             }
 
             if (error === '') {
-                const saveR = await crawler.saveResult(result);
+                var saveR = '';
+                if (result != null)
+                    saveR = await crawler.saveResult(result);
+
                 this.onCrawlerResult(result);
                 if (saveR && saveR !== '') error = saveR;
             }
@@ -187,11 +189,10 @@ export enum RepeatMode {
 }
 
 export class CrawlerManager extends DefaultCrawlerManager {
-    
-    public constructor(name?: string, session?: string)
-    {
+
+    public constructor(name?: string, session?: string) {
         super(name, session)
-    }    
+    }
 }
 
 export interface CollectorCallback {
