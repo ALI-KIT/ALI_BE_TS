@@ -1,4 +1,3 @@
-import { WebDomain } from '@entities/Domain';
 import { ICrawlerManager } from '@crawler/base/CrawlerManager'; 
 import CrawlUtil from '@utils/crawlUtils';
 import { BaseCrawlerManager } from './CrawlerManager';

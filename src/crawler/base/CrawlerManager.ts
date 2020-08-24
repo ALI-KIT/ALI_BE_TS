@@ -1,7 +1,5 @@
 import { Crawler, State } from '@crawler/base/Crawler';
-import { each } from 'bluebird'
 import PQueue from 'p-queue/dist';
-import Bluebird from 'bluebird';
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): any;
     isAllowRecursion: boolean;

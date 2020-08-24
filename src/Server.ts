@@ -12,13 +12,21 @@ import BaseRouter from '@routes/Api';
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
+import "reflect-metadata";
+import { Container } from 'inversify';
+import container from '@core/di/InversifyConfigModule'
+import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-utils';
+
+import '@controller/impl/NewsController';
+
 import '@mongodb'
 
 
+
 // Init express
-const app = express();
-
-
+const expressApp = express();
+const server = new InversifyExpressServer(container, null,  {rootPath: '/api/v2'}, expressApp);
+const app = server.build();
 
 /************************************************************************************
  *                              Set basic express settings

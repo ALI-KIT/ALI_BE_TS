@@ -20,6 +20,7 @@
     "exec": "ts-node -r tsconfig-paths/register ./src"
   },
   "_moduleAliases": {
+    "@core": "dist/core",
     "@daos": "dist/daos",
     "@entities": "dist/entities",
     "@shared": "dist/shared",
@@ -46,6 +47,8 @@
     "handlebars": "^4.7.6",
     "helmet": "^3.23.3",
     "http-status-codes": "^1.4.0",
+    "inversify": "^5.0.1",
+    "inversify-express-utils": "^6.3.2",
     "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.2",
     "mongoose": "^5.9.26",
@@ -53,6 +56,7 @@
     "p-limit": "^3.0.2",
     "p-queue": "^6.6.0",
     "randomstring": "^1.1.5",
+    "reflect-metadata": "^0.1.13",
     "unidecode": "^0.1.8",
     "winston": "^3.3.3"
   },
