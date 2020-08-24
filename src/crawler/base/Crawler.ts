@@ -1,7 +1,7 @@
 import { WebDomain } from '@entities/Domain';
 import { ICrawlerManager } from '@crawler/base/CrawlerManager'; 
 import CrawlUtil from '@utils/crawlUtils';
-import { DefaultCrawlerManager } from './CrawlerManager';
+import { BaseCrawlerManager } from './CrawlerManager';
 
 export interface ICrawler {
     name: string;
@@ -25,7 +25,7 @@ export enum State {
  */
 export abstract class Crawler<T> implements ICrawler {
 
-    public id: number = DefaultCrawlerManager.generateId();
+    public id: number = BaseCrawlerManager.generateId();
     public name: string = this.getName();
     public displayName: string = this.getName();
     public baseUrl: string = this.getBaseUrl();

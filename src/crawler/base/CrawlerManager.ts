@@ -1,5 +1,5 @@
 import { Crawler, State } from '@crawler/base/Crawler';
-import {each} from 'bluebird'
+import { each } from 'bluebird'
 import PQueue from 'p-queue/dist';
 import Bluebird from 'bluebird';
 export interface ICrawlerManager {
@@ -7,7 +7,7 @@ export interface ICrawlerManager {
     isAllowRecursion: boolean;
 }
 
-export abstract class DefaultCrawlerManager implements ICrawlerManager {
+export abstract class BaseCrawlerManager implements ICrawlerManager {
     protected static _count = 1;
 
     protected promiseQueue: PQueue;
@@ -31,7 +31,7 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
     public startTime: number = Date.now();
     public endTime: number = 0;
     public status: State = State.PENDING;
-    public callback?: CollectorCallback
+    public callback?: Callback
     public _isAllowRecursion: boolean = false
 
     // k phai
@@ -49,6 +49,10 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
         this.promiseQueue = new PQueue({ concurrency: 100 })
         this.promiseQueue.on('idle', () => {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
+            this.status = State.FINISHED
+        });
+        this.promiseQueue.on('active', () => {
+            this.status = State.RUNNING
         });
     }
 
@@ -177,6 +181,10 @@ export abstract class DefaultCrawlerManager implements ICrawlerManager {
         //TODO
     }
 
+    public stop(): void {
+        this.promiseQueue.clear()
+    }
+
 }
 
 export enum RepeatMode {
@@ -188,14 +196,34 @@ export enum RepeatMode {
     DAILY
 }
 
-export class CrawlerManager extends DefaultCrawlerManager {
+export class CrawlerManager extends BaseCrawlerManager {
 
-    public constructor(name?: string, session?: string) {
+    protected constructor(name?: string, session?: string) {
         super(name, session)
+    }
+
+    private static instances: CrawlerManager[] = [];
+
+    private static createInstance(name?: string, session?: string): CrawlerManager {
+        const manager = new CrawlerManager(name);
+        this.instances.push(manager)
+        return manager;
+    }
+
+    public static getInstance(name?: string): CrawlerManager {
+        return this.instances.find(manager => {
+           return manager.name === name
+        }) || CrawlerManager.createInstance(name);
+    }
+
+    public static findInstance(name?: string) : CrawlerManager | null {
+        return this.instances.find(manager => {
+           return manager.name === name
+        }) || null
     }
 }
 
-export interface CollectorCallback {
+export interface Callback {
     onUpdateCrawler(crawler: Crawler<any>): void;
     onUpdateCollector(collector: CrawlerManager): void;
 }

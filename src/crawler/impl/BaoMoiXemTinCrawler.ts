@@ -52,12 +52,14 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
 
         const locals: Local[] = [];
         console.log('finish getting news: ' + title);
+        console.log("should craw tag : "+ this.manager?.isAllowRecursion);
 
-        if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0)
+        if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0) {
             tagUrlArray.forEach((value: string, index: number) => {
                 console.log('xem tin found new tag url [' + value + ']');
                 this.manager?.addNewCrawler(new BaoMoiTagCrawler(keywords[index], value, 1, this.priority - 2));
             });
+        }
 
         return {
             title,

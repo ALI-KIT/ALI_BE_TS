@@ -1,6 +1,7 @@
 // Nhập mô-đun mongoose
 import mongoose from 'mongoose'
 import Bluebird from 'bluebird'
+
 // Thiết lập một kết nối mongoose mặc định
 const mongoDB: string = process.env.MONGODB_URI || '';
 mongoose.connect(mongoDB, {

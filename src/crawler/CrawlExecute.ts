@@ -10,7 +10,7 @@ import '@mongodb'
 const job = new cron.CronJob({
     cronTime: '0 0 */4 * *', 
     onTick: function () {
-        const manager: CrawlerManager = new CrawlerManager('app-crawler-manager');
+        const manager: CrawlerManager = CrawlerManager.getInstance('app-crawler-manager');
         manager.isAllowRecursion = false
         manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
         console.log('Cron jub runing...');

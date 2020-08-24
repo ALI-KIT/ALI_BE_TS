@@ -1,6 +1,5 @@
 import { News, NewsSchema } from '@entities/News2';
 import { IDao } from '@daos/IDao';
-import { CreateQuery } from 'mongoose';
 
 export class NewsDao extends IDao<News> {
     constructor() {
