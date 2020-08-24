@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
+import cors from 'cors'
 
 import express, { Request, Response, NextFunction } from 'express';
 import { BAD_REQUEST } from 'http-status-codes';
@@ -13,6 +14,7 @@ import { cookieProps } from '@shared/constants';
 
 import '@mongodb'
 
+
 // Init express
 const app = express();
 
@@ -23,8 +25,38 @@ const app = express();
  ***********************************************************************************/
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(cookieProps.secret));
+
+const allowedOrigins = ['http://54.169.227.141:3000', "http://localhost:3000", "http://localhost:5000"];
+
+//options for cors midddleware
+const options: cors.CorsOptions = {
+    allowedHeaders: [
+        'Origin',
+        'X-Requested-With',
+        'Content-Type',
+        'Accept',
+        'X-Access-Token',
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+    origin: function (origin, callback) {
+        // allow requests with no origin 
+        // (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            var msg = 'The CORS policy for this site does not ' +
+                'allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    preflightContinue: false,
+};
+
+//use cors middleware
+app.use(cors(options));
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === 'development') {
@@ -38,6 +70,9 @@ if (process.env.NODE_ENV === 'production') {
 
 // Add APIs
 app.use('/api', BaseRouter);
+
+//enable pre-flight
+app.options('*', cors(options));
 
 // Print API errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
