@@ -48,11 +48,16 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         this.promiseQueue.on('idle', () => {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
             this.status = State.FINISHED
+            this.onIdle?.();
         });
         this.promiseQueue.on('active', () => {
             this.status = State.RUNNING
+            this.onActive?.();
         });
     }
+
+    public onIdle?: () => void;
+    public onActive?: () => void;
 
     /**
      * Thêm crawler cho collector

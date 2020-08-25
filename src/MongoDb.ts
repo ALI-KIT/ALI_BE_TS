@@ -19,3 +19,5 @@ const db = mongoose.connection;
 
 // // Ràng buộc kết nối với sự kiện lỗi (để lấy ra thông báo khi có lỗi)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+export {mongoDB, db}

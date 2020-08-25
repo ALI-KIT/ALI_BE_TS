@@ -6,11 +6,15 @@ import AppDatabase from '@daos/AppDatabase';
 export abstract class NewsCrawler extends Crawler<CreateQuery<News> | null> {
 
     public async saveResult(result: CreateQuery<News>): Promise<string> {
-        if (!result || !result.source?.baseUrl) return 'invalid params';
-        else if (await AppDatabase.getInstance().news2Dao.findOne({ 'source.baseUrl': result.source?.baseUrl }))
-            return 'existed in database';
+        if (!result || !result.source?.url) {
+            return 'invalid params: result = '+ result +", result.source.baseUrl = "+result?.source?.url;
+        }
+        const found = await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': result.source?.url });
+        if (found) {
+            return 'existed in database: '+ result.title;
+        }
         else {
-            AppDatabase.getInstance().news2Dao.create(result);
+            await AppDatabase.getInstance().news2Dao.create(result);
             return ''
         }
     }
