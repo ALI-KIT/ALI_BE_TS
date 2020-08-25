@@ -15,59 +15,30 @@ export enum Type {
  * Usage: Tạo bằng cách gọi Reliable.Success(), Reliable.Failed() hoặc Reliable.Custom()
  */
 export class Reliable<T> {
-    private _type: Type;
-    private _data: T | null = null;
-    private _message: string = '';
-    private _error: Error | null = null;
+    readonly type: Type;
+    readonly data: T | null = null;
+    readonly message: string = '';
+    readonly error: Error | null = null;
 
-    private constructor(type: Type) {
-        this._type = type;
-    }
-
-    get type(): Type {
-        try {
-
-        } catch (e) {
-            this._error = e;
-        }
-        return this._type;
-    }
-
-    get data(): T | null {
-        return this._data;
-    }
-
-    get message(): string {
-        return this._message;
-    }
-
-    get error(): Error | null {
-        return this._error;
+    private constructor(type: Type, data: T | null, message: string, error: Error | null) {
+        this.type = type;
+        this.data = data;
+        this.message = message;
+        this.error = error;
     }
 
     public static Success<V>(data: V | null) : Reliable<V> {
-        const reliable = new Reliable<V>(Type.SUCCESS);
-        reliable._data = data;
+        const reliable = new Reliable<V>(Type.SUCCESS, data, "", null);
         return reliable;
     }
 
     public static Failed<V>(message: string, error?: Error , data? : V) : Reliable<V> {
-        const reliable = new Reliable<V>(Type.FAILED);
-
-        reliable._message = message;
-        reliable._error = error || null;
-        reliable._data = data || null;
-
+        const reliable = new Reliable<V>(Type.FAILED, null, message, error || null);
         return reliable;
     }
 
-    public static Custom<V>(type: Type, message: string, error?: Error , data? : V) : Reliable<V> {
-        const reliable = new Reliable<V>(type);
-
-        reliable._message = message;
-        reliable._error = error || null;
-        reliable._data = data || null;
-        
+    public static Custom<V>(type: Type, message: string, error?: Error, data? : V) : Reliable<V> {
+        const reliable = new Reliable<V>(type, data || null, message, error || null);   
         return reliable;
     }
 }
