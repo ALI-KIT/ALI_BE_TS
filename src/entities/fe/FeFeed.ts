@@ -7,6 +7,7 @@ import {News} from '@entities/News2'
  * NOTE: Bỏ các cột: crawlDate, aggregator
  */
 export class FeFeed {
+    id: string = ""
     title?: string
     summary?: string
     content?: string
@@ -23,6 +24,7 @@ export class FeFeed {
 
     public static of(news : News) : FeFeed {
         const data = new FeFeed();
+        data.id = news._id;
         data.title = news.title || '';
         data.summary = news.summary || '';
         data.thumbnail = news.thumbnail || ''
@@ -43,6 +45,7 @@ export class FeFeed {
  * NOTE: loại bỏ crawlData, aggregator và content so với News
  */
 export class FeShortFeed {
+    id: string = ""
     title?: string
     summary?: string
     thumbnail?: string
@@ -55,8 +58,9 @@ export class FeShortFeed {
 
     categories?: string[]
 
-    public static of(news : News) : FeFeed {
-        const data = new FeFeed();
+    public static of(news : News) : FeShortFeed {
+        const data = new FeShortFeed();
+        data.id = news._id;
         data.title = news.title || '';
         data.summary = news.summary || '';
         data.thumbnail = news.thumbnail || ''
