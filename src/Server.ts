@@ -36,7 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(cookieProps.secret));
 
-const allowedOrigins = ['http://54.169.227.141:3000', "http://localhost:3000", "http://localhost:5000"];
+const allowedOrigins = ['http://tindiaphuong.xyz','http://tindiaphuong.org','http://54.169.227.141:3000', "http://localhost:3000", "http://localhost:5000"];
 
 //options for cors midddleware
 const options: cors.CorsOptions = {
