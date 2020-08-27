@@ -19,12 +19,16 @@ export class NewsRepositoryImpl implements NewsRepository {
         throw new Error("Method not implemented.");
     }
 
-    async getNewsFeed(locationCodes: string[], keywords: string[]): Promise<Reliable<Array<News>>> {
+    async getNewsFeed(locationCodes: string[], keywords: string[], limit: number, skip: number): Promise<Reliable<Array<News>>> {
         try {
-            const result = await AppDatabase.getInstance().news2Dao.findAll({ keywords: { $in: keywords } })
+            const result = await AppDatabase.getInstance().news2Dao.model
+            .find(keywords.length == 0 ? {} : { keywords: { $in: keywords } })
+            .sort({publicationDate: -1})
+            .limit(limit)
+            .skip(skip);
             return Reliable.Success(result)
         } catch (e) {
-            return Reliable.Failed("could get news feed", e);
+            return Reliable.Failed("Could not get news feed", e);
         }
     }
 

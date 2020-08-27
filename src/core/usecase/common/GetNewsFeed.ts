@@ -6,11 +6,7 @@ import { TYPES_REPOSITORY } from '@core/di/Types';
 import { News } from '@entities/News2';
 
 export class Param {
-    readonly locationCodes: string[] = [];
-    readonly keywords: string[] = [];
-    constructor(locationIds: string[], keywords: string[]) {
-        this.locationCodes.push.apply(this.locationCodes, locationIds)
-        this.keywords.push.apply(this.keywords, keywords);
+    constructor(readonly locationCodes: string[],readonly keywords: string[], readonly limit: number, readonly skip: number) {
     }
 }
 
@@ -26,7 +22,7 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
     }
 
     async invoke(param: Param): Promise<Reliable<Array<News>>> {
-        return await this.newsRepository.getNewsFeed(param.locationCodes, param.keywords);
+        return await this.newsRepository.getNewsFeed(param.locationCodes, param.keywords, param.limit, param.skip);
     }
 
 }
