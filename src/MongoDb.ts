@@ -1,6 +1,7 @@
 // Nhập mô-đun mongoose
 import mongoose from 'mongoose'
 import Bluebird from 'bluebird'
+import { AliDbClient } from './dbs/AliDbClient';
 
 // Thiết lập một kết nối mongoose mặc định
 const mongoDB: string = process.env.MONGODB_URI || '';
@@ -19,5 +20,9 @@ const db = mongoose.connection;
 
 // // Ràng buộc kết nối với sự kiện lỗi (để lấy ra thông báo khi có lỗi)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+AliDbClient.connect().then(() => {
+    console.log("db connected")
+});
 
 export {mongoDB, db}

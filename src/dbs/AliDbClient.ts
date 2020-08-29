@@ -1,19 +1,37 @@
-import { AliDbClientImpl } from './AliDbClientImpl';
+import { AliDb } from './AliDb';
 
-export abstract class AliDbClient {
-    private static instance = new AliDbClientImpl();
+/**
+ * Giữ kết nối tới mọi Collection nằm trong một MongoDb Dbs Connection
+ */
+export class AliDbClient {
+    private static BASE_CONNECTION_1 = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/"
 
-    public static getInstance() : AliDbClientImpl {
-        if(!AliDbClient.instance.initted) {
-            throw "AliDbClient is n't initted yet!"
+    //TODO: Thêm các biến db collection 
+    public localDbs = new AliDb("locals");
+    public aliDbs = new AliDb("ALI-DB");
+    
+    public async connect() : Promise<void> {
+        //TODO: Init các collection
+        await this.localDbs.init(AliDbClient.BASE_CONNECTION_1);
+        await this.aliDbs.init(AliDbClient.BASE_CONNECTION_1);
+    }
+
+    private static instance = new AliDbClient();
+
+    private AliDbClient() {}  
+
+    public static getInstance() : AliDbClient {
+        if(!AliDbClient.instance.isConnected) {
+            throw "AliDbClient is n't connected yet!"
         }
         return AliDbClient.instance;
     }
 
-    public static async init(): Promise<void> {
-        if(!AliDbClient.instance.initted) {
-            await AliDbClient.instance.initDbs(AliDbClient.instance.baseUri);
-            AliDbClient.instance.initted = true;
+    private isConnected: boolean = false;
+    public static async connect(): Promise<void> {
+        if(!AliDbClient.instance.isConnected) {
+            await AliDbClient.instance.connect();
+            AliDbClient.instance.isConnected = true;
         }
     }
 

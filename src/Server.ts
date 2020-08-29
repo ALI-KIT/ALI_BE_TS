@@ -17,7 +17,9 @@ import { Container } from 'inversify';
 import container from '@core/di/InversifyConfigModule'
 import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-utils';
 
+// TODO: Add all controller here
 import '@controller/impl/NewsController';
+import '@controller/impl/ControlCenterController';
 
 import '@mongodb'
 

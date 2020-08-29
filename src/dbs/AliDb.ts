@@ -1,5 +1,8 @@
 import MongoClient from 'mongodb';
 
+/**
+ * Giữ kết nối tới một Document trong Database
+ */
 export class AliDb {
     public db?: MongoClient.Db;
     private _dbName: string = "";
@@ -14,7 +17,7 @@ export class AliDb {
             baseUri += '/';
         }
         this._uri = baseUri + this._dbName;
-        await AliDb.connect(this._uri);
+        this.db = await AliDb.connect(this._uri);
     }
 
     public static async connect(url: string): Promise<MongoClient.Db> {
