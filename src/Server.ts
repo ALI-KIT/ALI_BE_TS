@@ -26,6 +26,10 @@ import '@mongodb'
 // Init express
 const expressApp = express();
 const server = new InversifyExpressServer(container, null,  {rootPath: '/api/v2'}, expressApp);
+server.setConfig((app) => {
+    app.use(cors({origin: true}));
+    app.options('*', cors());
+});
 const app = server.build();
 
 /************************************************************************************
@@ -35,8 +39,6 @@ const app = server.build();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(cookieProps.secret));
-
-const allowedOrigins = ['http://tindiaphuong.xyz','http://tindiaphuong.org','http://54.169.227.141:3000', "http://localhost:3000", "http://localhost:5000"];
 
 //options for cors midddleware
 const options: cors.CorsOptions = {
@@ -65,7 +67,7 @@ const options: cors.CorsOptions = {
 };
 
 //use cors middleware
-app.use(cors(options));
+//app.use(cors(/* options */));
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === 'development') {
@@ -81,7 +83,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api', BaseRouter);
 
 //enable pre-flight
-app.options('*', cors(options));
+//app.options('*', cors(options));
 
 // Print API errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
