@@ -34,12 +34,11 @@ jobs:
 
     steps:
     - name: SSH and deploy node app
-      uses: appleboy/ssh-action@master
+      uses: shimataro/ssh-key-action@v2
       with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.SSH_PORT }}
+        name: id_rsa # optional
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
         script: |
           cd /home/ubuntu/ALI_BE_TS
           git pull origin master
