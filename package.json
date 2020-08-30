@@ -5,7 +5,7 @@
     "build": "node build.js",
     "lint": "tslint --project \"tsconfig.json\"",
     "start": "node -r module-alias/register ./dist --env=production",
-    "start:crawl": "ts-node -r tsconfig-paths/register ./src/crawler/CrawlExecute",
+    "start:crawl": "ts-node -r tsconfig-paths/register ./src/crawler/CrawlScript",
     "start:dev": "nodemon",
     "test": "nodemon --config ./spec/nodemon.json"
   },
