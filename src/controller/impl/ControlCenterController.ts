@@ -5,7 +5,7 @@ import AppDatabase from '@daos/AppDatabase';
 import { CrawlerManager } from '@crawler/base/CrawlerManager';
 import { State } from '@crawler/base/Crawler';
 import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
-import { AliDbClient } from 'src/dbs/AliDbClient';
+import { AliDbClient } from '@dbs/AliDbClient';
 import { ObjectId } from 'mongodb'
 
 @controller("/control-center")

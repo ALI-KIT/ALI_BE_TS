@@ -46,6 +46,9 @@
       ],
       "@routes/*": [
         "src/routes/*"
+      ],
+      "@dbs/*":[
+        "src/dbs/*"
       ]
     },
     "types": [

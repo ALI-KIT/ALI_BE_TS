@@ -30,7 +30,8 @@
     "@routes": "dist/routes",
     "@crawler": "dist/crawler",
     "@mongodb": "dist/MongoDb",
-    "@loadenv": "dist/LoadEnv"
+    "@loadenv": "dist/LoadEnv",
+    "@dbs": "dist/dbs"
   },
   "dependencies": {
     "axios": "^0.19.2",
