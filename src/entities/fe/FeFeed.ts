@@ -68,6 +68,7 @@ export class FeShortFeed {
         data.keywords = news.keywords || null;
         data.locals = news.locals || null;
         data.categories = news.categories || null;
+        data.publicationDate = news.publicationDate;
 
         return data;
     }
