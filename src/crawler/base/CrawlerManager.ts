@@ -29,8 +29,9 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public startTime: number = Date.now();
     public endTime: number = 0;
     public status: State = State.PENDING;
-    public callback?: Callback
-    public _isAllowRecursion: boolean = false
+    public callback?: Callback;
+    public _isAllowRecursion: boolean = false;
+    public willNotReceiveNewCrawler = false;
 
     // k phai
     get isAllowRecursion(): boolean {
@@ -54,6 +55,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
             this.status = State.RUNNING
             this.onActive?.();
         });
+
     }
 
     public onIdle?: () => void;
@@ -71,7 +73,11 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         // push vào promise queue
 
         //if(crawler.priority < 4) return; 
-
+        
+        // block receiving any new crawler task
+        if(this.willNotReceiveNewCrawler) {
+            return
+        }
 
         if (this.crawlUrlList.indexOf(crawler.url) > -1) {
             console.log('duplicated url: ' + crawler.url);
@@ -174,6 +180,8 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
     public cancel(): void {
         //TODO
+        this.willNotReceiveNewCrawler = true;
+        this.promiseQueue.clear();
     }
 
     public pause(): void {
@@ -185,6 +193,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     }
 
     public stop(): void {
+        this.willNotReceiveNewCrawler = true;
         this.promiseQueue.clear()
     }
 

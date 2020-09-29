@@ -22,7 +22,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 AliDbClient.connect().then(() => {
-    console.log("db connected")
+    console.log("ali-db connected")
 });
 
 export {mongoDB, db}
