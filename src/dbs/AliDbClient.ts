@@ -4,12 +4,11 @@ import MongoClient from 'mongodb';
  * Giữ kết nối tới mọi Collection nằm trong một MongoDb Dbs Connection
  */
 export class AliDbClient {
-    private static BASE_CONNECTION_1 = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/"
+    private static BASE_CONNECTION_1 = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/";
 
     //TODO: Thêm các biến db collection 
     public locals?: MongoClient.MongoClient;
     public ali?: MongoClient.MongoClient;
-
     
     private async connect() : Promise<void> {
         //TODO: Init các collection
