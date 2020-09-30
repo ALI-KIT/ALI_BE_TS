@@ -97,7 +97,6 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         return null;
     }
 
-
     public addCrawlerByUrl(priority: number, url: string, name: string = '') {
         const crawler = this.findCrawlerByUrl(url, name);
         if (crawler)

@@ -59,6 +59,7 @@
     "p-queue": "^6.6.0",
     "randomstring": "^1.1.5",
     "reflect-metadata": "^0.1.13",
+    "sitemapper": "^3.0.5",
     "unidecode": "^0.1.8",
     "winston": "^3.3.3"
   },
