@@ -1,17 +1,5 @@
-import { CreateQuery } from 'mongoose';
-import { NewsCrawler } from './NewsCrawler';
-import { News } from '@entities/News2';
-import Sitemapper from 'sitemapper';
+import { NewsCrawler } from "./NewsCrawler"
 
-export abstract class SiteMapNewsCrawler extends NewsCrawler {
-    constructor(url: string, piority: number = 5) {
-        super(url, piority);
-    }
+export abstract class SitemapNewsCrawler extends NewsCrawler {
 
-    async parseHtml(html: string): Promise<CreateQuery<News> | null> {
-        const sitemap = new Sitemapper({
-            
-        });
-        return null;
-    }
 }

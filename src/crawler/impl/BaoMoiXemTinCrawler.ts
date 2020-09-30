@@ -5,6 +5,7 @@ import { Local } from '@entities/Local';
 import { CreateQuery } from 'mongoose';
 import { Domain } from '@entities/Domain';
 import { BaoMoiTagCrawler } from '@crawler/impl/BaoMoiTagCrawler';
+import { Reliable } from '@core/repository/base/Reliable';
 
 export class BaoMoiXemTinCrawler extends NewsCrawler {
     public getName(): string {
@@ -22,7 +23,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
     }
 
 
-    async parseHtml(html: string): Promise<CreateQuery<News> | null> {
+    async parseHtml(html: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(html, { decodeEntities: false });
 
         const title = $('h1.article__header').text()
@@ -42,9 +43,9 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         }
         const thumbnail = $('div.article p.body-image img').first().attr('src') || '';
 
-        const crawlDate = Date.now();
+        const crawlDate = new Date(Date.now());
         const pDString = $('div.article__meta time').attr('datetime');
-        const publicationDate = pDString ? new Date(pDString) : Date.now()
+        const publicationDate =  new Date(pDString || Date.now());
         const categories = $('div.breadcrumb a.cate').toArray().map(element => $(element).text().trim());
         const tagArray = $('div .keyword').toArray();
         const keywords = tagArray.map(element => $(element).text().trim());
@@ -61,7 +62,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             });
         }
 
-        return {
+        return Reliable.Success({
             title,
             summary,
             content,
@@ -73,7 +74,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             keywords,
             categories,
             locals
-        }
+        });
     }
 
 }

@@ -3,6 +3,7 @@ import { News } from '@entities/News2';
 import cheerio from 'cheerio';
 import { BaoMoiXemTinCrawler } from '@crawler/impl/BaoMoiXemTinCrawler';
 import { CreateQuery } from 'mongoose';
+import { Reliable } from '@core/repository/base/Reliable';
 
 export class BaoMoiTinMoiCrawler extends NewsCrawler {
     private static getBMTMUrl(page: number) {
@@ -33,7 +34,7 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
     }
 
     
-    async parseHtml(content: string): Promise<CreateQuery<News> | null> {
+    protected async parseHtml(content: string): Promise<Reliable<CreateQuery<News>>> {
 
         const $ = cheerio.load(content, { decodeEntities: false });
 
@@ -53,7 +54,7 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
             this.manager?.addNewCrawler(new BaoMoiTinMoiCrawler(this.page++, this.priority));
         }
 
-        return null;
+        return Reliable.Success<CreateQuery<News>>(null);
     }
 
 }

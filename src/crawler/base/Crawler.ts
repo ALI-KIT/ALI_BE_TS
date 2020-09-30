@@ -1,5 +1,7 @@
+import { Reliable, Type } from '@core/repository/base/Reliable';
 import { ICrawlerManager } from '@crawler/base/CrawlerManager'; 
 import CrawlUtil from '@utils/crawlUtils';
+import { load } from 'cheerio';
 import { BaseCrawlerManager } from './CrawlerManager';
 
 export interface ICrawler {
@@ -63,21 +65,41 @@ export abstract class Crawler<T> implements ICrawler {
         this.priority = piority;
     }
 
-    async execute() : Promise<T | null> {
+    public async execute() : Promise<Reliable<T>> {
         const url = this.url;
-        const html = await this.loadHtml(url);
-        const result = html? await this.parseHtml(html) : null;
-        return result; 
+
+        const loadHtmlReliable = await this.loadHtml(url);
+
+        /* step: fetch html content */
+        if(loadHtmlReliable.type == Type.FAILED) {
+            return Reliable.Failed<T>(loadHtmlReliable.message, loadHtmlReliable.error ? loadHtmlReliable.error! : undefined);
+        } else if(!loadHtmlReliable.data) {
+            /* success but no data */
+            return Reliable.Success<T>(null);
+        }
+
+        /* step: parse html content */
+        const parseHtmlReliable = await this.parseHtml(loadHtmlReliable.data!);
+        if(parseHtmlReliable.type == Type.FAILED) {
+            return Reliable.Failed<T>(parseHtmlReliable.message, parseHtmlReliable.error ? parseHtmlReliable.error! : undefined);
+        } else if(!parseHtmlReliable.data) {
+            /* success but no data */
+            return Reliable.Success<T>(null);
+        }
+
+        /* step: save data to database */
+        const saveDataReliable = await this.saveResult(parseHtmlReliable.data!);
+        return saveDataReliable;        
     }
 
-    async loadHtml(url: string) : Promise<string | null>{
-        return await CrawlUtil.loadWebsite(url);
+    protected async loadHtml(url: string) : Promise<Reliable<string>>{
+        return await CrawlUtil.loadWebsiteReliable(url);
     }
 
-    abstract async parseHtml(content: string): Promise<T | null>;
+    protected abstract async parseHtml(content: string): Promise<Reliable<T>>;
     /**
      * Khi đã xong quá trình crawl. Crawler Manger gọi hàm này để crawler lưu lại kết quả đã crawl được.
      * @param result 
      */
-    abstract async saveResult(result: T) : Promise<string>;
+    protected abstract async saveResult(result: T) : Promise<Reliable<T>>;
 }

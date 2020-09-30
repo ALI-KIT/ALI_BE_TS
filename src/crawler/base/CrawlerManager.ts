@@ -1,3 +1,4 @@
+import { Type } from '@core/repository/base/Reliable';
 import { Crawler, State } from '@crawler/base/Crawler';
 import PQueue from 'p-queue/dist';
 export interface ICrawlerManager {
@@ -73,9 +74,9 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         // push vào promise queue
 
         //if(crawler.priority < 4) return; 
-        
+
         // block receiving any new crawler task
-        if(this.willNotReceiveNewCrawler) {
+        if (this.willNotReceiveNewCrawler) {
             return
         }
 
@@ -124,31 +125,21 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             crawler.state = State.RUNNING
 
-            const url = crawler.url;
-            let error: string = ''
+            const reliable = await crawler.execute();
 
-            const html = await crawler.loadHtml(url);
-            let result;
-            if (!html) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' getting html failed with url ' + crawler.url;
-            else if (error === '') {
-                result = await crawler.parseHtml(html);
-                if (result === undefined) error = 'crawler ' + crawler.name + ' ' + crawler.id + ' failed to parse html with url ' + crawler.url;
+            if (reliable.type == Type.SUCCESS) {
+                this.onCrawlerResult(reliable.data);
             }
 
-            if (error === '') {
-                var saveR = '';
-                if (result != null)
-                    saveR = await crawler.saveResult(result);
-
-                this.onCrawlerResult(result);
-                if (saveR && saveR !== '') error = saveR;
-            }
-
-            if (error === '')
+            if (reliable.type == Type.SUCCESS)
                 crawler.state = State.FINISHED;
             else {
                 crawler.state = State.FAILED;
-                console.log(error);
+                console.log(reliable.message);
+
+                if (reliable.error) {
+                    console.log("This crawler throws an exception: " + reliable.error);
+                }
             }
 
             crawler.manager = null;
@@ -157,14 +148,6 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
             const currentPosition = this.crawlingList.indexOf(crawler);
             if (currentPosition >= -1)
                 this.crawlingList.splice(currentPosition, 1)
-
-            // - bắt đầu khởi tạo
-            //   + Tìm Crawler phù hợp
-            //   + Chạy crawler đó, attach vào collector
-            //   + Ơ thế crawler là hữu hạn ?
-            // - Chuyển state của domain sang running
-            // - chạy crawl
-            // - chuyển state về finished
 
         }, { priority })
     }
@@ -223,13 +206,13 @@ export class CrawlerManager extends BaseCrawlerManager {
 
     public static getInstance(name?: string): CrawlerManager {
         return this.instances.find(manager => {
-           return manager.name === name
+            return manager.name === name
         }) || CrawlerManager.createInstance(name);
     }
 
-    public static findInstance(name?: string) : CrawlerManager | null {
+    public static findInstance(name?: string): CrawlerManager | null {
         return this.instances.find(manager => {
-           return manager.name === name
+            return manager.name === name
         }) || null
     }
 }
