@@ -7,19 +7,23 @@ export class AliDbClient {
     private static BASE_CONNECTION_1 = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/";
 
     //TODO: Thêm các biến db collection 
-    public locals?: MongoClient.MongoClient;
-    public ali?: MongoClient.MongoClient;
+    public defaultClient?: MongoClient.MongoClient;
     
     private async connect() : Promise<void> {
         //TODO: Init các collection
-        this.locals = await this.mongoClientConnect(AliDbClient.BASE_CONNECTION_1+"locals");
-        this.ali = await this.mongoClientConnect(AliDbClient.BASE_CONNECTION_1+"ALI-DB")
+        this.defaultClient = await this.mongoClientConnect(AliDbClient.BASE_CONNECTION_1);
+    }
 
+    public useALIDB(client: MongoClient.MongoClient) : MongoClient.Db {
+        return client.db("ALI-DB");
+    }
+
+    public useLocals(client: MongoClient.MongoClient) : MongoClient.Db {
+        return client.db("locals");
     }
 
     private async disconnect() : Promise<void> {
-        await this.mongoClientDisconnect(this.locals);
-        await this.mongoClientDisconnect(this.ali);
+        await this.mongoClientDisconnect(this.defaultClient);
     }
 
     private async mongoClientDisconnect(mongoClient?: MongoClient.MongoClient) {

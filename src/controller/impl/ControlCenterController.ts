@@ -64,22 +64,23 @@ export class ControlCenterController implements interfaces.Controller {
                     break;
                 case 104:
                     {
-                        const code = req.query["code"]?.toString() || ""
-                        const locationDbs = AliDbClient.getInstance().localDbs.db;
+                        const code = req.query["code"]?.toString() || "";
+                        const locationDbs = (AliDbClient.getInstance().defaultClient) ? AliDbClient.getInstance().useLocals(AliDbClient.getInstance().defaultClient!) : null;
                         if (!locationDbs) {
                             message = "Db is not connected";
                             break;
                         }
 
                         const result = await (locationDbs.collection("tinh-thanh").find({ code: code })).toArray() || []
-                        message = result
+                        message = result;
 
                     }
                     break
                 case 105:
                     {
                         const id = req.query["id"]?.toString() || ""
-                        const aliDbs = AliDbClient.getInstance().aliDbs.db;
+                        const aliDbs = (AliDbClient.getInstance().defaultClient) ? AliDbClient.getInstance().useALIDB(AliDbClient.getInstance().defaultClient!) : null;
+                       
                         if (!aliDbs) {
                             message = "AliDbs is not connected";
                             break;
@@ -94,7 +95,7 @@ export class ControlCenterController implements interfaces.Controller {
                     break;
                 case 106:
                     {
-                        const locationDbs = AliDbClient.getInstance().localDbs.db;
+                        const locationDbs = (AliDbClient.getInstance().defaultClient) ? AliDbClient.getInstance().useLocals(AliDbClient.getInstance().defaultClient!) : null;
                         if (!locationDbs) {
                             message = "Db is not connected";
                             break;
@@ -124,8 +125,6 @@ export class ControlCenterController implements interfaces.Controller {
                                 keywords: keywords
                             })
                         })
-
-                        const aliLocation = await AliDbClient.getInstance().aliDbs.db!!.collection("ali-location").insertMany(result, undefined);
                       
                         break;
                     }

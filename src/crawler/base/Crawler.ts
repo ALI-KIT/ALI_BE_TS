@@ -74,6 +74,10 @@ export abstract class Crawler<T> implements ICrawler {
         return await CrawlUtil.loadWebsite(url);
     }
 
-    abstract async parseHtml(html: string): Promise<T | null>;
+    abstract async parseHtml(content: string): Promise<T | null>;
+    /**
+     * Khi đã xong quá trình crawl. Crawler Manger gọi hàm này để crawler lưu lại kết quả đã crawl được.
+     * @param result 
+     */
     abstract async saveResult(result: T) : Promise<string>;
 }

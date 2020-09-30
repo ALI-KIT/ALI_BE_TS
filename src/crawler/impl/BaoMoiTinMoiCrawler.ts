@@ -33,9 +33,9 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
     }
 
     
-    async parseHtml(html: string): Promise<CreateQuery<News> | null> {
+    async parseHtml(content: string): Promise<CreateQuery<News> | null> {
 
-        const $ = cheerio.load(html, { decodeEntities: false });
+        const $ = cheerio.load(content, { decodeEntities: false });
 
         const items: string[] = [];
         $('div.story:not(.story--video,.story--photo,.wait-render) a.cache').each((i: number, e: CheerioElement) => {
