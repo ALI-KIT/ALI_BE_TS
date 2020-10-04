@@ -29,7 +29,7 @@ export class BaoMoiTagCrawler extends NewsCrawler {
         this.tag = tag;
     }
     public getName(): string {
-        return 'bao-moi-tin-moi'
+        return 'bao-moi-tag'
     }
     public getDisplayName(): string {
         return 'Báo mới - Tin mới';

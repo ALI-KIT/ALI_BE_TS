@@ -1,10 +1,10 @@
-import { Crawler } from '@crawler/base/Crawler';
+import { Crawler, HtmlCrawler } from '@crawler/base/Crawler';
 import { News } from '@entities/News2';
 import { CreateQuery, Error } from 'mongoose';
 import AppDatabase from '@daos/AppDatabase';
 import { Reliable } from '@core/repository/base/Reliable';
 
-export abstract class NewsCrawler extends Crawler<CreateQuery<News>> {
+export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
 
     public async saveResult(result: CreateQuery<News>): Promise<Reliable<CreateQuery<News>>> {
         if (!result || !result.source?.url) {

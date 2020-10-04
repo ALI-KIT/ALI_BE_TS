@@ -28,7 +28,7 @@ export abstract class Crawler<T> implements ICrawler {
 
     public id: number = BaseCrawlerManager.generateId();
     public name: string = this.getName();
-    public displayName: string = this.getName();
+    public displayName: string = this.getDisplayName();
     public baseUrl: string = this.getBaseUrl();
     public url: string;
     public priority: number = 5;
@@ -65,6 +65,14 @@ export abstract class Crawler<T> implements ICrawler {
         this.priority = piority;
     }
 
+    /**
+     * Chạy crawler này.
+     * Bao gồm các bước: fetch trang web, phân tích trang và lưu kết quả
+     */
+    public abstract async execute() : Promise<Reliable<T>>;
+}
+
+export abstract class HtmlCrawler<T> extends Crawler<T> {
     public async execute() : Promise<Reliable<T>> {
         const url = this.url;
 
