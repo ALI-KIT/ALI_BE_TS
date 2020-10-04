@@ -2,6 +2,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import Sitemapper from 'sitemapper';
 import { Crawler } from './Crawler';
 import { CrawlerFactory } from './CrawlerFactory';
+import { ICrawlerManager } from './CrawlerManager';
 
 export abstract class SitemapCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
