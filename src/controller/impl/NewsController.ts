@@ -42,8 +42,12 @@ export class NewsController implements interfaces.Controller {
     const limit = per_page;
     const skip = limit * (page - 1);
 
-    const locationCodes = req.query["location"] as Array<string> || [];
-    const keywords = req.query["keyword"] as Array<string> || [];
+    const locationQuery = req.query["location"] || [];
+    const codeQuery = req.query["keyword"] || [];
+
+    const locationCodes: string[] = Array.isArray(locationQuery) ? locationQuery as string[] : [locationQuery.toString()];
+    const keywords : string[] = Array.isArray(codeQuery) ? codeQuery as string[] : [codeQuery.toString()];
+    const len = keywords.length;
 
     const data = await this.getNewsFeed.invoke({ locationCodes, keywords, limit, skip });
     const data2 = (data.type == Type.FAILED) ? data : await this.convertNewsToFeShortFeeds.invoke(data.data || []);

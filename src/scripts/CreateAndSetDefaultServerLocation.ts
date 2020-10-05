@@ -76,7 +76,7 @@ export class CreateAndSetDefaultServerLocation {
             const item = await aliLocationCollection.findOne({code: childCodes[i]});
             if(item) {
                 /* if the field "name" is not a number */
-                if(!item.name && this.isPositiveNumber(item.name)) {
+                if(item.name && !this.isPositiveNumber(item.name)) {
                     childs.push(item.name);
                 } else if(item.name_with_type) {
                     childs.push(item.name_with_type);

@@ -17,6 +17,9 @@ export class NewsRepositoryImpl implements NewsRepository {
             keywords = [...keywordsFromLocations.data!, ...keywords];
         }
 
+        console.log("\n\n---- KEYWORDS ----")
+        console.log(keywords);
+
         try {
             const result = await AppDatabase.getInstance().news2Dao.model
                 .find(keywords.length == 0 ? {} : { keywords: { $in: keywords } })
