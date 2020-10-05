@@ -3,8 +3,7 @@ import { injectable } from 'inversify';
 import { News } from '@entities/News2';
 
 export interface NewsRepository {
-    talk(words: string) : Promise<Reliable<string>>;
-    do() : Promise<Reliable<boolean>>;
-
     getNewsFeed(locationCodes: string[], keywords: string[], limit: number, skip: number) : Promise<Reliable<Array<News>>>;
+
+    getKeywordsByLocationCode(locationCodes: string[]): Promise<Reliable<string[]>>;
 }

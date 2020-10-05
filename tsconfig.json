@@ -49,6 +49,9 @@
       ],
       "@dbs/*":[
         "src/dbs/*"
+      ],
+      "@scripts/*":[
+        "src/scripts/*"
       ]
     },
     "types": [

@@ -1,6 +1,5 @@
 import '@loadenv';
 import MongoClient from 'mongodb';
-import { mongo } from 'mongoose';
 
 /**
  * Script initing data server config

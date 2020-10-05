@@ -31,7 +31,8 @@
     "@crawler": "dist/crawler",
     "@mongodb": "dist/MongoDb",
     "@loadenv": "dist/LoadEnv",
-    "@dbs": "dist/dbs"
+    "@dbs": "dist/dbs",
+    "@scripts": "dist/scripts"
   },
   "dependencies": {
     "@types/open-graph-scraper": "^4.3.0",

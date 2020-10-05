@@ -18,8 +18,12 @@ export class AliDbClient {
         return client.db("ALI-DB");
     }
 
-    public useLocals(client: MongoClient.MongoClient) : MongoClient.Db {
+    public useLocals(client: MongoClient.MongoClient = this.defaultClient!) : MongoClient.Db {
         return client.db("locals");
+    }
+
+    public useServerConfig(client: MongoClient.MongoClient= this.defaultClient!): MongoClient.Db {
+        return client.db("SERVER-CONFIG");
     }
 
     private async disconnect() : Promise<void> {
