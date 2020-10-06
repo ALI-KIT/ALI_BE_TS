@@ -3,6 +3,7 @@ import Sitemapper from 'sitemapper';
 import { Crawler } from './Crawler';
 import { CrawlerFactory } from './CrawlerFactory';
 import { ICrawlerManager } from './CrawlerManager';
+import { DanTriNewsDetailCrawler, ThanhNienNewsDetailCrawler, TuoiTreNewsDetailCrawler } from './OpenGraphNewsCrawler';
 
 export abstract class SitemapCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
@@ -69,10 +70,6 @@ export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
         return Reliable.Success(sitemaps);
     }
 
-    public async saveResult(data: string[]): Promise<Reliable<string[]>> {
-        return Reliable.Success<string[]>(data);
-    }
-
     public getName(): string {
         return this._name;
     }
@@ -83,4 +80,64 @@ export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
         return this._baseUrl;
     }
 
+    public async saveResult(data: string[]): Promise<Reliable<string[]>> {
+        return Reliable.Success(data);
+    }
+}
+
+export class TuoiTreSitemapCrawler extends SitemapNewsCrawler {
+    constructor() {
+        super("tuoi-tre-sitemap",
+            "Tuổi Trẻ Online",
+            "https://tuoitre.vn",
+            "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
+    }
+
+    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
+        data.forEach(url => {
+            this.manager?.addNewCrawler(new TuoiTreNewsDetailCrawler(url));
+        })
+        return Reliable.Success<string[]>(data);
+    }
+}
+
+/* export class VnExpressSitemapCrawler extends SitemapNewsCrawler {
+    constructor() {
+        super(  "tuoi-tre-sitemap",
+        "Tuổi Trẻ Online", 
+        "https://tuoitre.vn",
+        "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
+    }
+} */
+
+export class ThanhNienSitemapCrawler extends SitemapNewsCrawler {
+    constructor() {
+        super("thanh-nien-sitemap",
+            "Thanh Niên",
+            "https://thanhnien.vn",
+            "https://thanhnien.vn/sitemaps/newsindex.xml");
+    }
+
+    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
+        data.forEach(url => {
+            this.manager?.addNewCrawler(new ThanhNienNewsDetailCrawler(url));
+        })
+        return Reliable.Success<string[]>(data);
+    }
+}
+
+export class DantriSitemapCrawler extends SitemapNewsCrawler {
+    constructor() {
+        super("tuoi-tre-sitemap",
+            "Tuổi Trẻ Online",
+            "https://tuoitre.vn",
+            "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
+    }
+
+    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
+        data.forEach(url => {
+            this.manager?.addNewCrawler(new DanTriNewsDetailCrawler(url));
+        })
+        return Reliable.Success<string[]>(data);
+    }
 }

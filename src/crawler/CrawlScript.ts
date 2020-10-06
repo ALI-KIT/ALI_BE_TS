@@ -6,6 +6,7 @@ import { BaoMoiTinMoiCrawler } from './impl/BaoMoiTinMoiCrawler';
 
 import { Logger } from '@utils/AppDbLogging';
 import { State } from './base/Crawler';
+import { AliAggregatorCrawler } from './impl/AliAggregatorCrawler';
 
 class CrawlScript {
     public session: any;
@@ -51,7 +52,8 @@ class CrawlScript {
                 });
         }
 
-        this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+        this.manager.addNewCrawler(new AliAggregatorCrawler());
+        //this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
 
         /* Force idling crawler manager or terniminating the process after timeout duration */
 
@@ -81,8 +83,10 @@ class CrawlScript {
 }
 
 var script = new CrawlScript();
-script.run().catch(e => {
+script.run().then((reliable) => {
+    console.log("Task finished with below data: ");
+   console.log(reliable)
+}).catch(e => {
+    console.log("Task finished with an exception");
     console.log(e);
-    console.log("Task finished with an exception.")
-    process.exit(1);
 });

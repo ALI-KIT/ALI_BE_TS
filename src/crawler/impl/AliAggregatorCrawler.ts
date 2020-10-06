@@ -1,9 +1,12 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
-import { SitemapNewsCrawler } from '@crawler/base/SitemapNewsCrawler';
+import { DantriSitemapCrawler, SitemapNewsCrawler, ThanhNienSitemapCrawler, TuoiTreSitemapCrawler } from '@crawler/base/SitemapNewsCrawler';
 import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
 
 export class AliAggregatorCrawler extends Crawler<void> {
+    constructor() {
+        super("https://tindiaphuong.org");
+    }
 
     public async execute(): Promise<Reliable<void>> {
         if(!this.manager) {
@@ -11,18 +14,10 @@ export class AliAggregatorCrawler extends Crawler<void> {
         }
 
         const crawlers = [
-            new BaoMoiTinMoiCrawler(0, 5),
-            new SitemapNewsCrawler(
-                "tuoi-tre-sitemap",
-                "Tuổi Trẻ Online", 
-                "https://tuoitre.vn",
-                "https://tuoitre.vn/Sitemap/GoogleNews.ashx"),
-            new SitemapNewsCrawler(
-                "zing-news-sitemap",
-                "Zing News",
-                "https://zingnews.vn",
-                "https://zingnews.vn/sitemap/sitemap-news.xml"),
-                
+           // new BaoMoiTinMoiCrawler(0, 5),
+           new TuoiTreSitemapCrawler(),
+           new ThanhNienSitemapCrawler(),
+           //new DantriSitemapCrawler()   
         ];
 
         crawlers.forEach(crawler => {
@@ -33,11 +28,11 @@ export class AliAggregatorCrawler extends Crawler<void> {
     }
 
     public getName(): string {
-        return "tin-dia-phuong-common-sitemap";
+        return "tin-dia-phuong";
     }
     
     public getDisplayName(): string {
-        throw "Tin Địa Phương";
+        return "Tin địa phương";
     }
 
     public getBaseUrl(): string {
