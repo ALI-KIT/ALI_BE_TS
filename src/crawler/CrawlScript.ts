@@ -52,8 +52,8 @@ class CrawlScript {
                 });
         }
 
-        this.manager.addNewCrawler(new AliAggregatorCrawler());
-        //this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+        await this.manager.addNewCrawler(new AliAggregatorCrawler());
+        //await this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
 
         /* Force idling crawler manager or terniminating the process after timeout duration */
 
@@ -83,10 +83,7 @@ class CrawlScript {
 }
 
 var script = new CrawlScript();
-script.run().then((reliable) => {
-    console.log("Task finished with below data: ");
-   console.log(reliable)
-}).catch(e => {
-    console.log("Task finished with an exception");
+script.run().catch(e => {
+    console.log("Task throws an exception");
     console.log(e);
 });

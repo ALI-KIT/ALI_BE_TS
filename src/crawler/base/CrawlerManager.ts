@@ -1,18 +1,19 @@
 import { Type } from '@core/repository/base/Reliable';
 import { Crawler, State } from '@crawler/base/Crawler';
+import { AliCrawlerFilter, CrawlerFilter, FilterAction } from '@crawler/interactor/CrawlerFilter';
 import PQueue from 'p-queue/dist';
 export interface ICrawlerManager {
-    addNewCrawler(crawler: Crawler<any>): any;
+    addNewCrawler(crawler: Crawler<any>): Promise<void>;
     isAllowRecursion: boolean;
 }
 
 export abstract class BaseCrawlerManager implements ICrawlerManager {
     protected static _count = 1;
 
-    protected promiseQueue: PQueue;
+    protected readonly promiseQueue: PQueue;
 
-    protected crawlingList: Crawler<any>[] = [];
-    protected crawlUrlList: string[] = [];
+    readonly crawlingList: Crawler<any>[] = [];
+    readonly crawlUrlList: string[] = [];
 
     protected result: any[] = []
 
@@ -22,8 +23,6 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public id: number = CrawlerManager.generateId();
     public name: string;
     public currentSession: string;
-
-
     public repeatMode: RepeatMode = RepeatMode.IMMEDIATELY_AFTER;
 
     public timeout: number = CrawlerManager.TIMEOUT_ENDLESS;
@@ -32,7 +31,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public status: State = State.PENDING;
     public callback?: Callback;
     public _isAllowRecursion: boolean = false;
-    public willNotReceiveNewCrawler = false;
+    public readonly filter: AliCrawlerFilter = new AliCrawlerFilter(this);
 
     // k phai
     get isAllowRecursion(): boolean {
@@ -47,6 +46,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         this.name = name || this.startTime.toString();
         this.currentSession = session || this.startTime.toString();
         this.promiseQueue = new PQueue({ concurrency: 100 })
+        this.promiseQueue.timeout = 1000 * 60 * 5;
         this.promiseQueue.on('idle', () => {
             console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
             this.status = State.FINISHED
@@ -66,7 +66,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
      * Thêm crawler cho collector
      * @param crawler 
      */
-    public addNewCrawler(crawler: Crawler<any>) {
+    public async addNewCrawler(crawler: Crawler<any>): Promise<void> {
         // TODO: Check trùng trong list
         // Check chưa từng chạy
 
@@ -76,14 +76,8 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         //if(crawler.priority < 4) return; 
 
         // block receiving any new crawler task
-        if (this.willNotReceiveNewCrawler) {
-            return
-        }
-
-        if (this.crawlUrlList.indexOf(crawler.url) > -1) {
-            console.log('duplicated url: ' + crawler.url);
-        } else {
-
+        const allowed = await this.filter.filterAction(FilterAction.ON_ADDED_TO_MANAGER, crawler, true)
+        if (allowed) {
             this.crawlUrlList.push(crawler.url);
             this.crawlingList.push(crawler);
             this.addToQueue(crawler.id, crawler.priority);
@@ -98,12 +92,12 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         return null;
     }
 
-    public addCrawlerByUrl(priority: number, url: string, name: string = '') {
+    public async addCrawlerByUrl(priority: number, url: string, name: string = '') {
         const crawler = this.findCrawlerByUrl(url, name);
         if (crawler)
             crawler.priority = priority;
         if (crawler)
-            this.addNewCrawler(crawler)
+            await this.addNewCrawler(crawler)
     }
 
 
@@ -125,7 +119,15 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             crawler.state = State.RUNNING
 
-            const reliable = await crawler.execute();
+            // execute the crawler
+            let reliable = await crawler.execute();
+
+            // save result
+            if (reliable.type == Type.SUCCESS
+                && reliable.data
+                && await this.filter.filterAction(FilterAction.ON_SAVE_RESULT, crawler, true)) {
+                reliable = await crawler.saveResult(reliable.data);
+            }
 
             if (reliable.type == Type.SUCCESS) {
                 this.onCrawlerResult(reliable.data);
@@ -135,10 +137,10 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
                 crawler.state = State.FINISHED;
             else {
                 crawler.state = State.FAILED;
-                console.log(reliable.message);
+                console.log("CrawlerManager" + reliable.message);
 
                 if (reliable.error) {
-                    console.log("This crawler throws an exception: " + reliable.error);
+                    console.log("CrawlerManager: This crawler throws an exception: " + reliable.error);
                 }
             }
 
@@ -162,7 +164,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
     public cancel(): void {
         //TODO
-        this.willNotReceiveNewCrawler = true;
+        this.filter.enforceDenyReceivingAnyCrawler = true;
         this.promiseQueue.clear();
     }
 
@@ -175,7 +177,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     }
 
     public stop(): void {
-        this.willNotReceiveNewCrawler = true;
+        this.filter.enforceDenyReceivingAnyCrawler = true;
         this.promiseQueue.clear()
     }
 

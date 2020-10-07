@@ -31,7 +31,7 @@ router.get('/crawler', async (req: Request, res: Response, next) => {
                 if (manager.status == State.RUNNING) {
                     message = "Crawler is already running."
                 } else {
-                    manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+                    await manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
                     message = "Start crawler successfully";
                 }
             }

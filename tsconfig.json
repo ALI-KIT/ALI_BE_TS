@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
+    "allowJs": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -9,7 +10,7 @@
     "outDir": "dist",
     "removeComments": true,
     "sourceMap": true,
-    "strict": true,
+   // "strict": true,
     "target": "es6",
     "lib": ["es6", "dom"],
     "moduleResolution": "node",
@@ -65,7 +66,7 @@
   "include": [
     "src/**/*.ts",
     "spec/**/*.ts"
-  ],
+    ],
   "exclude": [
     "src/public/"
   ]

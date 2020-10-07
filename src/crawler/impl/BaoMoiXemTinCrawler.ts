@@ -45,7 +45,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
 
         const crawlDate = new Date(Date.now());
         const pDString = $('div.article__meta time').attr('datetime');
-        const publicationDate =  new Date(pDString || Date.now());
+        const publicationDate = new Date(pDString || Date.now());
         const categories = $('div.breadcrumb a.cate').toArray().map(element => $(element).text().trim());
         const tagArray = $('div .keyword').toArray();
         const keywords = tagArray.map(element => $(element).text().trim());
@@ -53,13 +53,13 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
 
         const locals: Local[] = [];
         console.log('finish getting news: ' + title);
-        console.log("should craw tag : "+ this.manager?.isAllowRecursion);
+        console.log("should craw tag : " + this.manager?.isAllowRecursion);
 
         if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0) {
-            tagUrlArray.forEach((value: string, index: number) => {
+            for (let value in tagUrlArray) {
                 console.log('xem tin found new tag url [' + value + ']');
-                this.manager?.addNewCrawler(new BaoMoiTagCrawler(keywords[index], value, 1, this.priority - 2));
-            });
+                await this.manager?.addNewCrawler(new BaoMoiTagCrawler(value, value, 1, this.priority - 2));
+            };
         }
 
         return Reliable.Success({

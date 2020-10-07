@@ -8,21 +8,25 @@ export class AliAggregatorCrawler extends Crawler<void> {
         super("https://tindiaphuong.org");
     }
 
+    public async saveResult(result: void): Promise<Reliable<void>> {
+        return Reliable.Success(null);
+    }
+
     public async execute(): Promise<Reliable<void>> {
-        if(!this.manager) {
+        if (!this.manager) {
             return Reliable.Failed("The CrawlerManager hasn't been attached to this crawler yet");
         }
 
         const crawlers = [
-           // new BaoMoiTinMoiCrawler(0, 5),
-           new TuoiTreSitemapCrawler(),
-           new ThanhNienSitemapCrawler(),
-           //new DantriSitemapCrawler()   
+            new BaoMoiTinMoiCrawler(),
+            new TuoiTreSitemapCrawler(),
+            new ThanhNienSitemapCrawler(),
+            //new DantriSitemapCrawler()   
         ];
 
-        crawlers.forEach(crawler => {
-            this.manager?.addNewCrawler(crawler);
-        });
+        for (let crawler of crawlers) {
+            await this.manager?.addNewCrawler(crawler);
+        };
 
         return Reliable.Success<void>(null);
     }
@@ -30,7 +34,7 @@ export class AliAggregatorCrawler extends Crawler<void> {
     public getName(): string {
         return "tin-dia-phuong";
     }
-    
+
     public getDisplayName(): string {
         return "Tin địa phương";
     }

@@ -10,21 +10,105 @@ import { title } from 'process';
 import { Crawler } from './Crawler';
 import { ICrawlerManager } from './CrawlerManager';
 import { NewsCrawler } from './NewsCrawler';
+import { Readability } from "@mozilla/readability";
+import { JSDOM } from 'jsdom';
+import { extract } from 'article-parser';
 
-export class OGNewsGenerator {
+export class OGNewsParser {
+
+    private async extractSections(crawer: Crawler<any>, $: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
+        const result: string[] = [];
+        const section = $('meta[property="article\\:section"]')?.attr('content');
+        if (section) {
+            result.push(section);
+        }
+
+        let subSection = $('meta[property="article\\:subsection"]')?.attr('content');
+        if (!subSection) {
+            let index = 2;
+            do {
+                subSection = $('meta[property="article\\:section' + index + '"]')?.attr('content');
+                if (subSection) {
+                    result.push(subSection);
+                    index++;
+                }
+            } while (subSection)
+        }
+        return Reliable.Success(result);
+    }
+
+    private async extractKeywords(crawer: Crawler<any>, $: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
+        const result: string[] = [];
+        const keywordContent: string[] = [];
+
+        // <meta property="article:tag" content="aa,ere"
+        $('meta[property="article\\:tag"]')?.each((index, element) => {
+            const tag = $(element).attr('content');
+            if (tag) {
+                keywordContent.push(tag);
+            }
+        });
+
+        // <meta name="keywords" content="aa, ere"
+        $('meta[name="keywords"]')?.each((index, element) => {
+            const tag = $(element).attr('content');
+            if (tag) {
+                keywordContent.push(tag);
+            }
+        });
+
+        // <meta name="news_keywords" content="aa, ere"
+        $('meta[name="news_keywords"]')?.each((index, element) => {
+            const tag = $(element).attr('content');
+            if (tag) {
+                keywordContent.push(tag);
+            }
+        })
+
+        // split keywords content then add to list
+        keywordContent.forEach(item => {
+            const keywords = item.split(new RegExp('[,;\n]', 'g'));
+            keywords.forEach(keyword => {
+                const trimmedKeyword = keyword.trim();
+                if (trimmedKeyword && !result.includes(trimmedKeyword)) {
+                    result.push(trimmedKeyword);
+                }
+            })
+        });
+
+        return Reliable.Success(result);
+    }
 
     public async execute(crawler: Crawler<any>, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
+        try {
+            return await this.executeInternal(crawler, htmlContent);
+        } catch (e) {
+            return Reliable.Failed("Error when trying to parse the html by the OpenGraphNewsParser", e);
+        }
+    }
+
+    private async executeInternal(crawler: Crawler<any>, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(htmlContent);
 
         const title = $('meta[property="og\\:title"]')?.first()?.attr('content') || $('meta[name=\'title\']')?.first()?.attr('content') || "";
         const summary = $('meta[property="og\\:description"]')?.first()?.attr('content') || $('meta[name=\'description\']')?.first()?.attr('content') || "";
-        const content = summary;
+
+        var articleParserData;
+        try {
+            articleParserData = await extract(htmlContent);
+        } catch (e) {
+            articleParserData = null;
+        };
+
+        const shouldParseWithMozillaReadability: boolean = !articleParserData;
+        const mozillaReadabilityArticle = (shouldParseWithMozillaReadability) ? new Readability(new JSDOM(htmlContent).window.document).parse() : null;
+        const content = articleParserData?.content || mozillaReadabilityArticle?.content || "";
 
         const crawlDate = new Date(Date.now());
-        const pDString = $('meta[property="article\\:published_time"]').attr('content');
+        const pDString = $('meta[property="article\\:published_time"]')?.attr('content');
         const publicationDate = new Date(pDString || Date.now());
 
-        const thumbnail = $('meta[property="og\\:image"]')?.first()?.attr('content') || $('meta[itemprop=\'image\']')?.first()?.attr('content') || "";
+        const thumbnail = $('meta[property="og\\:image"]')?.first()?.attr('content') || $('meta[itemprop=\'image\']')?.first()?.attr('content') || articleParserData?.image || "";
 
         const aggregator: Domain = {
             name: 'tin-dia-phuong',
@@ -39,11 +123,11 @@ export class OGNewsGenerator {
             url: crawler.url
         }
 
-        const categories = $('div.breadcrumb a.cate').toArray().map(element => $(element).text().trim());
-        const tagArray = $('div .keyword').toArray();
-        const keywords = tagArray.map(element => $(element).text().trim());
-        const tagUrlArray = tagArray.map(element => crawler.baseUrl + $(element).attr('href') || '');
+        const categoriesReliable = await this.extractSections(crawler, $, htmlContent);
+        const categories = categoriesReliable.data || [];
 
+        const keywordsReliable = await this.extractKeywords(crawler, $, htmlContent);
+        const keywords = keywordsReliable.data || [];
         const locals: Local[] = [];
 
         return Reliable.Success({
@@ -65,26 +149,25 @@ export class OGNewsGenerator {
 export abstract class OpenGraphNewsCrawler extends NewsCrawler {
 
     protected async parseHtml(htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
-        return await this.parseHtmlThen(htmlContent, Reliable.Success<CreateQuery<News>>(null))
+        const ogpData = await new OGNewsParser().execute(this, htmlContent);
+        /*  const data: CreateQuery<News> = {
+             title: prevData.data?.title || ogpData.data?.title || "",
+             summary: prevData.data?.summary || ogpData.data?.summary || "",
+             content: prevData.data?.content || ogpData.data?.content || '',
+             thumbnail: prevData.data?.thumbnail || ogpData.data?.thumbnail || '',
+             crawlDate: prevData.data?.crawlDate || ogpData.data?.crawlDate || new Date(Date.now()),
+             publicationDate: prevData.data?.crawlDate || ogpData.data?.crawlDate || 0,
+             aggregator: prevData.data?.aggregator || ogpData.data!.aggregator,
+             source: prevData.data?.source || ogpData.data!.source,
+             keywords: [],
+             categories: [],
+             locals: []
+         } */
+        return ogpData;
     }
 
     protected async parseHtmlThen(htmlContent: string, prevData: Reliable<CreateQuery<News>>): Promise<Reliable<CreateQuery<News>>> {
-
-        const ogpData = await new OGNewsGenerator().execute(this, htmlContent);
-        const data: CreateQuery<News> = {
-            title: prevData.data?.title || ogpData.data?.title || "",
-            summary: prevData.data?.summary || ogpData.data?.summary || "",
-            content: prevData.data?.content || ogpData.data?.content || '',
-            thumbnail: prevData.data?.thumbnail || ogpData.data?.thumbnail || '',
-            crawlDate: prevData.data?.crawlDate || ogpData.data?.crawlDate || new Date(Date.now()),
-            publicationDate: prevData.data?.crawlDate || ogpData.data?.crawlDate || 0,
-            aggregator: prevData.data?.aggregator || ogpData.data!.aggregator,
-            source: prevData.data?.source || ogpData.data!.source,
-            keywords: [],
-            categories: [],
-            locals: []
-        }
-        return Reliable.Success(data);
+        return prevData;
     }
 }
 

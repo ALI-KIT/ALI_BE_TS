@@ -48,7 +48,6 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
     }
 
     protected async abstract parseSiteMap(sitemaps: string[]): Promise<Reliable<T>>;
-    public async abstract saveResult(data: T): Promise<Reliable<T>>;
 }
 
 export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
@@ -61,12 +60,12 @@ export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
      * @param sitemaps 
      */
     protected async parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>> {
-        sitemaps.forEach(site => {
+        for (const site in sitemaps) {
             const reliable = CrawlerFactory.Instance.findCrawlerBySitemapUrl(site);
             if (reliable.type == Type.SUCCESS && reliable.data) {
-                this.manager?.addNewCrawler(reliable.data!);
+                await this.manager?.addNewCrawler(reliable.data!);
             }
-        });
+        };
         return Reliable.Success(sitemaps);
     }
 
@@ -94,9 +93,9 @@ export class TuoiTreSitemapCrawler extends SitemapNewsCrawler {
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        data.forEach(url => {
-            this.manager?.addNewCrawler(new TuoiTreNewsDetailCrawler(url));
-        })
+        for (const url of data) {
+            await this.manager?.addNewCrawler(new TuoiTreNewsDetailCrawler(url));
+        };
         return Reliable.Success<string[]>(data);
     }
 }
@@ -119,9 +118,9 @@ export class ThanhNienSitemapCrawler extends SitemapNewsCrawler {
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        data.forEach(url => {
-            this.manager?.addNewCrawler(new ThanhNienNewsDetailCrawler(url));
-        })
+        for (const url of data) {
+            await this.manager?.addNewCrawler(new ThanhNienNewsDetailCrawler(url));
+        }
         return Reliable.Success<string[]>(data);
     }
 }
@@ -135,9 +134,9 @@ export class DantriSitemapCrawler extends SitemapNewsCrawler {
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        data.forEach(url => {
-            this.manager?.addNewCrawler(new DanTriNewsDetailCrawler(url));
-        })
+        for (const url of data) {
+            await this.manager?.addNewCrawler(new DanTriNewsDetailCrawler(url));
+        };
         return Reliable.Success<string[]>(data);
     }
 }

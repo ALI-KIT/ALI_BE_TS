@@ -12,15 +12,15 @@ export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
         }
         const found = await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': result.source?.url });
         if (found) {
-            return Reliable.Failed('this news had existed in database: ' + result.title);
+            return Reliable.Failed('News existed in database: ' + result.title);
         }
         else {
             const re = await AppDatabase.getInstance().news2Dao.create(result);
             if (!re) {
                 return Reliable.Failed("Something wrong when trying to save news [" + result.title + "]");
             }
-            if (!re || re instanceof Error) {
-                return Reliable.Failed("Error when trying to save news [" + result.title + ". " + re.message);
+            if (!re) {
+                return Reliable.Failed("Error when trying to save news [" + result.title + ". ");
             }
 
             return Reliable.Success(result);

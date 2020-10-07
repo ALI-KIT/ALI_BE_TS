@@ -42,7 +42,7 @@ export class ControlCenterController implements interfaces.Controller {
                     if (manager.status == State.RUNNING) {
                         message = "Crawler is already running."
                     } else {
-                        manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+                         await manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
                         message = "Start crawler successfully";
                     }
                 }
