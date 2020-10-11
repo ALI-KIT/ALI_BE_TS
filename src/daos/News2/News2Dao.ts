@@ -3,7 +3,7 @@ import { IDao } from '@daos/IDao';
 
 export class NewsDao extends IDao<News> {
     constructor() {
-        super('news-3', NewsSchema);
+        super('news-2', NewsSchema);
     }
 
 

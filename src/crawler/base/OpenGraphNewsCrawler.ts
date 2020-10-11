@@ -6,13 +6,14 @@ import Axios from 'axios';
 import cheerio from 'cheerio';
 import { TYPE } from 'inversify-express-utils';
 import { CreateQuery } from 'mongoose';
-import { title } from 'process';
+import { domain, title } from 'process';
 import { Crawler } from './Crawler';
 import { ICrawlerManager } from './CrawlerManager';
 import { NewsCrawler } from './NewsCrawler';
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from 'jsdom';
 import { extract } from 'article-parser';
+import CrawlUtil from '@utils/crawlUtils';
 
 export class OGNewsParser {
 
@@ -88,7 +89,7 @@ export class OGNewsParser {
     }
 
     private async executeInternal(crawler: Crawler<any>, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
-        const $ = cheerio.load(htmlContent);
+        const $ = cheerio.load(htmlContent, { decodeEntities: false });
 
         const title = $('meta[property="og\\:title"]')?.first()?.attr('content') || $('meta[name=\'title\']')?.first()?.attr('content') || "";
         const summary = $('meta[property="og\\:description"]')?.first()?.attr('content') || $('meta[name=\'description\']')?.first()?.attr('content') || "";
@@ -103,6 +104,7 @@ export class OGNewsParser {
         const shouldParseWithMozillaReadability: boolean = !articleParserData;
         const mozillaReadabilityArticle = (shouldParseWithMozillaReadability) ? new Readability(new JSDOM(htmlContent).window.document).parse() : null;
         const content = articleParserData?.content || mozillaReadabilityArticle?.content || "";
+        const rawContent = CrawlUtil.getRawTextContent(content);
 
         const crawlDate = new Date(Date.now());
         const pDString = $('meta[property="article\\:published_time"]')?.attr('content');
@@ -134,6 +136,7 @@ export class OGNewsParser {
             title,
             summary,
             content,
+            rawContent,
             thumbnail,
             crawlDate,
             publicationDate,
@@ -163,9 +166,12 @@ export abstract class OpenGraphNewsCrawler extends NewsCrawler {
              categories: [],
              locals: []
          } */
-        return ogpData;
+        return await this.parseHtmlThen(htmlContent, ogpData);
     }
 
+    /**
+     * Chỉnh sửa, cập nhật kết quả sau khi được tạo ra tự động từ OpenGraphProtocol News Parser trong hàm này
+     */
     protected async parseHtmlThen(htmlContent: string, prevData: Reliable<CreateQuery<News>>): Promise<Reliable<CreateQuery<News>>> {
         return prevData;
     }

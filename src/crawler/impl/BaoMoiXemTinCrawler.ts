@@ -6,6 +6,7 @@ import { CreateQuery } from 'mongoose';
 import { Domain } from '@entities/Domain';
 import { BaoMoiTagCrawler } from '@crawler/impl/BaoMoiTagCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
+import CrawlUtil from '@utils/crawlUtils';
 
 export class BaoMoiXemTinCrawler extends NewsCrawler {
     public getName(): string {
@@ -29,6 +30,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         const title = $('h1.article__header').text()
         const summary = $('div.article__sapo').text()
         const content = $('div.article__body').html() || ''
+        const rawContent = CrawlUtil.getRawTextContent(content);
         const aggregator: Domain = {
             name: 'baomoi',
             baseUrl: this.getBaseUrl(),
@@ -66,6 +68,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             title,
             summary,
             content,
+            rawContent,
             thumbnail,
             crawlDate,
             publicationDate,

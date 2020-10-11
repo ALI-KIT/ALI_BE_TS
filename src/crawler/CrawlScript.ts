@@ -43,8 +43,10 @@ class CrawlScript {
             this.session.state = "finished";
             this.session.finishedAt = new Date(finishedAt);
             this.session.duration = finishedAt - startedAt;
+            
+            console.log("Crawl process duration: " + (finishedAt - startedAt));
             Logger.writeCronLog(this.session)
-                .catch(e => {})
+                .catch(e => { })
                 .finally(() => {
                     /* terniminate process */
                     console.log("\n\n-------------- Force TERNIMINATING PROCESS because crawler manager state is on idle --------------\n\n");
@@ -66,13 +68,14 @@ class CrawlScript {
 
             /* or terniminate process after a delayed time */
             setTimeout(function () {
-                console.log("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
 
                 const finishedAt = Date.now();
                 s.session.state = "finished";
                 s.session.finishedAt = new Date(finishedAt);
                 s.session.duration = finishedAt - startedAt;
-                Logger.writeCronLog(s.session).finally(() =>{
+                console.log("Crawl process duration: " + (finishedAt - startedAt));
+                console.log("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
+                Logger.writeCronLog(s.session).finally(() => {
                     process.exit(0);
                 })
 

@@ -5,7 +5,6 @@ export class PagingData {
     public maxItem: number;
     public maxPage: number;
 
-
     constructor(maxItem: number, maxPage: number) {
         this.maxItem = maxItem;
         this.maxPage = maxPage;

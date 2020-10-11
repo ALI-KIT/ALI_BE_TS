@@ -69,7 +69,16 @@ export class CheckDuplicatedInDatabase extends CrawlerFilter {
         switch (filterAction) {
             case FilterAction.ON_ADDED_TO_MANAGER:
             case FilterAction.ON_SAVE_RESULT:
-                const found = (await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': crawler.url })) ? true : false;
+                // + Nếu crawler name là baomoi => crawler.source.url != database.aggerator.url
+                // + Nếu không, crawler.source.url != database.aggerator.url
+
+                let found: boolean;
+                if (crawler.name === "baomoi") {
+                    found = (await AppDatabase.getInstance().news2Dao.findOne({ 'aggregator.url': crawler.url })) ? true : false;
+                } else {
+                    found = (await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': crawler.url })) ? true : false;
+                }
+
                 if (found) {
                     return Reliable.Custom(Type.FAILED, "This url had been crawled before", undefined, this);
                 }

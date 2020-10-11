@@ -1,6 +1,8 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
+import { VnExpressTinMoiRssCrawler } from '@crawler/base/RssCrawler';
 import { DantriSitemapCrawler, SitemapNewsCrawler, ThanhNienSitemapCrawler, TuoiTreSitemapCrawler } from '@crawler/base/SitemapNewsCrawler';
+import { BaoMoiSitemapCrawler } from './BaoMoiSitemapCrawler';
 import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
 
 export class AliAggregatorCrawler extends Crawler<void> {
@@ -18,10 +20,12 @@ export class AliAggregatorCrawler extends Crawler<void> {
         }
 
         const crawlers = [
+            new BaoMoiSitemapCrawler(),
+            new VnExpressTinMoiRssCrawler(),
             new BaoMoiTinMoiCrawler(),
             new TuoiTreSitemapCrawler(),
             new ThanhNienSitemapCrawler(),
-            //new DantriSitemapCrawler()   
+            new DantriSitemapCrawler()   
         ];
 
         for (let crawler of crawlers) {

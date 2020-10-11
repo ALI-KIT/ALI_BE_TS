@@ -137,7 +137,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
                 crawler.state = State.FINISHED;
             else {
                 crawler.state = State.FAILED;
-                console.log("CrawlerManager" + reliable.message);
+                console.log("CrawlerManager: " + reliable.message);
 
                 if (reliable.error) {
                     console.log("CrawlerManager: This crawler throws an exception: " + reliable.error);

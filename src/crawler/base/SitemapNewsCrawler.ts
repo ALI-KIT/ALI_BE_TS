@@ -20,16 +20,7 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
 
         /* step what you will do with these sitemaps */
         const parseSitemapReliable = await this.parseSiteMap(fetchSitemapReliable.data!);
-        if (parseSitemapReliable.type == Type.FAILED) {
-            return Reliable.Failed<T>(parseSitemapReliable.message, parseSitemapReliable.error ? parseSitemapReliable.error! : undefined);
-        } else if (!parseSitemapReliable.data) {
-            /* success but no data */
-            return Reliable.Success<T>(null);
-        }
-
-        /* step: save data to database */
-        const saveDataReliable = await this.saveResult(parseSitemapReliable.data!);
-        return saveDataReliable;
+        return parseSitemapReliable;
     }
 
     protected async fetchSitemapHtml(url: string): Promise<Reliable<string[]>> {

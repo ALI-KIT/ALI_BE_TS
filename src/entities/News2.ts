@@ -6,6 +6,7 @@ export interface News extends Document {
     title: string
     summary: string
     content: string
+    rawContent: string
     thumbnail: string
 
     crawlDate: Date
@@ -30,6 +31,7 @@ export const NewsSchema: Schema = new Schema({
     title: { type: String, required: true, default: '' },
     summary: { type: String, required: true, default: '' },
     content: { type: String, required: true, default: '' },
+    rawContent: { type: String, required: true, default: '' },
     thumbnail: { type: String, required: false, default: '' },
 
     /* ngày kéo dữ liệu */
