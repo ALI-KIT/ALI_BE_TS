@@ -2,8 +2,8 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import AppDatabase from '@daos/AppDatabase';
 import { AliDbClient } from '@dbs/AliDbClient';
 import { DbScript } from '@scripts/DbScript';
-import { AnalyzerDocumentData, AnalyzerFieldData, FeedAnalyzer, FetchNewsFeedAnalyzer } from '@scripts/FetchNewsFeedAnalyzer';
 import { Readable } from 'stream';
+import { AnalyzerDocumentData, FeedAnalyzer } from './FeedAnalyzer';
 
 export class GetDefaultKeywords extends DbScript {
     public run(): Promise<Reliable<string[]>> {
@@ -78,7 +78,6 @@ export abstract class KeywordsAnalyzer extends FeedAnalyzer {
         return super.analyzeNewData(old, document);
     }
 
-
 }
 
 export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
@@ -86,7 +85,7 @@ export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
         super("find-keywords-in-field-keywords", keywords);
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
-        const cursor = AppDatabase.getInstance().news2Dao.model.find(keywords.length == 0 ? {} : { keywords: { $in: keywords } }).cursor()
+        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find(keywords.length == 0 ? {} : { keywords: { $in: keywords } });
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 
@@ -98,7 +97,7 @@ export class FindKeywords_In_RawContent_Analyzer extends KeywordsAnalyzer {
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
         const regexString = "(?i)(" + keywords.join("|") + ")";
-        const cursor = AppDatabase.getInstance().news2Dao.model.find({ rawContent: { $regex: regexString } }).cursor()
+        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find({ rawContent: { $regex: regexString } })
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 

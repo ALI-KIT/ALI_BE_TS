@@ -14,7 +14,7 @@ export class AliDbClient {
         this.defaultClient = await this.mongoClientConnect(AliDbClient.BASE_CONNECTION_1);
     }
 
-    public useALIDB(client: MongoClient.MongoClient) : MongoClient.Db {
+    public useALIDB(client: MongoClient.MongoClient = this.defaultClient!) : MongoClient.Db {
         return client.db("ALI-DB");
     }
 
