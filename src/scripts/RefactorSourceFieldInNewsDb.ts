@@ -10,8 +10,8 @@ export class CreateRawContentFieldInNewsDb {
     private collectionString = "news-2";
     public async run(): Promise<Reliable<any>> {
         const client = await this.mongoClientConnect(this.connectionString);
-        const serverConfigDb = client.db(this.dbString);
-        const collection = serverConfigDb.collection(this.collectionString);
+        const db = client.db(this.dbString);
+        const collection = db.collection(this.collectionString);
 
         let bulkWrites = [];
         const bulkDocumentsSize = 300;
