@@ -1,15 +1,14 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import { DbScript } from './DbScript';
+import { DbScript } from '../DbScript';
+import MongoClient from 'mongodb';
 
-import { FindKeywords_In_Keywords_Analyzer, FindKeywords_In_RawContent_Analyzer, GetDefaultKeywords, KeywordsAnalyzer } from './analyzer/CommonAnalyzer';
-import { FeedAnalyzer } from './analyzer/FeedAnalyzer';
+import { FindKeywords_In_Keywords_Analyzer, FindKeywords_In_RawContent_Analyzer, FindKeywords_In_Summary_Analyzer, FindKeywords_In_Title_Analyzer, GetDefaultKeywords, KeywordsAnalyzer } from './CommonAnalyzer';
+import { FeedAnalyzer } from './FeedAnalyzer';
 import { AliDbClient } from '@dbs/AliDbClient';
 /**
  * Tạo/Cập nhật danh sách tin tức với các keywords từ default location 
  */
 export class FetchNewsFeedAnalyzer extends DbScript {
-    private connectionString = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/";
-    private dbString = "SERVER-CONFIG";
     public async run(): Promise<Reliable<any>> {
         await AliDbClient.connect();
         const defaultKeywordsReliable = await new GetDefaultKeywords().run();
@@ -19,9 +18,12 @@ export class FetchNewsFeedAnalyzer extends DbScript {
             return Reliable.Failed("Could not get the default keywords");
         }
         const keywords = defaultKeywordsReliable.data;
+        const sessionCode = new MongoClient.ObjectId().toHexString();
         const analyzers: FeedAnalyzer[] = [
-            new FindKeywords_In_Keywords_Analyzer(keywords),
-            new FindKeywords_In_RawContent_Analyzer(keywords)
+            new FindKeywords_In_Keywords_Analyzer(sessionCode, keywords),
+            new FindKeywords_In_Title_Analyzer(sessionCode, keywords),
+            new FindKeywords_In_Summary_Analyzer(sessionCode, keywords),
+            new FindKeywords_In_RawContent_Analyzer(sessionCode, keywords)
         ]
 
         for (const analyzer of analyzers) {
@@ -31,6 +33,11 @@ export class FetchNewsFeedAnalyzer extends DbScript {
                 return reliable
             }
         }
+
+        // now we remove all documents having score = 0
+        const removeResult = await AliDbClient.getInstance().useALIDB().collection("server-analyzer-data").deleteMany({ sessionCode: { $ne: sessionCode } })
+        console.log("Remove " + removeResult.deletedCount + " expired documents");
+
         return Reliable.Success(null);
     }
 

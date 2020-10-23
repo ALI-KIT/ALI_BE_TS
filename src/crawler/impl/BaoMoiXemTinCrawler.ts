@@ -37,12 +37,19 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             displayName: 'Báo mới',
             url: this.url
         };
+
+        const sourceUrl = $('p.bm-source a').attr('href') || ''
+        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || "";
+        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || "";
+
+        const name = prettyUrl;
         const source: Domain = {
-            name: '',
-            baseUrl: '',
+            name: name,
+            baseUrl: baseUrl,
             displayName: $('div.article a.source')?.first()?.text()?.trim() || '',
-            url: $('p.bm-source a').attr('href') || ''
+            url: sourceUrl
         }
+        
         const thumbnail = $('div.article p.body-image img').first().attr('src') || '';
 
         const crawlDate = new Date(Date.now());

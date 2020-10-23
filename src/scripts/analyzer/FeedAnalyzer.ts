@@ -19,14 +19,14 @@ export class AnalyzerDocumentData {
     private score: number = 0;
     public Score(): number { return this.score; }
     public readonly data: AnalyzerFieldData[] = [];
-    public toNativeObject(): any {
-        const data = this.data.map(item => { return { name: item.name, score: item.score } })
-        return {
-            targetId: this.targetId,
-            score: this.score,
-            data: data
-        }
-    }
+    /*     public toNativeObject(): any {
+            const data = this.data.map(item => { return { name: item.name, score: item.score } })
+            return {
+                targetId: this.targetId,
+                score: this.score,
+                data: data
+            }
+        } */
 
     public updateAnalyzeFieldData(fieldData: AnalyzerFieldData) {
         let index = this.data.findIndex(item => item.name == fieldData.name)
@@ -84,7 +84,7 @@ export class AnalyzerDocumentData {
  * Bước 4: Up-sert kết quả vào db (giống nhau trên mọi analyzer)
  */
 export abstract class FeedAnalyzer extends DbScript {
-    constructor(public readonly name: string) { super() }
+    constructor(public readonly name: string, public readonly sessionCode: string) { super() }
 
     /**
      * Return the score 
@@ -101,7 +101,7 @@ export abstract class FeedAnalyzer extends DbScript {
 
         /* step 2: loop on every documents */
         const cursor = cursorReliable.data;
-        const tempAnalyzerCollection = AliDbClient.getInstance().useServerConfig().collection("server-temp-analyzer");
+        const tempAnalyzerCollection = AliDbClient.getInstance().useALIDB().collection("server-analyzer-data");
         let bulkWrites = [];
         const bulkDocumentsSize = 300;
         let i = 0;
@@ -122,7 +122,7 @@ export abstract class FeedAnalyzer extends DbScript {
                 continue;
             }
 
-            const data = analyzeReliable.data.toNativeObject();
+            const data = analyzeReliable.data;//.toNativeObject();
 
             bulkWrites.push({
                 replaceOne: {
@@ -153,7 +153,7 @@ export abstract class FeedAnalyzer extends DbScript {
     } */
 
     async currentAnalyzerDocumentData(targetId: MongoClient.ObjectId): Promise<Reliable<AnalyzerDocumentData>> {
-        const collection = AliDbClient.getInstance().useServerConfig().collection("server-temp-analyzer");
+        const collection = AliDbClient.getInstance().useALIDB().collection("server-analyzer-data");
         const document = await collection.findOne({ targetId: targetId });
         const result = AnalyzerDocumentData.refine(targetId, document);
         return Reliable.Success(result);
@@ -164,9 +164,26 @@ export abstract class FeedAnalyzer extends DbScript {
      * @param old 
      * @param document 
      */
-    async analyzeNewData(old: AnalyzerDocumentData, document: any): Promise<Reliable<AnalyzerDocumentData>> {
-        old.updateAnalyzeFieldData(new AnalyzerFieldData(this.name, 1));
-        return Reliable.Success(old);
+    async analyzeNewData(old: AnalyzerDocumentData, document: any): Promise<Reliable<any>> {
+        const newAFD = new AnalyzerFieldData(this.name, await this.updateNewAnalyzeFieldScore(old, document));
+        old.updateAnalyzeFieldData(newAFD);
+        document.score = old.Score;
+        document.data = old.data;
+        const result = {
+            sessionCode: this.sessionCode,
+            targetId: old.targetId,
+            score: old.Score(),
+            data: old.data,
+            crawlDate: document.crawlDate,
+            publicationDate: document.publicationDate,
+            title: document.title,
+            summary: document.summary
+        }
+        return Reliable.Success(result);
+    }
+
+    async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
+        return 1;
     }
 
 }
