@@ -57,7 +57,7 @@ export default class CrawlUtil {
     }
 
     public static getRawTextContent(content: string) {
-        const imgProcess: textversionjs.imgProcess = (src, alt) => "";
+        const imgProcess: textversionjs.imgProcess = (src:any, alt:any) => "";
         const text = textversionjs(content, { imgProcess })
         return text;
     }

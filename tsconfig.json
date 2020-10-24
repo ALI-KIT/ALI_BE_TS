@@ -10,9 +10,12 @@
     "outDir": "dist",
     "removeComments": true,
     "sourceMap": true,
-   // "strict": true,
+    "strict": true,
     "target": "es6",
-    "lib": ["es6", "dom"],
+    "lib": [
+      "es6",
+      "dom"
+    ],
     "moduleResolution": "node",
     "paths": {
       "@core/*": [
@@ -48,10 +51,10 @@
       "@routes/*": [
         "src/routes/*"
       ],
-      "@dbs/*":[
+      "@dbs/*": [
         "src/dbs/*"
       ],
-      "@scripts/*":[
+      "@scripts/*": [
         "src/scripts/*"
       ]
     },
@@ -66,7 +69,7 @@
   "include": [
     "src/**/*.ts",
     "spec/**/*.ts"
-    ],
+  ],
   "exclude": [
     "src/public/"
   ]
