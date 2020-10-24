@@ -36,10 +36,6 @@
   },
   "dependencies": {
     "@mozilla/readability": "github:mozilla/readability",
-    "@types/jsdom": "^16.2.4",
-    "@types/mozilla-readability": "^0.2.0",
-    "@types/open-graph-scraper": "^4.3.0",
-    "@types/textversionjs": "^1.1.0",
     "article-parser": "^4.2.3",
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
@@ -77,6 +73,10 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@types/jsdom": "^16.2.4",
+    "@types/mozilla-readability": "^0.2.0",
+    "@types/open-graph-scraper": "^4.3.0",
+    "@types/textversionjs": "^1.1.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/bluebird": "^3.5.32",
     "@types/cheerio": "^0.22.21",
