@@ -1,5 +1,5 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import { Domain } from '@entities/Domain';
+import { BaoMoiAggregatorDomain, Domain } from '@entities/Domain';
 import { Local } from '@entities/Local';
 import { News } from '@entities/News2';
 import cheerio from 'cheerio';
@@ -10,7 +10,7 @@ import { NewsCrawler } from './NewsCrawler';
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from 'jsdom';
 import { extract } from 'article-parser';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 
 export class OGNewsParser {
 
@@ -90,8 +90,9 @@ export class OGNewsParser {
 
         const title = $('meta[property="og\\:title"]')?.first()?.attr('content') || $('meta[name=\'title\']')?.first()?.attr('content') || "";
         const summary = $('meta[property="og\\:description"]')?.first()?.attr('content') || $('meta[name=\'description\']')?.first()?.attr('content') || "";
+        const siteName = $('meta[property="og\\:site_name"]')?.first()?.attr('content') || "";
 
-        var articleParserData;
+        var articleParserData: any;
         try {
             articleParserData = await extract(htmlContent);
         } catch (e) {
@@ -109,18 +110,11 @@ export class OGNewsParser {
 
         const thumbnail = $('meta[property="og\\:image"]')?.first()?.attr('content') || $('meta[itemprop=\'image\']')?.first()?.attr('content') || articleParserData?.image || "";
 
-        const aggregator: Domain = {
-            name: 'tin-dia-phuong',
-            baseUrl: "https://tindiaphuong.org",
-            displayName: 'Tin địa phương',
-            url: 'https://tindiaphuong.org'
-        };
-        const source: Domain = {
-            name: crawler.name,
-            baseUrl: crawler.baseUrl,
-            displayName: crawler.displayName,
-            url: crawler.url
-        }
+
+        const sourceUrl = crawler.url;
+        const aggregator = new BaoMoiAggregatorDomain(crawler.url);
+
+        const source: Domain = await CrawlUtil.buildSourceDomain(siteName || crawler.displayName, sourceUrl);
 
         const categoriesReliable = await this.extractSections(crawler, $, htmlContent);
         const categories = categoriesReliable.data || [];
@@ -174,66 +168,34 @@ export abstract class OpenGraphNewsCrawler extends NewsCrawler {
     }
 }
 
-export class SimpleOpenGraphNewsCrawler extends OpenGraphNewsCrawler {
-    constructor(private _name: string, private _displayName: string, private _baseUrl: string, url: string, piority: number = 5, manager?: ICrawlerManager) {
-        super(url, piority, manager);
-    }
+/**
+ * Just receive a url
+ * Load that url and try to get the news detail
+ */
+export class GeneralOpenGraphNewsCrawler extends OpenGraphNewsCrawler {
 
-    public getName(): string {
-        return this._name;
-    }
-    public getDisplayName(): string {
-        return this._displayName;
-    }
-    public getBaseUrl(): string {
-        return this._baseUrl;
-    }
-}
+ }
 
 export class TuoiTreNewsDetailCrawler extends OpenGraphNewsCrawler {
-    public getName(): string {
-        return "tuoi-tre-online";
-    }
-    public getDisplayName(): string {
-        return "Tuổi Trẻ Online";
-    }
-    public getBaseUrl(): string {
-        return "https://tuoitre.vn";
+    constructor(url: string) {
+        super(url, "Tuổi Trẻ Online");
     }
 }
 
 export class VnExpressNewsDetailCrawler extends OpenGraphNewsCrawler {
-    public getName(): string {
-        return "vnexpress";
-    }
-    public getDisplayName(): string {
-        return "VnExpress";
-    }
-    public getBaseUrl(): string {
-        return "https://vnexpress.net";
+    constructor(url: string) {
+        super(url, "VnExpress");
     }
 }
 
 export class ThanhNienNewsDetailCrawler extends OpenGraphNewsCrawler {
-    public getName(): string {
-        return "thanh-nien";
-    }
-    public getDisplayName(): string {
-        return "Thanh Niên";
-    }
-    public getBaseUrl(): string {
-        return "https://thanhnien.vn";
+    constructor(url: string) {
+        super(url, "Báo Thanh niên");
     }
 }
 
 export class DanTriNewsDetailCrawler extends OpenGraphNewsCrawler {
-    public getName(): string {
-        return "dan-tri";
-    }
-    public getDisplayName(): string {
-        return "Báo Dân trí";
-    }
-    public getBaseUrl(): string {
-        return "https://dantri.com.vn";
+    constructor(url: string) {
+        super(url, "BáoBáo Dân trí");
     }
 }

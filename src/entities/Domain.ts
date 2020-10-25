@@ -1,5 +1,6 @@
 /* tslint:disable:max-classes-per-file */
 
+import { sendAt } from 'cron';
 import { Document, Schema, model } from 'mongoose'
 
 export interface IDomain {
@@ -24,9 +25,14 @@ export class Domain implements IDomain {
 
 }
 
-/**
- * Domain dùng để crawl nội dung
- */
-export class WebDomain extends Domain {
-    public priority: number = 5;
+export class AliAggregatorDomain extends Domain {
+    constructor(url: string = 'https://tindiaphuong.org') {
+        super('tin-dia-phuong', url, 'Tin địa phương', 'https://tindiaphuong.org')
+    }
+}
+
+export class BaoMoiAggregatorDomain extends Domain {
+    constructor(url: string) {
+        super('baomoi.com', url, 'Báo mới', 'https://baomoi.com');
+    }
 }

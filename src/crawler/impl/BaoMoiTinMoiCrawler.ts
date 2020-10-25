@@ -13,26 +13,11 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
 
     public page: number;
 
-    constructor(page: number = 1, piority: number = 5) {
-        super(BaoMoiTinMoiCrawler.getBMTMUrl(page), piority);
+    constructor(page: number = 1, priority: number = 5) {
+        super(BaoMoiTinMoiCrawler.getBMTMUrl(page));
         this.page = page;
+        this.priority = priority;
     }
-
-
-    public getName(): string {
-        return 'bao-moi-tin-moi'
-    }
-
-
-    public getDisplayName(): string {
-        return 'Báo mới - Tin mới';
-    }
-
-
-    public getBaseUrl(): string {
-        return 'https://baomoi.com';
-    }
-
 
     protected async parseHtml(content: string): Promise<Reliable<CreateQuery<News>>> {
 

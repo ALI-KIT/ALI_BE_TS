@@ -1,15 +1,12 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { SitemapNewsCrawler } from '@crawler/base/SitemapNewsCrawler';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 import cheerio from 'cheerio';
 import { BaoMoiNewsDetailCrawler } from './BaoMoiNewsDetailCrawler';
 
 export class BaoMoiSitemapCrawler extends SitemapNewsCrawler {
     constructor() {
-        super("baomoi",
-            "Báo mới",
-            "https://baomoi.com",
-            "https://baomoi.com/sitemaps/sitemap.xml")
+        super("https://baomoi.com/sitemaps/sitemap.xml", "Báo mới");
     }
 
     protected async fetchSitemapHtml(url: string): Promise<Reliable<string[]>> {

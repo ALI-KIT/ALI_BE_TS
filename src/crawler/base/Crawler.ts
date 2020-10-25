@@ -1,6 +1,6 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { ICrawlerManager } from '@crawler/base/CrawlerManager';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 import { load } from 'cheerio';
 import { BaseCrawlerManager } from './CrawlerManager';
 
@@ -27,25 +27,31 @@ export enum State {
 export abstract class Crawler<T> implements ICrawler {
 
     public id: number = BaseCrawlerManager.generateId();
-    public name: string = this.getName();
-    public displayName: string = this.getDisplayName();
-    public baseUrl: string = this.getBaseUrl();
-    public url: string;
-    public priority: number = 5;
 
-    public abstract getName(): string;
-    public abstract getDisplayName(): string;
-    public abstract getBaseUrl(): string;
+    private _manager?: ICrawlerManager = null;
 
-    private _manager?: ICrawlerManager;
+    public startTime: number = Date.now();
+    public endTime: number = 0;
+    private _state: State = State.PENDING;
+
+    public priority: number;
+    public name: string;
+    public readonly baseUrl: string;
+
+    constructor(public url: string,
+        public readonly displayName: string = CrawlUtil.prettyUrl(url).data || "",
+    ) {
+        this.baseUrl = CrawlUtil.baseUrl(url).data || "";
+        this.name = CrawlUtil.prettyUrl(url).data || "";
+        this.priority = 5;
+    }
+
     get manager(): ICrawlerManager | null { return this._manager || null }
     set manager(value: ICrawlerManager | null) {
         this._manager = value || undefined;
     }
 
-    public startTime: number = Date.now();
-    public endTime: number = 0;
-    private _state: State = State.PENDING;
+
     public get state() { return this._state }
     public set state(value: State) {
         if (value !== this._state) {
@@ -59,11 +65,7 @@ export abstract class Crawler<T> implements ICrawler {
         // TODO
     }
 
-    constructor(url: string, piority: number = 5, manager?: ICrawlerManager) {
-        this.url = url;
-        this.manager = manager || null;
-        this.priority = piority;
-    }
+
 
     /**
      * Chạy crawler này.

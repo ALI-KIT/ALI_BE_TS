@@ -1,6 +1,5 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
-import cheerio from 'cheerio';
 import MongoClient from 'mongodb';
 import textversionjs from 'textversionjs';
 

@@ -1,7 +1,7 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { Crawler, HtmlCrawler } from './Crawler';
 import RssParser from 'rss-parser';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 import Parser from 'rss-parser';
 import { VnExpressNewsDetailCrawler } from './OpenGraphNewsCrawler';
 
@@ -34,7 +34,7 @@ export abstract class RssCrawler extends HtmlCrawler<RssParser.Output> {
 
 export class VnExpressTinMoiRssCrawler extends RssCrawler {
     constructor() {
-        super("https://vnexpress.net/rss/tin-moi-nhat.rss");
+        super("https://vnexpress.net/rss/tin-moi-nhat.rss", "VnExpress Rss");
     }
     protected async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>> {
         for (let link of links) {
@@ -43,14 +43,4 @@ export class VnExpressTinMoiRssCrawler extends RssCrawler {
         }
         return Reliable.Success(links);
     }
-    public getName(): string {
-        return "vnexpress-rss-tin-moi";
-    }
-    public getDisplayName(): string {
-        return "VnExpress";
-    }
-    public getBaseUrl(): string {
-        return "https://vnexpress.net/";
-    }
-
 }

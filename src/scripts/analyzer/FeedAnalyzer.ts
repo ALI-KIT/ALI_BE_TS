@@ -176,6 +176,7 @@ export abstract class FeedAnalyzer extends DbScript {
             data: old.data,
             crawlDate: document.crawlDate,
             publicationDate: document.publicationDate,
+            analyzeDate: new Date(Date.now()),
             title: document.title,
             summary: document.summary
         }

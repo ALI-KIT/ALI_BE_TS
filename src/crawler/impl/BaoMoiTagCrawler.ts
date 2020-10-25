@@ -22,22 +22,14 @@ export class BaoMoiTagCrawler extends NewsCrawler {
     public page: number;
     public tag: string;
 
-    constructor(tag: string, prettyUrl: string, page: number, piority: number = 5) {
-        super(BaoMoiTagCrawler.getBMTagUrl(prettyUrl, page), piority);
+    constructor(tag: string, prettyUrl: string, page: number, priority: number = 5) {
+        super(BaoMoiTagCrawler.getBMTagUrl(prettyUrl, page));
         this.page = page;
+        this.priority = priority;
         this.prettyUrl = prettyUrl;
         this.tag = tag;
     }
-    public getName(): string {
-        return 'bao-moi-tag'
-    }
-    public getDisplayName(): string {
-        return 'Báo mới - Tin mới';
-    }
-    public getBaseUrl(): string {
-        return 'https://baomoi.com';
-    }
-
+    
     async parseHtml(html: string): Promise<Reliable<CreateQuery<News>>> {
 
         const $ = cheerio.load(html, { decodeEntities: false });
@@ -48,7 +40,9 @@ export class BaoMoiTagCrawler extends NewsCrawler {
         });
 
         for (let item of items) {
-            await this.manager?.addNewCrawler(new BaoMoiXemTinCrawler(item, this.priority - 1))
+            const c = new BaoMoiXemTinCrawler(item);
+            c.priority = this.priority - 1;
+            await this.manager?.addNewCrawler(c);
         }
 
         //console.log('tin-moi-bao-moi found '+ items.length+' new news')

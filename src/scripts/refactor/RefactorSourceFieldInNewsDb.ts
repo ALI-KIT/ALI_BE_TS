@@ -1,7 +1,6 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
-import CrawlUtil from '@utils/crawlUtils';
-import cheerio from 'cheerio';
+import CrawlUtil from '@utils/CrawlUtils';
 import MongoClient from 'mongodb';
 
 export class CreateRawContentFieldInNewsDb {

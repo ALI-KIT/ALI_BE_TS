@@ -6,23 +6,13 @@ import { CreateQuery } from 'mongoose';
 import { Domain } from '@entities/Domain';
 import { BaoMoiTagCrawler } from '@crawler/impl/BaoMoiTagCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 
 export class BaoMoiXemTinCrawler extends NewsCrawler {
-    public getName(): string {
-        return 'bao-moi-xem-tin';
+    constructor(url: string, priority: number = 5) {
+        super(url, "Báo mới");
+        this.priority = priority;
     }
-
-
-    public getDisplayName(): string {
-        return 'Báo mới - Xem tin';
-    }
-
-
-    public getBaseUrl(): string {
-        return 'https://baomoi.com';
-    }
-
 
     async parseHtml(html: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(html, { decodeEntities: false });
@@ -33,7 +23,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         const rawContent = CrawlUtil.getRawTextContent(content);
         const aggregator: Domain = {
             name: 'baomoi',
-            baseUrl: this.getBaseUrl(),
+            baseUrl: this.baseUrl,
             displayName: 'Báo mới',
             url: this.url
         };

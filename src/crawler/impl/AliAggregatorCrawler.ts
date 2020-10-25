@@ -7,7 +7,7 @@ import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
 
 export class AliAggregatorCrawler extends Crawler<void> {
     constructor() {
-        super("https://tindiaphuong.org");
+        super("https://tindiaphuong.org", "Tin địa phương");
     }
 
     public async saveResult(result: void): Promise<Reliable<void>> {
@@ -33,18 +33,6 @@ export class AliAggregatorCrawler extends Crawler<void> {
         };
 
         return Reliable.Success<void>(null);
-    }
-
-    public getName(): string {
-        return "tin-dia-phuong";
-    }
-
-    public getDisplayName(): string {
-        return "Tin địa phương";
-    }
-
-    public getBaseUrl(): string {
-        return "https://tindiaphuong.org";
     }
 
 }

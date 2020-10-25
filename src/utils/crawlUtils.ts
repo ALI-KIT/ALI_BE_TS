@@ -1,4 +1,5 @@
 import { Reliable } from '@core/repository/base/Reliable';
+import { AliAggregatorDomain, BaoMoiAggregatorDomain, Domain } from '@entities/Domain';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import textversionjs from 'textversionjs';
@@ -57,9 +58,30 @@ export default class CrawlUtil {
     }
 
     public static getRawTextContent(content: string) {
-        const imgProcess: textversionjs.imgProcess = (src:any, alt:any) => "";
+        const imgProcess: textversionjs.imgProcess = (src: any, alt: any) => "";
         const text = textversionjs(content, { imgProcess })
         return text;
+    }
+
+    public static async buildBaoMoiAggregatorDomain(url: string): Promise<Domain> {
+        return new BaoMoiAggregatorDomain(url);
+    }
+
+    public static async buildAliAggregatorDomain(url: string = ""): Promise<Domain> {
+        return (url == "") ? new AliAggregatorDomain() : new AliAggregatorDomain(url);
+    }
+
+    public static async buildSourceDomain(displayName: string, sourceUrl: string): Promise<Domain> {
+        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || "";
+        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || "";
+
+        const source: Domain = {
+            name: prettyUrl,
+            baseUrl: baseUrl,
+            displayName: displayName,
+            url: sourceUrl
+        }
+        return source;
     }
 }
 

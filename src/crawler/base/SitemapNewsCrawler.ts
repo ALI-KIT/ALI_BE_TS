@@ -42,9 +42,6 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
 }
 
 export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
-    constructor(private _name: string, private _displayName: string, private _baseUrl: string, url: string, piority: number = 5, manager?: ICrawlerManager) {
-        super(url, piority, manager);
-    }
 
     /**
      * Add các crawler tương ứng với mỗi sitemap url
@@ -60,16 +57,6 @@ export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
         return Reliable.Success(sitemaps);
     }
 
-    public getName(): string {
-        return this._name;
-    }
-    public getDisplayName(): string {
-        return this._displayName;
-    }
-    public getBaseUrl(): string {
-        return this._baseUrl;
-    }
-
     public async saveResult(data: string[]): Promise<Reliable<string[]>> {
         return Reliable.Success(data);
     }
@@ -78,9 +65,7 @@ export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
 export class TuoiTreSitemapCrawler extends SitemapNewsCrawler {
     constructor() {
         super("tuoi-tre-sitemap",
-            "Tuổi Trẻ Online",
-            "https://tuoitre.vn",
-            "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
+            "Tuổi Trẻ Online");
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
@@ -103,9 +88,7 @@ export class TuoiTreSitemapCrawler extends SitemapNewsCrawler {
 export class ThanhNienSitemapCrawler extends SitemapNewsCrawler {
     constructor() {
         super("thanh-nien-sitemap",
-            "Thanh Niên",
-            "https://thanhnien.vn",
-            "https://thanhnien.vn/sitemaps/newsindex.xml");
+            "Thanh Niên");
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
@@ -119,9 +102,7 @@ export class ThanhNienSitemapCrawler extends SitemapNewsCrawler {
 export class DantriSitemapCrawler extends SitemapNewsCrawler {
     constructor() {
         super("tuoi-tre-sitemap",
-            "Tuổi Trẻ Online",
-            "https://tuoitre.vn",
-            "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
+            "Tuổi Trẻ Online");
     }
 
     protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {

@@ -1,7 +1,7 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
 import '@mongodb';
-import CrawlUtil from '@utils/crawlUtils';
+import CrawlUtil from '@utils/CrawlUtils';
 import cheerio from 'cheerio';
 import { Domain } from '@entities/Domain';
 import Sitemapper from 'sitemapper';
