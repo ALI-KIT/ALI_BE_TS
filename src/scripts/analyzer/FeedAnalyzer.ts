@@ -94,7 +94,7 @@ export abstract class FeedAnalyzer extends DbScript {
         /* step 1: get the cursor */
         const cursorReliable = await this.createCursor();
         if (cursorReliable.type == Type.FAILED) {
-            return Reliable.Failed(cursorReliable.message, cursorReliable.error);
+            return Reliable.Failed(cursorReliable.message, cursorReliable.error||undefined);
         } else if (!cursorReliable.data) {
             return Reliable.Failed("Cursor is null");
         }

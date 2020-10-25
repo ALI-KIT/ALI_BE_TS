@@ -75,7 +75,7 @@ export class CreateRawContentFieldInNewsDb {
                 source.baseUrl = baseUrl.data || "";
 
                 let message: string = "";
-                let error: Error;
+                let error: Error | null = null;
                 if (prettyUrl.type == Type.FAILED) {
                     message += prettyUrl.message + ". ";
                     error = prettyUrl.error;
@@ -90,11 +90,12 @@ export class CreateRawContentFieldInNewsDb {
                     message = "Get base url successfully but empty result. ";
                 }
 
-                if (message !== "") return Reliable.Failed(message, error);
+                if (message !== "") return Reliable.Failed(message, error || undefined);
                 return Reliable.Success(null);
 
             } else return Reliable.Failed("The url is missing");
         }
+        return Reliable.Success("");
     }
 
     private async mongoClientDisconnect(mongoClient?: MongoClient.MongoClient) {

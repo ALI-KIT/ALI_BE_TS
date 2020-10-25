@@ -28,7 +28,7 @@ export abstract class Crawler<T> implements ICrawler {
 
     public id: number = BaseCrawlerManager.generateId();
 
-    private _manager?: ICrawlerManager = null;
+    private _manager?: ICrawlerManager = undefined;
 
     public startTime: number = Date.now();
     public endTime: number = 0;

@@ -13,7 +13,7 @@ export class BaoMoiSitemapCrawler extends SitemapNewsCrawler {
         const htmlContent = await CrawlUtil.loadWebsiteReliable(url);
 
         if (htmlContent.type == Type.FAILED || !htmlContent.data) {
-            return Reliable.Failed(htmlContent.message, htmlContent.error);
+            return Reliable.Failed(htmlContent.message, htmlContent.error|| undefined);
         }
 
         let $ = cheerio.load(htmlContent.data, { xmlMode: true })
@@ -44,7 +44,7 @@ export class BaoMoiSitemapCrawler extends SitemapNewsCrawler {
                     }
                 })
             } else {
-                return Reliable.Failed(reliable.message, reliable.error);
+                return Reliable.Failed(reliable.message, reliable.error || undefined);
             }
         }
 
@@ -54,7 +54,7 @@ export class BaoMoiSitemapCrawler extends SitemapNewsCrawler {
     private async fetchChildSitemap(url: string): Promise<Reliable<string[]>> {
         const sitemapContent = await CrawlUtil.loadWebsiteReliable(url);
         if (sitemapContent.type == Type.FAILED || !sitemapContent.data) {
-            return Reliable.Failed(sitemapContent.message, sitemapContent.error);
+            return Reliable.Failed(sitemapContent.message, sitemapContent.error||undefined);
         }
 
         const $ = cheerio.load(sitemapContent.data);

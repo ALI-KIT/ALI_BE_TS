@@ -51,7 +51,7 @@ export class GetDefaultKeywords extends DbScript {
 }
 
 export abstract class KeywordsAnalyzer extends FeedAnalyzer {
-    constructor(name: string, sessionCode: string, private keywords: string[] = null) {
+    constructor(name: string, sessionCode: string, private keywords: string[] | null = null) {
         super(name, sessionCode);
     }
     // override
@@ -82,7 +82,7 @@ export abstract class KeywordsAnalyzer extends FeedAnalyzer {
 }
 
 export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] = null) {
+    constructor(sessionCode: string, keywords: string[] | null = null) {
         super("find-keywords-in-field-keywords", sessionCode, keywords);
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
@@ -96,7 +96,7 @@ export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] = null) {
+    constructor(sessionCode: string, keywords: string[] | null = null) {
         super("find-keywords-in-field-title", sessionCode, keywords);
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
@@ -112,7 +112,7 @@ export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] = null) {
+    constructor(sessionCode: string, keywords: string[] | null = null) {
         super("find-keywords-in-field-summary", sessionCode, keywords);
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
@@ -129,7 +129,7 @@ export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_RawContent_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] = null) {
+    constructor(sessionCode: string, keywords: string[] | null = null) {
         super("find-keywords-in-field-rawContent", sessionCode, keywords);
     }
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {

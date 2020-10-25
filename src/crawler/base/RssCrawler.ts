@@ -19,7 +19,7 @@ export abstract class RssCrawler extends HtmlCrawler<RssParser.Output> {
 
         const parseRssReliable = await this.parseHtmlInternal(links);
         if (parseRssReliable.type == Type.FAILED) {
-            return Reliable.Custom(Type.FAILED, parseRssReliable.message, parseRssReliable.error, feed);
+            return Reliable.Custom(Type.FAILED, parseRssReliable.message, parseRssReliable.error || undefined, feed);
         }
 
         return Reliable.Success(feed);
@@ -39,7 +39,7 @@ export class VnExpressTinMoiRssCrawler extends RssCrawler {
     protected async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>> {
         for (let link of links) {
             let crawler = new VnExpressNewsDetailCrawler(link);
-            await this.manager.addNewCrawler(crawler);
+            await this.manager?.addNewCrawler(crawler);
         }
         return Reliable.Success(links);
     }
