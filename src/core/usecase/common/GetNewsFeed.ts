@@ -38,7 +38,7 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
             .useALIDB()
             .collection("server-analyzer-data")
             .find({})
-            .sort({ publicationDate: -1 })
+            .sort({ trendingScore: -1 })
             .skip(param.skip).limit(param.limit).toArray();
         const ids: MongoClient.ObjectId[] = []
 
