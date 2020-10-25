@@ -201,9 +201,9 @@ export abstract class FeedAnalyzer extends DbScript {
             } else if (distance <= AnalyzerDocumentData._24_HOUR) {
                 factor = 0.7;
             } else if (distance <= AnalyzerDocumentData._3_DAYS) {
-                factor = 0.4;
+                factor = 0.7 - 0.1 * (distance/ AnalyzerDocumentData._3_DAYS);
             } else if (distance <= AnalyzerDocumentData._7_DAYS) {
-                factor = 0.3;
+                factor = 0.25;
             } else if (distance <= AnalyzerDocumentData._1_MONTH) {
                 factor = 0.1;
             } else if (distance <= AnalyzerDocumentData._1_MONTH * 3) {
