@@ -15,18 +15,20 @@ export class AnalyzerFieldData {
  * Thông tin analyze của documentdocument
  */
 export class AnalyzerDocumentData {
+    public static readonly _1_HOUR = 60 * 60 * 3600;
+    public static readonly _6_HOURS = 6 * AnalyzerDocumentData._1_HOUR;
+    public static readonly _24_HOUR = 24 * AnalyzerDocumentData._1_HOUR;
+    public static readonly _3_DAYS = 3 * AnalyzerDocumentData._24_HOUR;
+    public static readonly _7_DAYS = 7 * AnalyzerDocumentData._24_HOUR;
+    public static readonly _1_MONTH = 30 * AnalyzerDocumentData._24_HOUR;
+    public static readonly _12_MONTH = 12 * AnalyzerDocumentData._1_MONTH;
+
     constructor(public readonly targetId: MongoClient.ObjectId) { }
     private score: number = 0;
-    public Score(): number { return this.score; }
+    public trendingScore = 1;
+
+    public getScore(): number { return this.score; }
     public readonly data: AnalyzerFieldData[] = [];
-    /*     public toNativeObject(): any {
-            const data = this.data.map(item => { return { name: item.name, score: item.score } })
-            return {
-                targetId: this.targetId,
-                score: this.score,
-                data: data
-            }
-        } */
 
     public updateAnalyzeFieldData(fieldData: AnalyzerFieldData) {
         let index = this.data.findIndex(item => item.name == fieldData.name)
@@ -39,6 +41,7 @@ export class AnalyzerDocumentData {
         let newScore = 0;
         this.data.forEach(item => newScore += item.score);
         this.score = newScore;
+
     }
 
     public getAnalyzeFieldData(name: string): AnalyzerFieldData {
@@ -94,7 +97,7 @@ export abstract class FeedAnalyzer extends DbScript {
         /* step 1: get the cursor */
         const cursorReliable = await this.createCursor();
         if (cursorReliable.type == Type.FAILED) {
-            return Reliable.Failed(cursorReliable.message, cursorReliable.error||undefined);
+            return Reliable.Failed(cursorReliable.message, cursorReliable.error || undefined);
         } else if (!cursorReliable.data) {
             return Reliable.Failed("Cursor is null");
         }
@@ -167,12 +170,14 @@ export abstract class FeedAnalyzer extends DbScript {
     async analyzeNewData(old: AnalyzerDocumentData, document: any): Promise<Reliable<any>> {
         const newAFD = new AnalyzerFieldData(this.name, await this.updateNewAnalyzeFieldScore(old, document));
         old.updateAnalyzeFieldData(newAFD);
-        document.score = old.Score;
+        old = await this.updateNewAnalyzeDocument(old, document);
         document.data = old.data;
+
         const result = {
             sessionCode: this.sessionCode,
             targetId: old.targetId,
-            score: old.Score(),
+            score: old.getScore(),
+            trendingScore: old.trendingScore,
             data: old.data,
             crawlDate: document.crawlDate,
             publicationDate: document.publicationDate,
@@ -181,6 +186,43 @@ export abstract class FeedAnalyzer extends DbScript {
             summary: document.summary
         }
         return Reliable.Success(result);
+    }
+
+    async updateNewAnalyzeDocument(analyzerDocData: AnalyzerDocumentData, newsDocument: any): Promise<AnalyzerDocumentData> {
+        const now = Date.now();
+        const publicationDate: Date = newsDocument.publicationDate;
+        let trendingScore = 0;
+        let factor = 0;
+        if (publicationDate) {
+            const pubDateMilli = publicationDate.getTime();
+            const distance = now - pubDateMilli;
+            if (distance <= AnalyzerDocumentData._6_HOURS) {
+                factor = 1;
+            } else if (distance <= AnalyzerDocumentData._24_HOUR) {
+                factor = 0.7;
+            } else if (distance <= AnalyzerDocumentData._3_DAYS) {
+                factor = 0.4;
+            } else if (distance <= AnalyzerDocumentData._7_DAYS) {
+                factor = 0.3;
+            } else if (distance <= AnalyzerDocumentData._1_MONTH) {
+                factor = 0.1;
+            } else if (distance <= AnalyzerDocumentData._1_MONTH * 3) {
+                factor = 0.1 * 0.5;
+            } else if (distance <= AnalyzerDocumentData._1_MONTH * 6) {
+                factor = 0.1 * 0.3;
+            } else if (distance <= AnalyzerDocumentData._12_MONTH) {
+                factor = 0.1 * 0.2;
+            } else {
+                // sau mỗi năm giảm thêm 0.5
+                const year = distance / AnalyzerDocumentData._12_MONTH + 1;
+                factor = 0.1 * 0.2 * Math.pow(0.5, year);
+            }
+
+        }
+
+        trendingScore = factor * analyzerDocData.getScore();
+        analyzerDocData.trendingScore = trendingScore;
+        return analyzerDocData;
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
