@@ -39,7 +39,7 @@ class AppDbLogging extends MongoDblogging {
         const cronTabState = (await db.collection("server-state").findOne({ name: "cron-tab-state" }));
         cronTabState.state = value.state || "not-running";
         cronTabState.updatedAt = new Date(Date.now());
-        cronTabState.latest = String(value._id || cronTabState.latest);
+        cronTabState.latest = document;
         await db.collection("server-state").updateOne({ _id: cronTabState._id }, { $set: cronTabState }, { upsert: true });
 
         return value;

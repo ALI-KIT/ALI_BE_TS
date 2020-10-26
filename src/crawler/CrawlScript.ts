@@ -7,6 +7,7 @@ import { BaoMoiTinMoiCrawler } from './impl/BaoMoiTinMoiCrawler';
 import { Logger } from '@utils/AppDbLogging';
 import { State } from './base/Crawler';
 import { AliAggregatorCrawler } from './impl/AliAggregatorCrawler';
+import { Reliable } from '@core/repository/base/Reliable';
 
 class CrawlScript {
     public session: any;
@@ -15,7 +16,32 @@ class CrawlScript {
         return this.manager && this.session && this.manager.status != State.PENDING;
     }
 
-    public async run(): Promise<void> {
+    public async waitOnFinish(): Promise<Reliable<any>> {
+        // wait the crawler manager to idle (finished)
+        await this.manager?.waitToIdle();
+
+        console.log("manager is on idle");
+        const finishedAt = Date.now();
+        this.session.state = "finished";
+        this.session.finishedAt = new Date(finishedAt);
+        this.session.duration = finishedAt - this.session.startedAt;
+
+        console.log("Crawl process duration: " + (finishedAt - this.session.startedAt));
+        console.log("CrawlingListSize = " + this.manager?.crawlingList.length);
+        if (this.manager?.crawlingList.length == 1) {
+            console.log(this.manager?.crawlingList[0]);
+        }
+        console.log("CrawlUrlListSize = " + this.manager?.crawlUrlList.length);
+        const counter = this.manager?.counter;
+        this.session.counter = counter;
+        this.session.crawlings = this.manager?.crawlingList?.map(c => { c.name, c.url })
+        this.session.crawlingsSize = this.manager?.crawlingList?.length;
+        this.session.crawlPoolSize = this.manager?.crawlUrlList.length;
+        await Logger.writeCronLog(this.session);
+        return Reliable.Success(counter);
+    }
+
+    public async run(): Promise<Reliable<any>> {
         const maxTimeout = 1 * 60 * 60 * 1000;
         const waitToKillProcessTimeout = 5 * 60 * 1000;
         const startedAt = Date.now();
@@ -26,7 +52,8 @@ class CrawlScript {
             finishedAt: null,
             duration: 0,
             state: "running",
-            message: ""
+            message: "",
+            counter: null,
         });
 
         this.manager = CrawlerManager.getInstance('app-crawler-manager');
@@ -36,23 +63,6 @@ class CrawlScript {
             if (!this.isInitted())
                 console.log("manager is on active");
         };
-
-        this.manager.onIdle = () => {
-            console.log("manager is on idle");
-            const finishedAt = Date.now();
-            this.session.state = "finished";
-            this.session.finishedAt = new Date(finishedAt);
-            this.session.duration = finishedAt - startedAt;
-            
-            console.log("Crawl process duration: " + (finishedAt - startedAt));
-            Logger.writeCronLog(this.session)
-                .catch(e => { })
-                .finally(() => {
-                    /* terniminate process */
-                    console.log("\n\n-------------- Force TERNIMINATING PROCESS because crawler manager state is on idle --------------\n\n");
-                    process.exit(0);
-                });
-        }
 
         await this.manager.addNewCrawler(new AliAggregatorCrawler());
         //await this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
@@ -73,6 +83,7 @@ class CrawlScript {
                 s.session.state = "finished";
                 s.session.finishedAt = new Date(finishedAt);
                 s.session.duration = finishedAt - startedAt;
+                s.session.counter = s.manager?.counter;
                 console.log("Crawl process duration: " + (finishedAt - startedAt));
                 console.log("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
                 Logger.writeCronLog(s.session).finally(() => {
@@ -82,11 +93,17 @@ class CrawlScript {
             }, waitToKillProcessTimeout);
 
         }, maxTimeout);
+        return await this.waitOnFinish();
     }
 }
 
 var script = new CrawlScript();
-script.run().catch(e => {
-    console.log("Task throws an exception");
+script.run().then(result => {
+    console.log(result);
+}).catch(e => {
+    console.log("Task finished with an unhandled exception");
     console.log(e);
+}).finally(() => {
+    console.log("\n\n-------------- Force TERNIMINATING PROCESS because task finished --------------\n\n");
+    process.exit(0);
 });

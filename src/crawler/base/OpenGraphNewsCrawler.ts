@@ -123,6 +123,10 @@ export class OGNewsParser {
         const keywords = keywordsReliable.data || [];
         const locals: Local[] = [];
 
+        if (title == "" || summary == "") {
+            return Reliable.Failed("Couldn't get title or summary from this article");
+        }
+
         return Reliable.Success({
             title,
             summary,
@@ -172,9 +176,7 @@ export abstract class OpenGraphNewsCrawler extends NewsCrawler {
  * Just receive a url
  * Load that url and try to get the news detail
  */
-export class GeneralOpenGraphNewsCrawler extends OpenGraphNewsCrawler {
-
- }
+export class DynamicSourceOGNewsCrawler extends OpenGraphNewsCrawler { }
 
 export class TuoiTreNewsDetailCrawler extends OpenGraphNewsCrawler {
     constructor(url: string) {

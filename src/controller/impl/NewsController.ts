@@ -46,7 +46,7 @@ export class NewsController implements interfaces.Controller {
     const codeQuery = req.query["keyword"] || [];
 
     const locationCodes: string[] = Array.isArray(locationQuery) ? locationQuery as string[] : [locationQuery.toString()];
-    const keywords : string[] = Array.isArray(codeQuery) ? codeQuery as string[] : [codeQuery.toString()];
+    const keywords: string[] = Array.isArray(codeQuery) ? codeQuery as string[] : [codeQuery.toString()];
     const len = keywords.length;
 
     const data = await this.getNewsFeed.invoke({ locationCodes, keywords, limit, skip });
@@ -58,6 +58,12 @@ export class NewsController implements interfaces.Controller {
     }
   }
 
+  /**
+   * Trả về object news chi tiết
+   * @param req 
+   * @param res 
+   * @param next 
+   */
   @httpGet('/detail/:id')
   private async detail(req: express.Request, res: express.Response, next: express.NextFunction) {
     const id = req.params["id"]?.toString() || "";
@@ -71,4 +77,5 @@ export class NewsController implements interfaces.Controller {
       res.status(400).json({ error: err.message });
     }
   }
+
 }

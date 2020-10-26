@@ -2,11 +2,11 @@ import { Crawler, HtmlCrawler } from '@crawler/base/Crawler';
 import { News } from '@entities/News2';
 import { CreateQuery, Error } from 'mongoose';
 import AppDatabase from '@daos/AppDatabase';
-import { Reliable } from '@core/repository/base/Reliable';
+import { Reliable, Type } from '@core/repository/base/Reliable';
 
 export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
 
-    public async saveResult(result: CreateQuery<News>): Promise<Reliable<CreateQuery<News>>> {
+    public async saveResult(result: CreateQuery<News>): Promise<Reliable<News>> {
         if (!result || !result.source?.url) {
             return Reliable.Failed('invalid params: result = ' + result + ", result.source.baseUrl = " + result?.source?.url);
         }
@@ -16,14 +16,11 @@ export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
         }
         else {
             const re = await AppDatabase.getInstance().news2Dao.create(result);
-            if (!re) {
-                return Reliable.Failed("Something wrong when trying to save news [" + result.title + "]");
+            if (re.type == Type.FAILED || !re.data) {
+                return Reliable.Failed("Error when trying to save news [" + result.title + "]. ");
+            } else {
+                return Reliable.Success(re.data!);
             }
-            if (!re) {
-                return Reliable.Failed("Error when trying to save news [" + result.title + ". ");
-            }
-
-            return Reliable.Success(result);
         }
     }
 }

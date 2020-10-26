@@ -8,8 +8,8 @@ import { AliDbClient } from '@dbs/AliDbClient';
 /**
  * Tạo/Cập nhật danh sách tin tức với các keywords từ default location 
  */
-export class FetchNewsFeedAnalyzer extends DbScript {
-    public async run(): Promise<Reliable<any>> {
+export class FetchNewsFeedAnalyzer extends DbScript<any> {
+    public async runInternal(): Promise<Reliable<any>> {
         await AliDbClient.connect();
         const defaultKeywordsReliable = await new GetDefaultKeywords().run();
         if (defaultKeywordsReliable.type == Type.FAILED) {

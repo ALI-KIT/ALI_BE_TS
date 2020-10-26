@@ -3,7 +3,7 @@ import Sitemapper from 'sitemapper';
 import { Crawler } from './Crawler';
 import { CrawlerFactory } from './CrawlerFactory';
 import { ICrawlerManager } from './CrawlerManager';
-import { DanTriNewsDetailCrawler, ThanhNienNewsDetailCrawler, TuoiTreNewsDetailCrawler } from './OpenGraphNewsCrawler';
+import { DanTriNewsDetailCrawler, DynamicSourceOGNewsCrawler, ThanhNienNewsDetailCrawler, TuoiTreNewsDetailCrawler } from './OpenGraphNewsCrawler';
 
 export abstract class SitemapCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
@@ -41,21 +41,13 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
     protected async abstract parseSiteMap(sitemaps: string[]): Promise<Reliable<T>>;
 }
 
-export class SitemapNewsCrawler extends SitemapCrawler<string[]> {
+export abstract class SitemapNewsCrawler extends SitemapCrawler<string[]> {
 
     /**
      * Add các crawler tương ứng với mỗi sitemap url
      * @param sitemaps 
      */
-    protected async parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>> {
-        for (const site in sitemaps) {
-            const reliable = CrawlerFactory.Instance.findCrawlerBySitemapUrl(site);
-            if (reliable.type == Type.SUCCESS && reliable.data) {
-                await this.manager?.addNewCrawler(reliable.data!);
-            }
-        };
-        return Reliable.Success(sitemaps);
-    }
+    protected abstract async parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>>;
 
     public async saveResult(data: string[]): Promise<Reliable<string[]>> {
         return Reliable.Success(data);
@@ -111,4 +103,16 @@ export class DantriSitemapCrawler extends SitemapNewsCrawler {
         };
         return Reliable.Success<string[]>(data);
     }
+}
+
+export class DynamicSourceSitemapCrawler extends SitemapNewsCrawler {
+    protected async parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>> {
+        for (const url of sitemaps) {
+            const crawler = new DynamicSourceOGNewsCrawler(url);
+            crawler.priority = this.priority;
+            await this.manager?.addNewCrawler(crawler);
+        }
+        return Reliable.Success(sitemaps);
+    }
+
 }

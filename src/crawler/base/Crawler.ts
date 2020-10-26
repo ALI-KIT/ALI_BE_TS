@@ -75,9 +75,10 @@ export abstract class Crawler<T> implements ICrawler {
 
     /**
      * * Khi đã xong quá trình crawl. Crawler Manger gọi hàm này để crawler lưu lại kết quả đã crawl được.
-     * * @param result 
+     *   Có thể trả về bất cứ thứ gì vì Crawler Manager chỉ quan tâm trạng thái Success or Failed
+     * * @param result
      */
-    public abstract async saveResult(result: T): Promise<Reliable<T>>;
+    public abstract async saveResult(result: T): Promise<Reliable<any>>;
 }
 
 export abstract class HtmlCrawler<T> extends Crawler<T> {
@@ -96,16 +97,7 @@ export abstract class HtmlCrawler<T> extends Crawler<T> {
 
         /* step: parse html content */
         const parseHtmlReliable = await this.parseHtml(loadHtmlReliable.data!);
-        if (parseHtmlReliable.type == Type.FAILED) {
-            return Reliable.Failed<T>(parseHtmlReliable.message, parseHtmlReliable.error ? parseHtmlReliable.error! : undefined);
-        } else if (!parseHtmlReliable.data) {
-            /* success but no data */
-            return Reliable.Success<T>(null);
-        }
-
-        /* step: save data to database */
-        const saveDataReliable = await this.saveResult(parseHtmlReliable.data!);
-        return saveDataReliable;
+        return parseHtmlReliable;
     }
 
     protected async loadHtml(url: string): Promise<Reliable<string>> {

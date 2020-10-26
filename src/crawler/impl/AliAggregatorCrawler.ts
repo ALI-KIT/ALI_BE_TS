@@ -1,38 +1,45 @@
-import { Reliable } from '@core/repository/base/Reliable';
+import { Reliable, Type } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
 import { VnExpressTinMoiRssCrawler } from '@crawler/base/RssCrawler';
 import { DantriSitemapCrawler, SitemapNewsCrawler, ThanhNienSitemapCrawler, TuoiTreSitemapCrawler } from '@crawler/base/SitemapNewsCrawler';
+import { DynamicNewsSourceGetter } from '@crawler/interactor/DynamicNewsSourceGetter';
 import { BaoMoiSitemapCrawler } from './BaoMoiSitemapCrawler';
 import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
 
-export class AliAggregatorCrawler extends Crawler<void> {
+export class AliAggregatorCrawler extends Crawler<any> {
     constructor() {
         super("https://tindiaphuong.org", "Tin địa phương");
     }
 
-    public async saveResult(result: void): Promise<Reliable<void>> {
-        return Reliable.Success(null);
+    public async saveResult(result: any): Promise<Reliable<any>> {
+        return Reliable.Success(result);
     }
 
-    public async execute(): Promise<Reliable<void>> {
+    public async execute(): Promise<Reliable<any>> {
         if (!this.manager) {
             return Reliable.Failed("The CrawlerManager hasn't been attached to this crawler yet");
         }
 
-        const crawlers = [
-            new BaoMoiSitemapCrawler(),
+        const crawlers: Crawler<any>[] = [
+     /*        new BaoMoiSitemapCrawler(),
             new VnExpressTinMoiRssCrawler(),
             new BaoMoiTinMoiCrawler(),
             new TuoiTreSitemapCrawler(),
             new ThanhNienSitemapCrawler(),
-            new DantriSitemapCrawler()   
+            new DantriSitemapCrawler() */
         ];
+
+        // add all dynamic sources
+        const dynamicSourceCrawlerReliable = await new DynamicNewsSourceGetter().run();
+        if (dynamicSourceCrawlerReliable.type == Type.SUCCESS && dynamicSourceCrawlerReliable.data) {
+            dynamicSourceCrawlerReliable.data!.forEach(dsc => crawlers.push(dsc));
+        }
 
         for (let crawler of crawlers) {
             await this.manager?.addNewCrawler(crawler);
         };
 
-        return Reliable.Success<void>(null);
+        return Reliable.Success<any>(null);
     }
 
 }

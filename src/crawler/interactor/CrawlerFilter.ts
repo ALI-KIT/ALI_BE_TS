@@ -13,11 +13,11 @@ export abstract class CrawlerFilter {
     constructor(protected readonly manager: CrawlerManager) { }
     public abstract name: string;
 
-    public async filterAction(filterAction: FilterAction, crawler: Crawler<any>, logFailed: boolean = false): Promise<boolean> {
+    public async allowAction(filterAction: FilterAction, crawler: Crawler<any>, logFailed: boolean = false): Promise<boolean> {
         const result = await this.onFilterActionForResult(filterAction, crawler);
 
         if (result.type == Type.FAILED && logFailed) {
-            console.log("CrawlerFilter: The action " + FilterAction[filterAction] + " of crawler name = [" + crawler.name + "], url = [" + crawler.url + "] had been blocked by filter [" + result.data + "], reason = [" + result.message + "]" + ((result.error) ? (" and exception " + result.error) : ""));
+            console.log("CrawlerFilter: The action " + FilterAction[filterAction] + " of crawler name = [" + crawler.name + "], url = [" + crawler.url + "] had been blocked by filter [" + result.data?.name + "], reason = [" + result.message + "]" + ((result.error) ? (" and exception " + result.error) : ""));
         }
 
         return result.type == Type.SUCCESS;
@@ -110,7 +110,7 @@ export class CheckDuplicatedInCurrenSession extends CrawlerFilter {
             case FilterAction.ON_ADDED_TO_MANAGER:
                 const crawled = this.manager.crawlUrlList.includes(crawler.url);
                 if (crawled) {
-                    return Reliable.Custom(Type.FAILED, "This url had been crawled already in current session", undefined, this);
+                    return Reliable.Custom(Type.FAILED, "This url had been crawled or already in current session", undefined, this);
                 }
         }
         return Reliable.Success(this);

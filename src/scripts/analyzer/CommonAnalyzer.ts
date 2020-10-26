@@ -6,8 +6,8 @@ import { KeywordsUtil } from '@utils/KeywordsUtil';
 import { Readable } from 'stream';
 import { AnalyzerDocumentData, FeedAnalyzer } from './FeedAnalyzer';
 
-export class GetDefaultKeywords extends DbScript {
-    public run(): Promise<Reliable<string[]>> {
+export class GetDefaultKeywords extends DbScript<string[]> {
+    public async runInternal(): Promise<Reliable<string[]>> {
         return this.getKeywordsOfDefaultLocation();
     }
     public async getKeywordsOfDefaultLocation(): Promise<Reliable<string[]>> {
@@ -91,7 +91,7 @@ export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 7;
+        return 1;
     }
 }
 
@@ -107,7 +107,7 @@ export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 4;
+        return 0.7;
     }
 }
 
@@ -123,7 +123,7 @@ export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 3;
+        return 0.6;
     }
 
 }
@@ -140,7 +140,7 @@ export class FindKeywords_In_RawContent_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 1;
+        return 0.3;
     }
 
 }

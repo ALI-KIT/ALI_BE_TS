@@ -1,3 +1,4 @@
+import { Reliable } from '@core/repository/base/Reliable';
 import { Schema, model, Model, Document, CreateQuery, MongooseFilterQuery } from 'mongoose'
 
 export abstract class IDao<T extends Document> {
@@ -9,13 +10,13 @@ export abstract class IDao<T extends Document> {
     }
 
 
-    public async create(doc: CreateQuery<T>): Promise<T | Error | null> {
+    public async create(doc: CreateQuery<T>): Promise<Reliable<T>> {
         try {
             const data = await this.model.create(doc);
-            return data;
+            return Reliable.Success(data);
         }
         catch (error) {
-            return error;
+            return Reliable.Failed("Couldnot create new document", error);
         }
     }
 

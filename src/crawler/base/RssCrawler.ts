@@ -1,17 +1,24 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import { Crawler, HtmlCrawler } from './Crawler';
+import { HtmlCrawler } from './Crawler';
 import RssParser from 'rss-parser';
-import CrawlUtil from '@utils/CrawlUtils';
-import Parser from 'rss-parser';
-import { VnExpressNewsDetailCrawler } from './OpenGraphNewsCrawler';
+import { DynamicSourceOGNewsCrawler, VnExpressNewsDetailCrawler } from './OpenGraphNewsCrawler';
 
-export abstract class RssCrawler extends HtmlCrawler<RssParser.Output> {
+export abstract class RssCrawler extends HtmlCrawler<any> {
     protected async parseHtml(content: string): Promise<Reliable<RssParser.Output>> {
         const parser = new RssParser();
-        const feed = await parser.parseString(content);
-        const links: string[] = [];
+        let parserResultReliable = await parser.parseString(content)
+            .then(value => Reliable.Success(value))
+            .catch(e => Reliable.Failed<RssParser.Output>("Error when parsing html content to rss" + e));
 
-        feed.items?.forEach(item => {
+        if (parserResultReliable.type == Type.FAILED) {
+            return Reliable.Failed(parserResultReliable.message, parserResultReliable.error || undefined);
+        } else if (!parserResultReliable.data) {
+            return Reliable.Failed("RssParser output is null");
+        }
+
+        const links: string[] = [];
+        const parserResult = parserResultReliable.data!;
+        parserResult.items?.forEach(item => {
             if (item.link) {
                 links.push(item.link);
             }
@@ -19,10 +26,11 @@ export abstract class RssCrawler extends HtmlCrawler<RssParser.Output> {
 
         const parseRssReliable = await this.parseHtmlInternal(links);
         if (parseRssReliable.type == Type.FAILED) {
-            return Reliable.Custom(Type.FAILED, parseRssReliable.message, parseRssReliable.error || undefined, feed);
+            return Reliable.Custom(Type.FAILED, parseRssReliable.message, parseRssReliable.error || undefined);
+        } else {
+            return Reliable.Success(null);
         }
 
-        return Reliable.Success(feed);
     }
 
     protected abstract async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>>;
@@ -39,6 +47,22 @@ export class VnExpressTinMoiRssCrawler extends RssCrawler {
     protected async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>> {
         for (let link of links) {
             let crawler = new VnExpressNewsDetailCrawler(link);
+            await this.manager?.addNewCrawler(crawler);
+        }
+        return Reliable.Success(links);
+    }
+}
+
+export class DynamicSourceRssCrawler extends RssCrawler {
+    constructor(url: string, displayName: string, priority: number = 5) {
+        super(url, displayName);
+        this.priority = priority;
+    }
+
+    protected async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>> {
+        for (let link of links) {
+            let crawler = new DynamicSourceOGNewsCrawler(link);
+            crawler.priority = this.priority;
             await this.manager?.addNewCrawler(crawler);
         }
         return Reliable.Success(links);

@@ -86,13 +86,13 @@ export class AnalyzerDocumentData {
  * Bước 3: Từ kết quả đó, hãy update item đó trong server-state-analyzer
  * Bước 4: Up-sert kết quả vào db (giống nhau trên mọi analyzer)
  */
-export abstract class FeedAnalyzer extends DbScript {
+export abstract class FeedAnalyzer extends DbScript<any> {
     constructor(public readonly name: string, public readonly sessionCode: string) { super() }
 
     /**
      * Return the score 
      */
-    async run(): Promise<Reliable<any>> {
+    async runInternal(): Promise<Reliable<any>> {
 
         /* step 1: get the cursor */
         const cursorReliable = await this.createCursor();

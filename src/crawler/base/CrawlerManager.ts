@@ -7,6 +7,28 @@ export interface ICrawlerManager {
     isAllowRecursion: boolean;
 }
 
+export class CrawlerManagerCounter {
+    public AddRequest = 0;
+    public RejectOnAddRequest = 0;
+
+    public AddedToQueue = 0;
+
+    public Started = 0;
+    public Excuted = 0;
+    public ExcutedFailed = 0;
+    public ExcutedSuccessNonResult = 0;
+    public ExcutedSuccessWithResult = 0;
+
+    public RejectOnSaveResult = 0;
+
+    public SaveResult = 0;
+    public SaveResultSuccess = 0;
+    public SaveResultSuccess_News = 0;
+    public SaveResultFailed = 0;
+    public Success = 0;
+    public Failed = 0;
+}
+
 export abstract class BaseCrawlerManager implements ICrawlerManager {
     protected static _count = 1;
 
@@ -32,6 +54,8 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public callback?: Callback;
     public _isAllowRecursion: boolean = false;
     public readonly filter: AliCrawlerFilter = new AliCrawlerFilter(this);
+    public readonly counter = new CrawlerManagerCounter();
+
 
     // k phai
     get isAllowRecursion(): boolean {
@@ -72,15 +96,17 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
         // push vào list
         // push vào promise queue
-
-        //if(crawler.priority < 4) return; 
+        this.counter.AddRequest++;
 
         // block receiving any new crawler task
-        const allowed = await this.filter.filterAction(FilterAction.ON_ADDED_TO_MANAGER, crawler, true)
+        const allowed = await this.filter.allowAction(FilterAction.ON_ADDED_TO_MANAGER, crawler, true)
         if (allowed) {
             this.crawlUrlList.push(crawler.url);
             this.crawlingList.push(crawler);
+            this.counter.AddedToQueue++;
             this.addToQueue(crawler.id, crawler.priority);
+        } else {
+            this.counter.RejectOnAddRequest++;
         }
     }
 
@@ -105,8 +131,8 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         return this.crawlingList.find((crawler) => crawler.id === id) || null
     }
 
-    protected addToQueue(crawlerId: number, priority: number) {
-        this.promiseQueue.add(async () => {
+    protected async addToQueue(crawlerId: number, priority: number) {
+        await this.promiseQueue.add(async () => {
             // console.log('manager: starting new crawler')
             // TODO: 
             // - Chuyển state của domain sang starting
@@ -115,32 +141,59 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             crawler.manager = this;
             crawler.state = State.STARTING;
+            this.counter.Started++;
             // TODO: check crawler validation here
 
             crawler.state = State.RUNNING
 
             // execute the crawler
             let reliable = await crawler.execute();
+            this.counter.Excuted++;
+
+
+            if (reliable.type == Type.FAILED) {
+                this.counter.ExcutedFailed++;
+            } else if (reliable.data) {
+                this.counter.ExcutedSuccessWithResult++;
+            } else {
+                this.counter.ExcutedSuccessNonResult++;
+            }
 
             // save result
-            if (reliable.type == Type.SUCCESS
-                && reliable.data
-                && await this.filter.filterAction(FilterAction.ON_SAVE_RESULT, crawler, true)) {
-                reliable = await crawler.saveResult(reliable.data);
+            if (reliable.type == Type.SUCCESS && reliable.data) {
+                // check if we should save result
+                if (await this.filter.allowAction(FilterAction.ON_SAVE_RESULT, crawler, true)) {
+                    reliable = await crawler.saveResult(reliable.data);
+                    this.counter.SaveResult++;
+                    if (reliable.type == Type.SUCCESS) {
+                        this.counter.SaveResultSuccess++;
+                        // check if this result is a news object
+                        if(reliable.data && reliable.data._id && reliable.data.source?.url) {
+                            this.counter.SaveResultSuccess_News ++;
+                        }
+                    } else {
+                        this.counter.SaveResultFailed++;
+                    }
+                } else {
+                    // do not save result
+                    this.counter.RejectOnSaveResult++;
+                }
             }
 
             if (reliable.type == Type.SUCCESS) {
                 this.onCrawlerResult(reliable.data);
             }
 
-            if (reliable.type == Type.SUCCESS)
+            if (reliable.type == Type.SUCCESS) {
                 crawler.state = State.FINISHED;
-            else {
+                this.counter.Success++;
+            } else {
                 crawler.state = State.FAILED;
+                this.counter.Failed++;
                 console.log("CrawlerManager: " + reliable.message);
 
                 if (reliable.error) {
-                    console.log("CrawlerManager: This crawler throws an exception: " + reliable.error);
+                    console.log("Exception: " + reliable.error);
                 }
             }
 
@@ -179,6 +232,10 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public stop(): void {
         this.filter.enforceDenyReceivingAnyCrawler = true;
         this.promiseQueue.clear()
+    }
+
+    public async waitToIdle() {
+        await this.promiseQueue.onIdle();
     }
 
 }
