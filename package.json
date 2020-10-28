@@ -31,6 +31,7 @@
     "@crawler": "dist/crawler",
     "@mongodb": "dist/MongoDb",
     "@loadenv": "dist/LoadEnv",
+    "@passport": "dist/Passport",
     "@dbs": "dist/dbs",
     "@scripts": "dist/scripts"
   },
@@ -102,6 +103,7 @@
     "@types/p-limit": "^2.2.0",
     "@types/passport": "^1.0.4",
     "@types/passport-jwt": "^3.0.3",
+    "@types/passport-local-mongoose": "^4.0.13",
     "@types/randomstring": "^1.1.6",
     "@types/supertest": "^2.0.10",
     "@types/unidecode": "^0.1.1",

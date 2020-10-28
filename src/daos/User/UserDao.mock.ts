@@ -4,7 +4,7 @@ import { MockDaoMock } from '../MockDb/MockDao.mock';
 import { IUserDao } from './UserDao';
 
 
-class UserDao extends MockDaoMock implements IUserDao {
+class UserDaoOld extends MockDaoMock implements IUserDao {
 
 
     public async getOne(email: string): Promise<IUser | null> {

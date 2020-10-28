@@ -5,6 +5,7 @@ import { GetNewsFeed } from '@core/usecase/common/GetNewsFeed';
 import { TYPES_USECASES } from '@core/di/Types';
 import { ConvertNewsToFeFeed, ConvertNewsToFeShortFeed, ConvertNewsToFeFeeds, ConvertNewsToFeShortFeeds } from '@core/usecase/common/ConvertNewsToFeFeed';
 import { GetNewsDetail } from '@core/usecase/common/GetNewsDetail';
+import { authenticate } from 'passport';
 
 @controller("/auth")
 export class NewsController implements interfaces.Controller {

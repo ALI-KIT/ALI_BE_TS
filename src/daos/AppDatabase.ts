@@ -1,7 +1,7 @@
 import { NewsDao } from '@daos/News/NewsDao';
 import {NewsDao as News2Dao} from '@daos/News2/News2Dao';
 import { PlaceDao } from '@daos/PlaceDao';
-import UserDao from '@daos/User/UserDao.mock';
+import UserDao from '@daos/User/UserDao';
 
 export default class AppDatabase {
     public newsDao = new NewsDao();

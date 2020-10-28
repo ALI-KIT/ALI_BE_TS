@@ -45,6 +45,9 @@
       "@mongodb": [
         "src/MongoDb"
       ],
+      "@passport": [
+        "src/Passport"
+      ],
       "@controller/*": [
         "src/controller/*"
       ],

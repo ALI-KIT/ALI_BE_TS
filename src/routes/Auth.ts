@@ -1,54 +1,71 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { Request, Response, Router } from 'express';
 import { BAD_REQUEST, OK, UNAUTHORIZED } from 'http-status-codes';
 
 import UserDao from '@daos/User/UserDao.mock';
 import { JwtService } from '@shared/JwtService';
 import { paramMissingError, loginFailedErr, cookieProps } from '@shared/constants';
+import passport from 'passport';
+import { authenticate } from 'passport';
+import AppDatabase from '../daos/AppDatabase';
 
 
 const router = Router();
-const userDao = new UserDao();
+const userDao = AppDatabase.getInstance().UserDao;
 const jwtService = new JwtService();
 
+
+require("@passport")(passport);
 
 /******************************************************************************
  *                      Login User - "POST /api/auth/login"
  ******************************************************************************/
 
-router.post('/login', async (req: Request, res: Response) => {
-    // Check email and password present
-    const { email, password } = req.body;
-    if (!(email && password)) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
-        });
-    }
-    // Fetch user
-    const user = await userDao.getOne(email);
-    if (!user) {
-        return res.status(UNAUTHORIZED).json({
-            error: loginFailedErr,
-        });
-    }
-    // Check password
-    const pwdPassed = await bcrypt.compare(password, user.pwdHash);
-    if (!pwdPassed) {
-        return res.status(UNAUTHORIZED).json({
-            error: loginFailedErr,
-        });
-    }
-    // Setup Admin Cookie
-    const jwt = await jwtService.getJwt({
-        id: user.id,
-        role: user.role,
-    });
+router.post('/login', async (request, response) => {
+    const email = request.body.email || '';
+    const password = request.body.password || '';
+    if (email && password) {
+        const user = await userDao.findOne({email: email});
+        if(!user){
+            response.status(UNAUTHORIZED).send({
+                success: false,
+                message: "email is doesn't exist",
+              });
+          } else {
+            // check if password matches
+            user.comparePassword(password, (error, isMatch) => {
+              if (isMatch && !error) {
+                // if user is found and password is right create a token
+                // algorithm: process.env.JWT_TOKEN_HASH_ALGO
+                const token = jwt.sign(
+                    user.toJSON(),
+                    process.env.JWT_SECRET_OR_KEY||"JWT_SECRET_OR_KEY", {
+                      expiresIn: process.env.JWT_TOKEN_EXPIRATION,
+                    });
+  
+                // return the information including token as JSON
+                response
+                    .status(200)
+                    .send({
+                      success: true,
+                      user: user,
+                      token: `${process.env.JWT_TOKEN_PREFIX} ${token}`,
+                    });
+              } else {
+                response
+                    .status(401)
+                    .send({
+                      success: false,
+                      message: "password is not match",
+                    });
+              }
+            });
+          }
+        }
+      });
     
-    const { key, options } = cookieProps;
-    res.cookie(key, jwt, options);
-    // Return
-    return res.status(OK).end();
-});
+  };
 
 
 /******************************************************************************
