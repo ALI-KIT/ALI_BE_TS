@@ -1,4 +1,4 @@
-import { IUser } from '@entities/User';
+import { User } from '@entities/User';
 import { getRandomInt } from '@shared/functions';
 import { MockDaoMock } from '../MockDb/MockDao.mock';
 import { IUserDao } from './UserDao';
@@ -7,7 +7,7 @@ import { IUserDao } from './UserDao';
 class UserDaoOld extends MockDaoMock implements IUserDao {
 
 
-    public async getOne(email: string): Promise<IUser | null> {
+    public async getOne(email: string): Promise<User | null> {
         try {
             const db = await super.openDb();
             for (const user of db.users) {
@@ -22,7 +22,7 @@ class UserDaoOld extends MockDaoMock implements IUserDao {
     }
 
 
-    public async getAll(): Promise<IUser[]> {
+    public async getAll(): Promise<User[]> {
         try {
             const db = await super.openDb();
             return db.users;
@@ -32,7 +32,7 @@ class UserDaoOld extends MockDaoMock implements IUserDao {
     }
 
 
-    public async add(user: IUser): Promise<void> {
+    public async add(user: User): Promise<void> {
         try {
             const db = await super.openDb();
             user.id = getRandomInt();
@@ -44,7 +44,7 @@ class UserDaoOld extends MockDaoMock implements IUserDao {
     }
 
 
-    public async update(user: IUser): Promise<void> {
+    public async update(user: User): Promise<void> {
         try {
             const db = await super.openDb();
             for (let i = 0; i < db.users.length; i++) {

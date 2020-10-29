@@ -1,7 +1,7 @@
 import { IDao } from '@daos/IDao';
-import { IUser, UserSchema } from '@entities/User';
+import { User, UserSchema } from '@entities/User';
 
-class UserDao extends IDao<IUser> {
+class UserDao extends IDao<User> {
 
     constructor() {
         super('user', UserSchema);

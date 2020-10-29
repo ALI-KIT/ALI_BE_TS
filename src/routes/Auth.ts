@@ -1,14 +1,12 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { Request, Response, Router } from 'express';
 import { BAD_REQUEST, OK, UNAUTHORIZED } from 'http-status-codes';
 
-import UserDao from '@daos/User/UserDao.mock';
 import { JwtService } from '@shared/JwtService';
 import { paramMissingError, loginFailedErr, cookieProps } from '@shared/constants';
 import passport from 'passport';
-import { authenticate } from 'passport';
 import AppDatabase from '../daos/AppDatabase';
+import { User } from '../entities/User';
+import { Type } from '../core/repository/base/Reliable';
 
 
 const router = Router();
@@ -23,59 +21,89 @@ require("@passport")(passport);
  ******************************************************************************/
 
 router.post('/login', async (request, response) => {
-    const email = request.body.email || '';
-    const password = request.body.password || '';
-    if (email && password) {
-        const user = await userDao.findOne({email: email});
-        if(!user){
-            response.status(UNAUTHORIZED).send({
-                success: false,
-                message: "email is doesn't exist",
-              });
-          } else {
-            // check if password matches
-            user.comparePassword(password, (error, isMatch) => {
-              if (isMatch && !error) {
-                // if user is found and password is right create a token
-                // algorithm: process.env.JWT_TOKEN_HASH_ALGO
-                const token = jwt.sign(
-                    user.toJSON(),
-                    process.env.JWT_SECRET_OR_KEY||"JWT_SECRET_OR_KEY", {
-                      expiresIn: process.env.JWT_TOKEN_EXPIRATION,
-                    });
-  
-                // return the information including token as JSON
-                response
-                    .status(200)
-                    .send({
-                      success: true,
-                      user: user,
-                      token: `${process.env.JWT_TOKEN_PREFIX} ${token}`,
-                    });
-              } else {
-                response
-                    .status(401)
-                    .send({
-                      success: false,
-                      message: "password is not match",
-                    });
-              }
+  const email = request.body.email || '';
+  const password = request.body.password || '';
+  if (email && password) {
+    const user = await userDao.findOne({ email: email });
+    if (!user) {
+      response.status(UNAUTHORIZED).send({
+        success: false,
+        message: "email is doesn't exist",
+      });
+    } else {
+      user.comparePassword(password, (error, isMatch) => {
+        if (isMatch && !error) {
+          const token = user.generateToken();
+
+          response
+            .status(OK)
+            .send({
+              success: true,
+              user: user,
+              token: `${process.env.JWT_TOKEN_PREFIX} ${token}`,
             });
-          }
+        } else {
+          response
+            .status(UNAUTHORIZED)
+            .send({
+              success: false,
+              message: "password is not match",
+            });
         }
       });
-    
-  };
+    }
+  }
+});
 
+
+const getUser = (request: Request): User | null => {
+  if (request) {
+    var data = request.body as User;
+    if (data.email && data.username && data.password && data.name) {
+      return data;
+    }
+  }
+  return null;
+};
+
+router.get('/register', async (req: Request, res: Response) => {
+
+  const data = getUser(req);
+  let message = "";
+  if (data != null) {
+    const findUser = await userDao.findOne({ email: data.email });
+    if(findUser==null){
+      let result = await userDao.create(data) as User;
+      if(!(result instanceof Error)){
+        res.status(OK).send({
+          success: true,
+          message:"success!!",
+          user: result,
+          token: (result as User).generateToken()
+        });
+      }
+    }
+    else{
+    message="email is exist";
+
+    }
+  }else{
+    message="data invalid";
+  }
+  res.status(BAD_REQUEST).send({
+    success: false,
+    message:message
+  });
+})
 
 /******************************************************************************
  *                      Logout - "GET /api/auth/logout"
  ******************************************************************************/
 
 router.get('/logout', async (req: Request, res: Response) => {
-    const { key, options } = cookieProps;
-    res.clearCookie(key, options);
-    return res.status(OK).end();
+  const { key, options } = cookieProps;
+  res.clearCookie(key, options);
+  return res.status(OK).end();
 });
 
 

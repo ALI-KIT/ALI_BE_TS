@@ -1,13 +1,16 @@
 import { Document, Schema, model } from 'mongoose'
 import bcrypt from 'bcryptjs';
 import passportLocalMongoose from 'passport-local-mongoose';
+import jwt from 'jsonwebtoken';
 
 export enum UserRoles {
   Standard,
   Admin,
 }
 
-export interface IUser extends Document {
+export interface User extends Document {
+  generateToken(): string;
+  comparePassword(password: any, cb: (error: any, isMatch: any) => void): void;
   id: number;
   name: string;
   username: string;
@@ -80,14 +83,26 @@ UserSchema.post('save', function (user, next) {
 });
 
 // compare password
-UserSchema.methods.comparePassword = function (passw: any, cb: any) {
-  bcrypt.compare(passw, this.password, function (err, isMatch) {
+UserSchema.methods.comparePassword = function (passwordHash: string, cb: (error: any, isMatch: any) => void) {
+  let data = (this as unknown) as User;
+  bcrypt.compare(passwordHash, data.password, function (err, isMatch) {
     if (err) {
-      return cb(err);
+      return cb(err, null);
     }
     cb(null, isMatch);
   });
 };
+
+UserSchema.methods.genarateToken = (): string=>{
+  let data = (this as unknown) as User;
+  data.password="";
+    
+  return jwt.sign(
+    data.toJSON(),
+    process.env.JWT_SECRET_OR_KEY || "JWT_SECRET_OR_KEY", {
+    expiresIn: process.env.JWT_TOKEN_EXPIRATION,
+  });
+}
 
 // pass passport-local-mongoose plugin
 // in order to handle password hashing

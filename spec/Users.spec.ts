@@ -4,7 +4,7 @@ import { Response, SuperTest, Test } from 'supertest';
 
 import app from 'src/Server';
 import UserDao from '@daos/User/UserDao.mock';
-import { IUser, User } from '@entities/User';
+import { User } from '@entities/User';
 import { login } from './support/LoginAgent';
 import { pErr } from '@shared/functions';
 import { paramMissingError } from '@shared/constants';
@@ -53,7 +53,7 @@ describe('UserRouter', () => {
                     pErr(err);
                     expect(res.status).toBe(OK);
                     // Caste instance-objects to 'User' objects
-                    const retUsers = res.body.users.map((user: IUser) => {
+                    const retUsers = res.body.users.map((user: User) => {
                         return new User(user);
                     });
                     expect(retUsers).toEqual(users);
