@@ -93,7 +93,7 @@ UserSchema.methods.comparePassword = function (this: User, passwordHash: string,
   });
 };
 
-UserSchema.methods.genarateToken = function (this: User): string {
+UserSchema.methods.generateToken = function (this: User): string {
   let data = this as any;
   data.password = "";
 

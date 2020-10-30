@@ -65,7 +65,7 @@ const getUser = (request: Request): User | null => {
   return null;
 };
 
-router.get('/register', async (req: Request, res: Response) => {
+router.post('/register', async (req: Request, res: Response) => {
 
   const data = getUser(req);
   console.log("hello");
