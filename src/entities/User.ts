@@ -83,8 +83,8 @@ UserSchema.post('save', function (user, next) {
 });
 
 // compare password
-UserSchema.methods.comparePassword = function (passwordHash: string, cb: (error: any, isMatch: any) => void) {
-  let data = (this as unknown) as User;
+UserSchema.methods.comparePassword = function (this: User, passwordHash: string, cb: (error: any, isMatch: any) => void) {
+  let data = this;
   bcrypt.compare(passwordHash, data.password, function (err, isMatch) {
     if (err) {
       return cb(err, null);
@@ -93,10 +93,10 @@ UserSchema.methods.comparePassword = function (passwordHash: string, cb: (error:
   });
 };
 
-UserSchema.methods.genarateToken = (): string=>{
-  let data = (this as unknown) as User;
-  data.password="";
-    
+UserSchema.methods.genarateToken = function (this: User): string {
+  let data = this as any;
+  data.password = "";
+
   return jwt.sign(
     data.toJSON(),
     process.env.JWT_SECRET_OR_KEY || "JWT_SECRET_OR_KEY", {

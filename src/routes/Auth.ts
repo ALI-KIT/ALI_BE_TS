@@ -4,9 +4,8 @@ import { BAD_REQUEST, OK, UNAUTHORIZED } from 'http-status-codes';
 import { JwtService } from '@shared/JwtService';
 import { paramMissingError, loginFailedErr, cookieProps } from '@shared/constants';
 import passport from 'passport';
-import AppDatabase from '../daos/AppDatabase';
-import { User } from '../entities/User';
-import { Type } from '../core/repository/base/Reliable';
+import AppDatabase from '@daos/AppDatabase';
+import { User } from '@entities/User';
 
 
 const router = Router();
@@ -69,6 +68,8 @@ const getUser = (request: Request): User | null => {
 router.get('/register', async (req: Request, res: Response) => {
 
   const data = getUser(req);
+  console.log("hello");
+  console.log("data");
   let message = "";
   if (data != null) {
     const findUser = await userDao.findOne({ email: data.email });
