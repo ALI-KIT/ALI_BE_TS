@@ -1,78 +1,76 @@
-import { Request, Response, Router } from 'express';
-import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
-import { ParamsDictionary } from 'express-serve-static-core';
+// import { Request, Response, Router } from 'express';
+// import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
+// import { ParamsDictionary } from 'express-serve-static-core';
 
-import UserDao from '@daos/User/UserDao.mock';
-import { paramMissingError } from '@shared/constants';
-import { UserRoles } from '@entities/User';
-
-
-// Init shared
-const router = Router(); // .use(adminMW);
-const userDao = new UserDao();
+// import { paramMissingError } from '@shared/constants';
+// import { UserRoles } from '@entities/User';
 
 
-/******************************************************************************
- *                      Get All Users - "GET /api/users/all"
- ******************************************************************************/
-
-router.get('/all', async (req: Request, res: Response) => {
-    const users = await userDao.getAll();
-    return res.status(OK).json({users});
-});
+// // Init shared
+// const router = Router(); // .use(adminMW);
 
 
-/******************************************************************************
- *                       Add One - "POST /api/users/add"
- ******************************************************************************/
+// /******************************************************************************
+//  *                      Get All Users - "GET /api/users/all"
+//  ******************************************************************************/
 
-router.post('/add', async (req: Request, res: Response) => {
-    // Check parameters
-    const { user } = req.body;
-    if (!user) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
-        });
-    }
-    // Add new user
-    user.role = UserRoles.Standard;
-    await userDao.add(user);
-    return res.status(CREATED).end();
-});
+// router.get('/all', async (req: Request, res: Response) => {
+//     const users = await userDao.getAll();
+//     return res.status(OK).json({users});
+// });
 
 
-/******************************************************************************
- *                       Update - "PUT /api/users/update"
- ******************************************************************************/
+// /******************************************************************************
+//  *                       Add One - "POST /api/users/add"
+//  ******************************************************************************/
 
-router.put('/update', async (req: Request, res: Response) => {
-    // Check Parameters
-    const { user } = req.body;
-    if (!user) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
-        });
-    }
-    // Update user
-    user.id = Number(user.id);
-    await userDao.update(user);
-    return res.status(OK).end();
-});
-
-
-/******************************************************************************
- *                    Delete - "DELETE /api/users/delete/:id"
- ******************************************************************************/
-
-router.delete('/delete/:id', async (req: Request, res: Response) => {
-    const { id } = req.params as ParamsDictionary;
-    await userDao.delete(Number(id));
-    return res.status(OK).end();
-});
+// router.post('/add', async (req: Request, res: Response) => {
+//     // Check parameters
+//     const { user } = req.body;
+//     if (!user) {
+//         return res.status(BAD_REQUEST).json({
+//             error: paramMissingError,
+//         });
+//     }
+//     // Add new user
+//     user.role = UserRoles.Standard;
+//     await userDao.add(user);
+//     return res.status(CREATED).end();
+// });
 
 
-/******************************************************************************
- *                                     Export
- ******************************************************************************/
+// /******************************************************************************
+//  *                       Update - "PUT /api/users/update"
+//  ******************************************************************************/
 
-export default router;
+// router.put('/update', async (req: Request, res: Response) => {
+//     // Check Parameters
+//     const { user } = req.body;
+//     if (!user) {
+//         return res.status(BAD_REQUEST).json({
+//             error: paramMissingError,
+//         });
+//     }
+//     // Update user
+//     user.id = Number(user.id);
+//     await userDao.update(user);
+//     return res.status(OK).end();
+// });
+
+
+// /******************************************************************************
+//  *                    Delete - "DELETE /api/users/delete/:id"
+//  ******************************************************************************/
+
+// router.delete('/delete/:id', async (req: Request, res: Response) => {
+//     const { id } = req.params as ParamsDictionary;
+//     await userDao.delete(Number(id));
+//     return res.status(OK).end();
+// });
+
+
+// /******************************************************************************
+//  *                                     Export
+//  ******************************************************************************/
+
+// export default router;

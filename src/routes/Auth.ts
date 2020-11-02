@@ -1,64 +1,110 @@
-import bcrypt from 'bcryptjs';
 import { Request, Response, Router } from 'express';
 import { BAD_REQUEST, OK, UNAUTHORIZED } from 'http-status-codes';
 
-import UserDao from '@daos/User/UserDao.mock';
 import { JwtService } from '@shared/JwtService';
 import { paramMissingError, loginFailedErr, cookieProps } from '@shared/constants';
+import passport from 'passport';
+import AppDatabase from '@daos/AppDatabase';
+import { User } from '@entities/User';
 
 
 const router = Router();
-const userDao = new UserDao();
+const userDao = AppDatabase.getInstance().UserDao;
 const jwtService = new JwtService();
 
+
+require("@passport")(passport);
 
 /******************************************************************************
  *                      Login User - "POST /api/auth/login"
  ******************************************************************************/
 
-router.post('/login', async (req: Request, res: Response) => {
-    // Check email and password present
-    const { email, password } = req.body;
-    if (!(email && password)) {
-        return res.status(BAD_REQUEST).json({
-            error: paramMissingError,
-        });
-    }
-    // Fetch user
-    const user = await userDao.getOne(email);
+router.post('/login', async (request, response) => {
+  const email = request.body.email || '';
+  const password = request.body.password || '';
+  if (email && password) {
+    const user = await userDao.findOne({ email: email });
     if (!user) {
-        return res.status(UNAUTHORIZED).json({
-            error: loginFailedErr,
-        });
+      response.status(UNAUTHORIZED).send({
+        success: false,
+        message: "email is doesn't exist",
+      });
+    } else {
+      user.comparePassword(password, (error, isMatch) => {
+        if (isMatch && !error) {
+          const token = user.generateToken();
+
+          response
+            .status(OK)
+            .send({
+              success: true,
+              user: user,
+              token: `${process.env.JWT_TOKEN_PREFIX} ${token}`,
+            });
+        } else {
+          response
+            .status(UNAUTHORIZED)
+            .send({
+              success: false,
+              message: "password is not match",
+            });
+        }
+      });
     }
-    // Check password
-    const pwdPassed = await bcrypt.compare(password, user.pwdHash);
-    if (!pwdPassed) {
-        return res.status(UNAUTHORIZED).json({
-            error: loginFailedErr,
-        });
-    }
-    // Setup Admin Cookie
-    const jwt = await jwtService.getJwt({
-        id: user.id,
-        role: user.role,
-    });
-    
-    const { key, options } = cookieProps;
-    res.cookie(key, jwt, options);
-    // Return
-    return res.status(OK).end();
+  }
 });
 
+
+const getUser = (request: Request): User | null => {
+  if (request) {
+    var data = request.body as User;
+    if (data.email && data.username && data.password && data.name) {
+      return data;
+    }
+  }
+  return null;
+};
+
+router.post('/register', async (req: Request, res: Response) => {
+
+  const data = getUser(req);
+  console.log("hello");
+  console.log("data");
+  let message = "";
+  if (data != null) {
+    const findUser = await userDao.findOne({ email: data.email });
+    if(findUser==null){
+      let result = await userDao.create(data) as User;
+      if(!(result instanceof Error)){
+        res.status(OK).send({
+          success: true,
+          message:"success!!",
+          user: result,
+          token: (result as User).generateToken()
+        });
+      }
+    }
+    else{
+    message="email is exist";
+
+    }
+  }else{
+    message="data invalid";
+  }
+  res.status(BAD_REQUEST).send({
+    success: false,
+    message:message
+  });
+})
 
 /******************************************************************************
  *                      Logout - "GET /api/auth/logout"
  ******************************************************************************/
 
 router.get('/logout', async (req: Request, res: Response) => {
-    const { key, options } = cookieProps;
-    res.clearCookie(key, options);
-    return res.status(OK).end();
+  const { key, options } = cookieProps;
+  res.clearCookie(key, options);
+  return res.status(OK).end();
 });
 
 

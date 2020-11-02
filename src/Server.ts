@@ -9,6 +9,8 @@ import { BAD_REQUEST } from 'http-status-codes';
 import 'express-async-errors';
 
 import BaseRouter from '@routes/Api';
+import AuthRouter from '@routes/Auth'
+
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
@@ -22,6 +24,8 @@ import '@controller/impl/NewsController';
 import '@controller/impl/ControlCenterController';
 
 import '@mongodb'
+import passport from 'passport';
+
 
 
 
@@ -41,6 +45,9 @@ const app = server.build();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(cookieProps.secret));
+
+// init and configure passport
+app.use(passport.initialize());
 
 //options for cors midddleware
 const options: cors.CorsOptions = {
