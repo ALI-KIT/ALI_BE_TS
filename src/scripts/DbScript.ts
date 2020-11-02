@@ -1,9 +1,16 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AliDbClient } from '@dbs/AliDbClient';
+import { TimeoutError } from 'bluebird';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
+    // timeOut = 45 minutes
+    public timeOut = 45 * 60 * 1000;
     public async run(): Promise<Reliable<T>> {
+        const timeOut = this.timeOut;
+        setTimeout(function () {
+            throw new TimeoutError("Script ran timeout (" + timeOut + "ms ).");
+        }, this.timeOut);
         try {
             await this.prepare();
             return await this.runInternal();
