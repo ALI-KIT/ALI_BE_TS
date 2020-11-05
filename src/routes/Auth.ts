@@ -6,6 +6,7 @@ import { paramMissingError, loginFailedErr, cookieProps } from '@shared/constant
 import passport from 'passport';
 import AppDatabase from '@daos/AppDatabase';
 import { User } from '@entities/User';
+import { Type } from '@core/repository/base/Reliable';
 
 
 const router = Router();
@@ -73,27 +74,28 @@ router.post('/register', async (req: Request, res: Response) => {
   let message = "";
   if (data != null) {
     const findUser = await userDao.findOne({ email: data.email });
-    if(findUser==null){
-      let result = await userDao.create(data) as User;
-      if(!(result instanceof Error)){
+    if (findUser == null) {
+      const reliable = await userDao.create(data);
+      let result = reliable.data;
+      if (result && reliable.type == Type.SUCCESS) {
         res.status(OK).send({
           success: true,
-          message:"success!!",
+          message: "success!!",
           user: result,
           token: (result as User).generateToken()
         });
       }
     }
-    else{
-    message="email is exist";
+    else {
+      message = "email is exist";
 
     }
-  }else{
-    message="data invalid";
+  } else {
+    message = "data invalid";
   }
   res.status(BAD_REQUEST).send({
     success: false,
-    message:message
+    message: message
   });
 })
 

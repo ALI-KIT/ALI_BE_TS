@@ -4,7 +4,7 @@ export class KeywordsUtil {
             return keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
         })
 
-        const regexString = "(?i)(" + keywords.join("|") + ")";
+        const regexString = "(?i)[^a-zA-Z](" + keywords.join("|") + ")[^a-zA-Z]";
         return regexString;
     }
 }
