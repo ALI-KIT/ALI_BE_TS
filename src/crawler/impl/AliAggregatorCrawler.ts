@@ -21,12 +21,12 @@ export class AliAggregatorCrawler extends Crawler<any> {
         }
 
         const crawlers: Crawler<any>[] = [
-     /*        new BaoMoiSitemapCrawler(),
+            new BaoMoiSitemapCrawler(),
             new VnExpressTinMoiRssCrawler(),
             new BaoMoiTinMoiCrawler(),
             new TuoiTreSitemapCrawler(),
             new ThanhNienSitemapCrawler(),
-            new DantriSitemapCrawler() */
+            new DantriSitemapCrawler() 
         ];
 
         // add all dynamic sources

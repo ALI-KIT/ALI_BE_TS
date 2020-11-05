@@ -1,5 +1,6 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
+import { EnvironmentConstant } from '@loadenv';
 import MongoClient from 'mongodb';
 
 /**
@@ -7,7 +8,7 @@ import MongoClient from 'mongodb';
  * - Set default location của server là location đó
  */
 export class CreateAndSetDefaultServerLocation {
-    private connectionString = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/";
+    private connectionString = EnvironmentConstant.CONFIG_DB_URI;
     private dbString = "SERVER-CONFIG";
 
     public async run() : Promise<Reliable<any>> {

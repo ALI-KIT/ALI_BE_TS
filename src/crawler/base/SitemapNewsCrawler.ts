@@ -24,11 +24,14 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
     }
 
     protected async fetchSitemapHtml(url: string): Promise<Reliable<string[]>> {
-        const sitemapper = new Sitemapper({
-            url
-        })
+
 
         try {
+            const sitemapper = new Sitemapper({
+                url: url,
+                timeout: 1000 * 60 * 45
+            })
+
             const response = await sitemapper.fetch();
             const data = response ? response.sites : [];
             return Reliable.Success(data);

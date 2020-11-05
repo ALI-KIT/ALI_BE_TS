@@ -1,11 +1,12 @@
 import '@loadenv';
+import { EnvironmentConstant } from '@loadenv';
 import MongoClient from 'mongodb';
 
 /**
  * Script initing data server config
  */
 class CreateServerConfigDb {
-    private connectionString = "mongodb+srv://user1:123455@ali-db.gyx2c.gcp.mongodb.net/";
+    private connectionString = EnvironmentConstant.CONFIG_DB_URI;
     private dbString = "SERVER-CONFIG";
 
     public async run() : Promise<void> {
