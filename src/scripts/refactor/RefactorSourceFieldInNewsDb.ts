@@ -2,6 +2,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
 import { EnvironmentConstant } from '@loadenv';
 import CrawlUtil from '@utils/CrawlUtils';
+import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 export class CreateRawContentFieldInNewsDb {
@@ -23,7 +24,7 @@ export class CreateRawContentFieldInNewsDb {
             i++;
             const refactor = await this.refactor(doc);
             if (refactor.type == Type.FAILED) {
-                console.log("Doc [" + doc.title + "] refactored failed with message = [" + refactor.message + "], error = [" + refactor.error + "]. ")
+                LoggingUtil.consoleLog("Doc [" + doc.title + "] refactored failed with message = [" + refactor.message + "], error = [" + refactor.error + "]. ")
             }
 
             bulkWrites.push({
@@ -36,12 +37,12 @@ export class CreateRawContentFieldInNewsDb {
             if (i % bulkDocumentsSize === 0) {
                 await collection.bulkWrite(bulkWrites);
                 bulkWrites = [];
-                console.log("Updated " + i + " / " + count + " documents")
+                LoggingUtil.consoleLog("Updated " + i + " / " + count + " documents")
             }
         }
 
         await collection.bulkWrite(bulkWrites);
-        console.log("Updated " + i + " / " + count + " documents");
+        LoggingUtil.consoleLog("Updated " + i + " / " + count + " documents");
 
         /* await collection.find({}).forEach(doc => {
             this.refactor(doc);
@@ -56,7 +57,7 @@ export class CreateRawContentFieldInNewsDb {
             if ((i + 1) % bulkDocumentsSize === 0 || i == count - 1) {
                 collection.bulkWrite(bulkWrites);
                 bulkWrites = [];
-                console.log("Updated " + i + " / " + count + " documents")
+                LogUtil.consoleLog("Updated " + i + " / " + count + " documents")
             }
 
             i++;
@@ -110,10 +111,10 @@ export class CreateRawContentFieldInNewsDb {
 }
 
 new CreateRawContentFieldInNewsDb().run().then((reliable) => {
-    console.log("Task finished with below data: ");
-    console.log(reliable)
+    LoggingUtil.consoleLog("Task finished with below data: ");
+    LoggingUtil.consoleLog(reliable)
 }).catch(e => {
-    console.log(e);
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

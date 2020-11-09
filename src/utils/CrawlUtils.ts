@@ -11,7 +11,7 @@ export default class CrawlUtil {
             .then(response => response.data)
             .catch(error => {
                 error.status = (error.response && error.response.status) || 500;
-                // console.log(error);
+                // LogUtil.consoleLog(error);
                 return null;
             });
     }

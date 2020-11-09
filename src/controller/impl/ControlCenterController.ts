@@ -7,6 +7,7 @@ import { State } from '@crawler/base/Crawler';
 import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
 import { AliDbClient } from '@dbs/AliDbClient';
 import { ObjectId } from 'mongodb'
+import LoggingUtil from '@utils/LogUtil';
 
 @controller("/control-center")
 export class ControlCenterController implements interfaces.Controller {
@@ -74,7 +75,7 @@ export class ControlCenterController implements interfaces.Controller {
         try {
             res.status(200).send(message)
         } catch (error) {
-            console.log(error)
+            LoggingUtil.consoleLog(error)
             res.status(500).send(error)
         }
     }

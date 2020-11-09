@@ -5,6 +5,7 @@ import MongoClient from 'mongodb';
 import { FindKeywords_In_Keywords_Analyzer, FindKeywords_In_RawContent_Analyzer, FindKeywords_In_Summary_Analyzer, FindKeywords_In_Title_Analyzer, GetDefaultKeywords, KeywordsAnalyzer } from './CommonAnalyzer';
 import { FeedAnalyzer } from './FeedAnalyzer';
 import { AliDbClient } from '@dbs/AliDbClient';
+import LoggingUtil from '@utils/LogUtil';
 /**
  * Tạo/Cập nhật danh sách tin tức với các keywords từ default location 
  */
@@ -27,7 +28,7 @@ export class FetchNewsFeedAnalyzer extends DbScript<any> {
         ]
 
         for (const analyzer of analyzers) {
-            console.log("Running analyzer [" + analyzer.name + "]");
+            LoggingUtil.consoleLog("Running analyzer [" + analyzer.name + "]");
             const reliable = await analyzer.run();
             if (reliable.type == Type.FAILED) {
                 return reliable
@@ -36,7 +37,7 @@ export class FetchNewsFeedAnalyzer extends DbScript<any> {
 
         // now we remove all documents having score = 0
         const removeResult = await AliDbClient.getInstance().useALIDB().collection("server-analyzer-data").deleteMany({ sessionCode: { $ne: sessionCode } })
-        console.log("Remove " + removeResult.deletedCount + " expired documents");
+        LoggingUtil.consoleLog("Remove " + removeResult.deletedCount + " expired documents");
 
         return Reliable.Success(null);
     }
@@ -44,10 +45,10 @@ export class FetchNewsFeedAnalyzer extends DbScript<any> {
 }
 
 new FetchNewsFeedAnalyzer().run().then((reliable) => {
-    console.log("Task finished with below data: ");
-    console.log(reliable)
+    LoggingUtil.consoleLog("Task finished with below data: ");
+    LoggingUtil.consoleLog(reliable)
 }).catch(e => {
-    console.log(e);
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

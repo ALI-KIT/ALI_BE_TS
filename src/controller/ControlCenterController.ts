@@ -4,11 +4,12 @@ import { CrawlerManager } from '@crawler/base/CrawlerManager';
 import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
 import AppDatabase from '@daos/AppDatabase';
 import { State } from '@crawler/base/Crawler';
+import LoggingUtil from '@utils/LogUtil';
 
 const router = Router();
 
 router.get('/', async (req: Request, res: Response, next) => {
-    console.log("access control center")
+    LoggingUtil.consoleLog("access control center");
     res.render('index', { title: 'Welcome to Ali Control Center' });
 });
 
@@ -63,7 +64,7 @@ router.get('/crawler', async (req: Request, res: Response, next) => {
     try {
         res.status(200).send(message)
     } catch (error) {
-        console.log(error)
+        LoggingUtil.consoleLog(error)
         res.status(500).send(error)
     }
 })

@@ -1,5 +1,6 @@
 import '@loadenv';
 import { EnvironmentConstant } from '@loadenv';
+import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 /**
@@ -67,9 +68,9 @@ class CreateServerConfigDb {
 }
 
 new CreateServerConfigDb().run().then(() => {
-    console.log("Task Finished.");
+    LoggingUtil.consoleLog("Task Finished.");
     process.exit(0);
 }).catch((e) => {
-    console.log("Task finished with exception: "+e);
+    LoggingUtil.consoleLog("Task finished with exception: "+e);
     throw e;
 });

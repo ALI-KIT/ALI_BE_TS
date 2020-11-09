@@ -4,6 +4,7 @@ import cheerio from 'cheerio';
 import { BaoMoiXemTinCrawler } from '@crawler/impl/BaoMoiXemTinCrawler';
 import { CreateQuery } from 'mongoose';
 import { Reliable } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 export class BaoMoiTinMoiCrawler extends NewsCrawler {
     private static getBMTMUrl(page: number) {
@@ -32,10 +33,10 @@ export class BaoMoiTinMoiCrawler extends NewsCrawler {
             await this.manager?.addNewCrawler(new BaoMoiXemTinCrawler(value, this.priority - 1))
         };
 
-        console.log('tin-moi-bao-moi found ' + items.length + ' new news')
+        LoggingUtil.consoleLog('tin-moi-bao-moi found ' + items.length + ' new news')
 
         if (items.length !== 0) {
-            console.log('found new loadmore page: ' + this.page++);
+            LoggingUtil.consoleLog('found new loadmore page: ' + this.page++);
             await this.manager?.addNewCrawler(new BaoMoiTinMoiCrawler(this.page++, this.priority));
         }
 

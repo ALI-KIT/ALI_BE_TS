@@ -9,7 +9,7 @@ const placeDao = AppDatabase.getInstance().placeDao;
 const router = Router();
 
 router.get('/', async (req: Request, res: Response) => {
-    // console.log('call this');
+    // LogUtil.consoleLog('call this');
     const { page, per_page, location } = req.query
     const loc = unidecode(location?.toString() || 'all').trim().toLowerCase()
     const limit = Number(per_page || 21)
@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
             }
         }
     } catch (error) {
-        // console.log(error);
+        // LogUtil.consoleLog(error);
         res.status(500).send(error)
     }
 });
@@ -78,7 +78,7 @@ router.get('/regex', async (req: Request, res: Response, next) => {
         const data = await placeDao.findById(id)
         res.status(200).json(data);
     } catch (error) {
-        // console.log(error);
+        // LogUtil.consoleLog(error);
         res.status(500).send(error)
     }
 })

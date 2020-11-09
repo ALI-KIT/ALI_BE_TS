@@ -1,6 +1,7 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import '@loadenv';
 import { EnvironmentConstant } from '@loadenv';
+import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 import textversionjs from 'textversionjs';
 
@@ -34,13 +35,13 @@ export class CreateRawContentFieldInNewsDb {
             if (i % bulkDocumentsSize === 0) {
                 await collection.bulkWrite(bulkWrites);
                 bulkWrites = [];
-                console.log("Updated " + i + " / " + count + " documents")
+                LoggingUtil.consoleLog("Updated " + i + " / " + count + " documents")
             }
         }
 
         await collection.bulkWrite(bulkWrites);
         bulkWrites = [];
-        console.log("Updated " + i + " / " + count + " documents")
+        LoggingUtil.consoleLog("Updated " + i + " / " + count + " documents")
 
         return Reliable.Success("Flush " + i + " of " + count + " documents in " + this.dbString + "[" + this.collectionString + "].");
     }
@@ -68,10 +69,10 @@ export class CreateRawContentFieldInNewsDb {
 }
 
 new CreateRawContentFieldInNewsDb().run().then((reliable) => {
-    console.log("Task finished with below data: ");
-    console.log(reliable)
+    LoggingUtil.consoleLog("Task finished with below data: ");
+    LoggingUtil.consoleLog(reliable)
 }).catch(e => {
-    console.log(e);
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

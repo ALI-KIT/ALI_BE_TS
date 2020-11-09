@@ -3,6 +3,7 @@ import { AliDbClient } from '@dbs/AliDbClient';
 import { Readable } from 'stream';
 import { DbScript } from '@scripts/DbScript';
 import { Reliable, Type } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 /**
  * Thông tin analyze của field trong documentdocument (keywords, title, ...)
@@ -138,14 +139,14 @@ export abstract class FeedAnalyzer extends DbScript<any> {
             if (i % bulkDocumentsSize === 0) {
                 await tempAnalyzerCollection.bulkWrite(bulkWrites);
                 bulkWrites = [];
-                console.log("Upsert " + i + " documents");
+                LoggingUtil.consoleLog("Upsert " + i + " documents");
             }
         }
 
         if (bulkWrites.length != 0) {
             await tempAnalyzerCollection.bulkWrite(bulkWrites);
         }
-        console.log("Upsert " + i + " documents");
+        LoggingUtil.consoleLog("Upsert " + i + " documents");
         return Reliable.Success("Upsert " + i + " documents");
     }
 

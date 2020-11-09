@@ -137,10 +137,10 @@ export class CreateAndSetDefaultServerLocation {
 }
 
 new CreateAndSetDefaultServerLocation().run().then((reliable) => {
-    console.log("Task finished with below data: ");
-    console.log(reliable)
+    LogUtil.consoleLog("Task finished with below data: ");
+    LogUtil.consoleLog(reliable)
 }).catch(e => {
-    console.log(e);
+    LogUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

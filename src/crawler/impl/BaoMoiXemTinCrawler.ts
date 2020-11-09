@@ -7,6 +7,7 @@ import { Domain } from '@entities/Domain';
 import { BaoMoiTagCrawler } from '@crawler/impl/BaoMoiTagCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
 import CrawlUtil from '@utils/CrawlUtils';
+import LoggingUtil from '@utils/LogUtil';
 
 export class BaoMoiXemTinCrawler extends NewsCrawler {
     constructor(url: string, priority: number = 5) {
@@ -51,12 +52,12 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         const tagUrlArray = tagArray.map(element => this.baseUrl + $(element).attr('href') || '');
 
         const locals: Local[] = [];
-        console.log('finish getting news: ' + title);
-        console.log("should craw tag : " + this.manager?.isAllowRecursion);
+        LoggingUtil.consoleLog('finish getting news: ' + title);
+        LoggingUtil.consoleLog("should craw tag : " + this.manager?.isAllowRecursion);
 
         if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0) {
             for (let value in tagUrlArray) {
-                console.log('xem tin found new tag url [' + value + ']');
+                LoggingUtil.consoleLog('xem tin found new tag url [' + value + ']');
                 await this.manager?.addNewCrawler(new BaoMoiTagCrawler(value, value, 1, this.priority - 2));
             };
         }

@@ -6,6 +6,7 @@ import { Reliable } from '../base/Reliable';
 import { News } from '@entities/News2';
 import AppDatabase from '@daos/AppDatabase';
 import { AliDbClient } from '@dbs/AliDbClient';
+import LoggingUtil from '@utils/LogUtil';
 
 @injectable()
 export class NewsRepositoryImpl implements NewsRepository {
@@ -17,8 +18,8 @@ export class NewsRepositoryImpl implements NewsRepository {
             keywords = [...keywordsFromLocations.data!, ...keywords];
         }
 
-        console.log("\n\n---- KEYWORDS ----")
-        console.log(keywords);
+        LoggingUtil.consoleLog("\n\n---- KEYWORDS ----")
+        LoggingUtil.consoleLog(keywords);
 
         try {
             const result = await AppDatabase.getInstance().news2Dao.model

@@ -8,6 +8,7 @@ import { Logger } from '@utils/AppDbLogging';
 import { State } from './base/Crawler';
 import { AliAggregatorCrawler } from './impl/AliAggregatorCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 class CrawlScript {
     public session: any;
@@ -19,19 +20,20 @@ class CrawlScript {
     public async waitOnFinish(): Promise<Reliable<any>> {
         // wait the crawler manager to idle (finished)
         await this.manager?.waitToIdle();
+        LoggingUtil.allowLogging = false;
 
-        console.log("manager is on idle");
+        LoggingUtil.consoleLog("manager is on idle");
         const finishedAt = Date.now();
         this.session.state = "finished";
         this.session.finishedAt = new Date(finishedAt);
         this.session.duration = finishedAt - this.session.startedAt;
 
-        console.log("Crawl process duration: " + (finishedAt - this.session.startedAt));
-        console.log("CrawlingListSize = " + this.manager?.crawlingList.length);
+        LoggingUtil.consoleLog("Crawl process duration: " + (finishedAt - this.session.startedAt));
+        LoggingUtil.consoleLog("CrawlingListSize = " + this.manager?.crawlingList.length);
         if (this.manager?.crawlingList.length == 1) {
-            console.log(this.manager?.crawlingList[0]);
+            LoggingUtil.consoleLog(this.manager?.crawlingList[0]);
         }
-        console.log("CrawlUrlListSize = " + this.manager?.crawlUrlList.length);
+        LoggingUtil.consoleLog("CrawlUrlListSize = " + this.manager?.crawlUrlList.length);
         const counter = this.manager?.counter;
         this.session.counter = counter;
         this.session.crawlings = this.manager?.crawlingList?.map(c => { c.name, c.url })
@@ -61,7 +63,7 @@ class CrawlScript {
 
         this.manager.onActive = () => {
             if (!this.isInitted())
-                console.log("manager is on active");
+                LoggingUtil.consoleLog("manager is on active");
         };
 
         await this.manager.addNewCrawler(new AliAggregatorCrawler());
@@ -73,7 +75,7 @@ class CrawlScript {
         setTimeout(function () {
             if (!s.isInitted()) return;
             /* try to stop the manager */
-            console.log("\n\n-------------- Force IDLING CRAWLER MANAGER due to timeout --------------\n\n");
+            LoggingUtil.consoleLog("\n\n-------------- Force IDLING CRAWLER MANAGER due to timeout --------------\n\n");
             s.manager?.stop();
 
             /* or terniminate process after a delayed time */
@@ -84,8 +86,8 @@ class CrawlScript {
                 s.session.finishedAt = new Date(finishedAt);
                 s.session.duration = finishedAt - startedAt;
                 s.session.counter = s.manager?.counter;
-                console.log("Crawl process duration: " + (finishedAt - startedAt));
-                console.log("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
+                LoggingUtil.consoleLog("Crawl process duration: " + (finishedAt - startedAt));
+                LoggingUtil.consoleLog("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
                 Logger.writeCronLog(s.session).finally(() => {
                     process.exit(0);
                 })
@@ -99,11 +101,11 @@ class CrawlScript {
 
 var script = new CrawlScript();
 script.run().then(result => {
-    console.log(result);
+    LoggingUtil.consoleLog(result);
 }).catch(e => {
-    console.log("Task finished with an unhandled exception");
-    console.log(e);
+    LoggingUtil.consoleLog("Task finished with an unhandled exception");
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
-    console.log("\n\n-------------- Force TERNIMINATING PROCESS because task finished --------------\n\n");
+    LoggingUtil.consoleLog("\n\n-------------- Force TERNIMINATING PROCESS because task finished --------------\n\n");
     process.exit(0);
 });

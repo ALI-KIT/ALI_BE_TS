@@ -7,6 +7,7 @@ import passport from 'passport';
 import AppDatabase from '@daos/AppDatabase';
 import { User } from '@entities/User';
 import { Type } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 
 const router = Router();
@@ -69,8 +70,8 @@ const getUser = (request: Request): User | null => {
 router.post('/register', async (req: Request, res: Response) => {
 
   const data = getUser(req);
-  console.log("hello");
-  console.log("data");
+  LoggingUtil.consoleLog("hello");
+  LoggingUtil.consoleLog("data");
   let message = "";
   if (data != null) {
     const findUser = await userDao.findOne({ email: data.email });

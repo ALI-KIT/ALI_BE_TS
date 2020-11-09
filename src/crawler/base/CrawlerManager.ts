@@ -1,6 +1,7 @@
 import { Type } from '@core/repository/base/Reliable';
 import { Crawler, State } from '@crawler/base/Crawler';
 import { AliCrawlerFilter, CrawlerFilter, FilterAction } from '@crawler/interactor/CrawlerFilter';
+import LoggingUtil from '@utils/LogUtil';
 import PQueue from 'p-queue/dist';
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): Promise<void>;
@@ -72,7 +73,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
         this.promiseQueue = new PQueue({ concurrency: 100 })
         this.promiseQueue.timeout = 1000 * 60 * 5;
         this.promiseQueue.on('idle', () => {
-            console.log(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
+            LoggingUtil.consoleLog(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
             this.status = State.FINISHED
             this.onIdle?.();
         });
@@ -133,7 +134,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
     protected async addToQueue(crawlerId: number, priority: number) {
         await this.promiseQueue.add(async () => {
-            // console.log('manager: starting new crawler')
+            // LogUtil.consoleLog('manager: starting new crawler')
             // TODO: 
             // - Chuyển state của domain sang starting
             const crawler = this.findCrawlerById(crawlerId);
@@ -190,10 +191,10 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
             } else {
                 crawler.state = State.FAILED;
                 this.counter.Failed++;
-                console.log("CrawlerManager: " + reliable.message);
+                LoggingUtil.consoleLog("CrawlerManager: " + reliable.message);
 
                 if (reliable.error) {
-                    console.log("Exception: " + reliable.error);
+                    LoggingUtil.consoleLog("Exception: " + reliable.error);
                 }
             }
 

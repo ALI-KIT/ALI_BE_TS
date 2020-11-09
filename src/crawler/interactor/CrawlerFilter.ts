@@ -2,6 +2,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
 import { CrawlerManager } from '@crawler/base/CrawlerManager';
 import AppDatabase from '@daos/AppDatabase';
+import LoggingUtil from '@utils/LogUtil';
 
 export enum FilterAction {
     ON_ADDED_TO_MANAGER,
@@ -17,7 +18,7 @@ export abstract class CrawlerFilter {
         const result = await this.onFilterActionForResult(filterAction, crawler);
 
         if (result.type == Type.FAILED && logFailed) {
-            console.log("CrawlerFilter: The action " + FilterAction[filterAction] + " of crawler name = [" + crawler.name + "], url = [" + crawler.url + "] had been blocked by filter [" + result.data?.name + "], reason = [" + result.message + "]" + ((result.error) ? (" and exception " + result.error) : ""));
+            LoggingUtil.consoleLog("CrawlerFilter: The action " + FilterAction[filterAction] + " of crawler name = [" + crawler.name + "], url = [" + crawler.url + "] had been blocked by filter [" + result.data?.name + "], reason = [" + result.message + "]" + ((result.error) ? (" and exception " + result.error) : ""));
         }
 
         return result.type == Type.SUCCESS;

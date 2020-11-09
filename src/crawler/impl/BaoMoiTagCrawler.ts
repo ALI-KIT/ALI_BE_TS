@@ -4,6 +4,7 @@ import cheerio from 'cheerio';
 import { BaoMoiXemTinCrawler } from '@crawler/impl/BaoMoiXemTinCrawler';
 import { CreateQuery } from 'mongoose';
 import { Reliable } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 export class BaoMoiTagCrawler extends NewsCrawler {
 
@@ -45,10 +46,10 @@ export class BaoMoiTagCrawler extends NewsCrawler {
             await this.manager?.addNewCrawler(c);
         }
 
-        //console.log('tin-moi-bao-moi found '+ items.length+' new news')
+        //LogUtil.consoleLog('tin-moi-bao-moi found '+ items.length+' new news')
 
         if (items.length !== 0) {
-            console.log('found new tag page: ' + (this.page++) + ' for tag [' + this.tag + ']');
+            LoggingUtil.consoleLog('found new tag page: ' + (this.page++) + ' for tag [' + this.tag + ']');
             await this.manager?.addNewCrawler(new BaoMoiTagCrawler(this.tag, this.prettyUrl, this.page++, this.priority - 1));
         }
 

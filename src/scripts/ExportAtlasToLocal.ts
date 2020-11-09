@@ -1,4 +1,5 @@
 import '@loadenv';
+import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 class ExportAtlasToLocal {
@@ -30,14 +31,14 @@ class ExportAtlasToLocal {
          const fromCollectionList = await fromDb.listCollections().toArray();
          const toCollectionList = await fromDb.listCollections().toArray();
 
-         console.log("\n--- Collections in FromDb "+fromDbString+" ---");
+         LoggingUtil.consoleLog("\n--- Collections in FromDb "+fromDbString+" ---");
          fromCollectionList.forEach(collection => {
-             console.log(collection);
+             LoggingUtil.consoleLog(collection);
          })
 
-         console.log("\n--- Collections in ToDb "+ toDbString+" ---");
+         LoggingUtil.consoleLog("\n--- Collections in ToDb "+ toDbString+" ---");
          toCollectionList.forEach(collection => {
-            console.log(collection);
+            LoggingUtil.consoleLog(collection);
         })
     }
 
@@ -52,9 +53,9 @@ class ExportAtlasToLocal {
 }
 
 new ExportAtlasToLocal().run().then(() => {
-    console.log("Task Finished.");
+    LoggingUtil.consoleLog("Task Finished.");
     process.exit(0);
 }).catch((e) => {
-    console.log("Task finished with exception: "+e);
+    LoggingUtil.consoleLog("Task finished with exception: "+e);
     throw e;
 });

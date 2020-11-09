@@ -1,5 +1,6 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AliDbClient } from '@dbs/AliDbClient';
+import LoggingUtil from '@utils/LogUtil';
 import { TimeoutError } from 'bluebird';
 import MongoClient from 'mongodb';
 
@@ -36,10 +37,10 @@ export abstract class DbScript<T> {
 
     public static exec(script: DbScript<any>) {
         script.run().then((reliable) => {
-            console.log("Task finished with below data: ");
-            console.log(reliable)
+            LoggingUtil.consoleLog("Task finished with below data: ");
+            LoggingUtil.consoleLog(reliable)
         }).catch(e => {
-            console.log(e);
+            LoggingUtil.consoleLog(e);
         }).finally(() => {
             process.exit(0);
         })
