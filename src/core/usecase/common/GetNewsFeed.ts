@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { BaseUsecase } from '@core/usecase/BaseUseCase'
 import { Reliable } from '@core/repository/base/Reliable';
 import { NewsRepository } from '@core/repository/base/NewsRepository';

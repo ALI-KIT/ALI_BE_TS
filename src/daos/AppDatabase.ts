@@ -1,3 +1,6 @@
+import '@loadenv';
+import '@mongodb';
+
 import { NewsDao } from '@daos/News/NewsDao';
 import {NewsDao as News2Dao} from '@daos/News2/News2Dao';
 import { PlaceDao } from '@daos/PlaceDao';

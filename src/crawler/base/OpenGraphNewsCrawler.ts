@@ -1,5 +1,4 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import { BaoMoiAggregatorDomain, Domain } from '@entities/Domain';
 import { Local } from '@entities/Local';
 import { News } from '@entities/News2';
 import cheerio from 'cheerio';
@@ -11,6 +10,7 @@ import { Readability } from "@mozilla/readability";
 import { JSDOM } from 'jsdom';
 import { extract } from 'article-parser';
 import CrawlUtil from '@utils/CrawlUtils';
+import { Domain } from '@entities/Domain';
 
 export class OGNewsParser {
 
@@ -112,9 +112,9 @@ export class OGNewsParser {
 
 
         const sourceUrl = crawler.url;
-        const aggregator = new BaoMoiAggregatorDomain(crawler.url);
+        const aggregator = CrawlUtil.buildAliAggregatorDomain(crawler.url);
 
-        const source: Domain = await CrawlUtil.buildSourceDomain(siteName || crawler.displayName, sourceUrl);
+        const source = CrawlUtil.buildSourceDomain(siteName || crawler.displayName, sourceUrl);
 
         const categoriesReliable = await this.extractSections(crawler, $, htmlContent);
         const categories = categoriesReliable.data || [];

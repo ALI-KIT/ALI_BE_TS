@@ -12,9 +12,9 @@ export default class LoggingUtil {
         LoggingUtil.overrideConfiguration = true;
     }
     public static consoleLog(message?: any, ...optionalParams: any[]) {
-        const enabled = (!EnvironmentConstant.IS_PRODUCTION) && (LoggingUtil.overrideConfiguration && LoggingUtil._allowLoggin)
+        const enabled = (!EnvironmentConstant.IS_PRODUCTION) && (!LoggingUtil.overrideConfiguration || (LoggingUtil.overrideConfiguration && LoggingUtil._allowLoggin))
         if (enabled) {
-            if(message) {
+            if(message && optionalParams && optionalParams.length != 0) {
             console.log(message, optionalParams);
             } else {
                 console.log(message);

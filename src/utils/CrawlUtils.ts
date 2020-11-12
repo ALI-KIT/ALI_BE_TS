@@ -63,15 +63,15 @@ export default class CrawlUtil {
         return text;
     }
 
-    public static async buildBaoMoiAggregatorDomain(url: string): Promise<Domain> {
+    public static buildBaoMoiAggregatorDomain(url: string): Domain {
         return new BaoMoiAggregatorDomain(url);
     }
 
-    public static async buildAliAggregatorDomain(url: string = ""): Promise<Domain> {
+    public static buildAliAggregatorDomain(url: string = ""): Domain {
         return (url == "") ? new AliAggregatorDomain() : new AliAggregatorDomain(url);
     }
 
-    public static async buildSourceDomain(displayName: string, sourceUrl: string): Promise<Domain> {
+    public static buildSourceDomain(displayName: string, sourceUrl: string): Domain {
         const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || "";
         const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || "";
 
