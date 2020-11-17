@@ -1,7 +1,7 @@
 import { News, NewsSchema } from '@entities/News2';
-import { IDao } from '@daos/IDao';
+import { Dao } from '@daos/Dao';
 
-export class NewsDao extends IDao<News> {
+export class NewsDao extends Dao<News> {
     constructor() {
         super('news-2', NewsSchema);
     }

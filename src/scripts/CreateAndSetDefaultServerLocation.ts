@@ -1,6 +1,6 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import '@loadenv';
-import { EnvironmentConstant } from '@loadenv';
+import { AppProcessEnvironment } from '@loadenv';
+import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 /**
@@ -8,7 +8,7 @@ import MongoClient from 'mongodb';
  * - Set default location của server là location đó
  */
 export class CreateAndSetDefaultServerLocation {
-    private connectionString = EnvironmentConstant.CONFIG_DB_URI;
+    private connectionString = AppProcessEnvironment.CONFIG_DB_URI;
     private dbString = "SERVER-CONFIG";
 
     public async run() : Promise<Reliable<any>> {
@@ -137,10 +137,10 @@ export class CreateAndSetDefaultServerLocation {
 }
 
 new CreateAndSetDefaultServerLocation().run().then((reliable) => {
-    LogUtil.consoleLog("Task finished with below data: ");
-    LogUtil.consoleLog(reliable)
+    LoggingUtil.consoleLog("Task finished with below data: ");
+    LoggingUtil.consoleLog(reliable)
 }).catch(e => {
-    LogUtil.consoleLog(e);
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

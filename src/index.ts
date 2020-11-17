@@ -1,10 +1,10 @@
-import '@loadenv'; // Must be the first import
+import { AppProcessEnvironment } from '@loadenv';
 
 import app from '@server';
 import logger from '@shared/Logger';
 
 // Start the server
-const port = Number(process.env.PORT || 4000);
+const port = Number(AppProcessEnvironment.getProcessEnv().PORT || 4000);
 
 
 

@@ -2,6 +2,7 @@ import { Document, Schema, model } from 'mongoose'
 import bcrypt from 'bcryptjs';
 import passportLocalMongoose from 'passport-local-mongoose';
 import jwt from 'jsonwebtoken';
+import { AppProcessEnvironment } from '@loadenv';
 
 export enum UserRoles {
   Standard,
@@ -99,8 +100,8 @@ UserSchema.methods.generateToken = function (this: User): string {
 
   return jwt.sign(
     data.toJSON(),
-    process.env.JWT_SECRET_OR_KEY || "JWT_SECRET_OR_KEY", {
-    expiresIn: process.env.JWT_TOKEN_EXPIRATION,
+    AppProcessEnvironment.getProcessEnv().JWT_SECRET_OR_KEY || "JWT_SECRET_OR_KEY", {
+    expiresIn: AppProcessEnvironment.getProcessEnv().JWT_TOKEN_EXPIRATION,
   });
 }
 

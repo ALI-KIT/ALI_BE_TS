@@ -1,7 +1,7 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AliDbClient } from '@dbs/AliDbClient';
 import LoggingUtil from '@utils/LogUtil';
-import { TimeoutError } from 'bluebird';
+import { Exception } from 'handlebars';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
@@ -9,8 +9,10 @@ export abstract class DbScript<T> {
     public timeOut = 45 * 60 * 1000;
     public async run(): Promise<Reliable<T>> {
         const timeOut = this.timeOut;
+        const scriptName = this.constructor.name;
         setTimeout(function () {
-            throw new TimeoutError("Script ran timeout (" + timeOut + "ms ).");
+            const message = "Script \"" + scriptName + "\" reached timeout (" + timeOut + "ms ).";
+            throw new Exception(message);
         }, this.timeOut);
         try {
             await this.prepare();

@@ -107,7 +107,7 @@ export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 0.7;
+        return 1;
     }
 }
 
@@ -123,7 +123,7 @@ export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 0.6;
+        return 0.9;
     }
 
 }
@@ -140,7 +140,7 @@ export class FindKeywords_In_RawContent_Analyzer extends KeywordsAnalyzer {
     }
 
     async updateNewAnalyzeFieldScore(old: AnalyzerDocumentData, document: any): Promise<number> {
-        return 0.3;
+        return 0.7;
     }
 
 }

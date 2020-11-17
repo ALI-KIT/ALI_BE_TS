@@ -1,16 +1,20 @@
-import '@loadenv';
-import '@mongodb';
-
 import { CrawlerManager } from "./base/CrawlerManager";
-import { BaoMoiTinMoiCrawler } from './impl/BaoMoiTinMoiCrawler';
 
 import { Logger } from '@utils/AppDbLogging';
 import { State } from './base/Crawler';
 import { AliAggregatorCrawler } from './impl/AliAggregatorCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
+import { DbScript } from '@scripts/DbScript';
 
-class CrawlScript {
+const RUN_AT_START_UP = false;
+
+export default class CrawlerScript extends DbScript<any> {
+    constructor() {
+        super();
+        this.timeOut = 60 * 60 * 1000; //time out 60'
+    }
+
     public session: any;
     public manager?: CrawlerManager;
     public isInitted() {
@@ -20,7 +24,7 @@ class CrawlScript {
     public async waitOnFinish(): Promise<Reliable<any>> {
         // wait the crawler manager to idle (finished)
         await this.manager?.waitToIdle();
-        LoggingUtil.allowLogging = false;
+        LoggingUtil.allowLogging = true;
 
         LoggingUtil.consoleLog("manager is on idle");
         const finishedAt = Date.now();
@@ -43,7 +47,7 @@ class CrawlScript {
         return Reliable.Success(counter);
     }
 
-    public async run(): Promise<Reliable<any>> {
+    public async runInternal(): Promise<Reliable<any>> {
         const maxTimeout = 1 * 60 * 60 * 1000;
         const waitToKillProcessTimeout = 5 * 60 * 1000;
         const startedAt = Date.now();
@@ -99,13 +103,15 @@ class CrawlScript {
     }
 }
 
-var script = new CrawlScript();
-script.run().then(result => {
-    LoggingUtil.consoleLog(result);
-}).catch(e => {
-    LoggingUtil.consoleLog("Task finished with an unhandled exception");
-    LoggingUtil.consoleLog(e);
-}).finally(() => {
-    LoggingUtil.consoleLog("\n\n-------------- Force TERNIMINATING PROCESS because task finished --------------\n\n");
-    process.exit(0);
-});
+if (RUN_AT_START_UP) {
+    const script = new CrawlerScript();
+    script.run().then(result => {
+        LoggingUtil.consoleLog(result);
+    }).catch(e => {
+        LoggingUtil.consoleLog("Task finished with an unhandled exception");
+        LoggingUtil.consoleLog(e);
+    }).finally(() => {
+        LoggingUtil.consoleLog("\n\n-------------- Force TERNIMINATING PROCESS because task finished --------------\n\n");
+        process.exit(0);
+    });
+}

@@ -23,11 +23,8 @@ import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-util
 import '@controller/impl/NewsController';
 import '@controller/impl/ControlCenterController';
 
-import '@mongodb'
 import passport from 'passport';
-
-
-
+import { AppProcessEnvironment } from '@loadenv';
 
 // Init express
 const expressApp = express();
@@ -79,12 +76,12 @@ const options: cors.CorsOptions = {
 //app.use(cors(/* options */));
 
 // Show routes called in console during development
-if (process.env.NODE_ENV === 'development') {
+if (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
 // Security
-if (process.env.NODE_ENV === 'production') {
+if (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'production') {
     app.use(helmet());
 }
 

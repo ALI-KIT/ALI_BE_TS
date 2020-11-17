@@ -4,6 +4,7 @@
  * Documentation: https://github.com/winstonjs/winston
  */
 
+import { AppProcessEnvironment } from '@loadenv';
 import { createLogger, format, transports } from 'winston';
 
 // Import Functions
@@ -19,7 +20,7 @@ const logger = createLogger({
  * to `combined.log. Write all logs error (and below) to `error.log`.
  * For development, print to the console.
  */
-if (process.env.NODE_ENV === 'production') {
+if (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'production') {
 
     const fileFormat = format.combine(
         format.timestamp(),

@@ -1,21 +1,26 @@
 // Nhập mô-đun mongoose
 import mongoose from 'mongoose'
-import Bluebird from 'bluebird'
+import { AppProcessEnvironment } from '@loadenv';
 import { AliDbClient } from './dbs/AliDbClient';
-import { EnvironmentConstant } from '@loadenv';
 
 // Thiết lập một kết nối mongoose mặc định
-const NEWS_DB_URI = process.env.ENV_MONGODB_URI_LOCAL;
-mongoose.connect(EnvironmentConstant.NEWS_DB_URI, {
+
+// Ép Mongoose sử dụng thư viện promise toàn cục
+mongoose.Promise = global.Promise;
+
+const NEWS_DB_URI = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_LOCAL;
+mongoose.connect(AppProcessEnvironment.NEWS_DB_URI, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
-})
-    .then(() => { /* TODO */ })
-    .catch(err => {
-        console.log(`DB Connection Error: ${err.message}`);
-    });
-// Ép Mongoose sử dụng thư viện promise toàn cục
-mongoose.Promise = Bluebird;
+    useCreateIndex: true
+}).then(() => {
+    console.log("mongoose connected")
+}).catch(e => {
+    console.log(e);
+    console.log("Process terniminated due to an exception from mongoose.")
+    process.exit(1);
+});
+
 // Lấy kết nối mặc định
 const globalConnection = mongoose.connection;
 
@@ -26,4 +31,4 @@ AliDbClient.connect().then(() => {
     console.log("ali-db connected")
 });
 
-export {globalConnection}
+export { globalConnection }

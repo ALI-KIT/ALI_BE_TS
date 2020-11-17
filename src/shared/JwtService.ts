@@ -1,6 +1,7 @@
 import randomString from 'randomstring';
 import jsonwebtoken, { VerifyErrors } from 'jsonwebtoken';
 import { cookieProps } from '@shared/constants';
+import { AppProcessEnvironment } from '@loadenv';
 
 
 interface IClientData {
@@ -16,7 +17,7 @@ export class JwtService {
 
 
     constructor() {
-        this.secret = (process.env.JWT_SECRET || randomString.generate(100));
+        this.secret = (AppProcessEnvironment.getProcessEnv().JWT_SECRET || randomString.generate(100));
         this.options = {expiresIn: cookieProps.options.maxAge.toString()};
     }
 

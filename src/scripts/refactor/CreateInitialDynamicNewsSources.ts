@@ -80,6 +80,14 @@ export class CreateInitialDynamicNewsSources extends DbScript<any> {
                 SourceType.SITEMAP,
                 SourceStatus.ENABLED
             ),
+
+            /* PLO */
+            new DynamicSource(
+                "PLO",
+                "https://plo.vn/sitemaps/newsindex.xml",
+                SourceType.SITEMAP,
+                SourceStatus.ENABLED
+            )
         ]
         const collection = AliDbClient.getInstance().useServerConfig().collection("dynamic-news-sources");
         for (const ds of list) {

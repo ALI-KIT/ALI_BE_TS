@@ -10,8 +10,8 @@ export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
         if (!result || !result.source?.url) {
             return Reliable.Failed('invalid params: result = ' + result + ", result.source.baseUrl = " + result?.source?.url);
         }
-        const found = await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': result.source?.url });
-        if (found) {
+        const exists = await AppDatabase.getInstance().news2Dao.model.exists({ 'source.url': result.source?.url });
+        if (exists) {
             return Reliable.Failed('News existed in database: ' + result.title);
         }
         else {

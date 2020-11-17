@@ -1,5 +1,4 @@
-import '@loadenv';
-import { EnvironmentConstant } from '@loadenv';
+import { AppProcessEnvironment } from '@loadenv';
 import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
@@ -7,7 +6,7 @@ import MongoClient from 'mongodb';
  * Script initing data server config
  */
 class CreateServerConfigDb {
-    private connectionString = EnvironmentConstant.CONFIG_DB_URI;
+    private connectionString = AppProcessEnvironment.CONFIG_DB_URI;
     private dbString = "SERVER-CONFIG";
 
     public async run() : Promise<void> {
