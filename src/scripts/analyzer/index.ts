@@ -14,7 +14,7 @@ export class AppAnalyzer extends DbScript<any> {
     }
     protected async runInternal(): Promise<Reliable<any>> {
         const tasks: DbScript<any>[] = [
-           /*  new CrawlerScript(), */
+            new CrawlerScript(),
             new FetchNewsFeedAnalyzer(),
             new GroupingBySimilarity(),
         ];

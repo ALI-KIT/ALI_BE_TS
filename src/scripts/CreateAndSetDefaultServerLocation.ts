@@ -7,15 +7,21 @@ import MongoClient from 'mongodb';
  * - Tạo 1 location config data
  * - Set default location của server là location đó
  */
+export class Keyword {
+    constructor(public name: string, public weight: number, public description: string) {
+
+    }
+}
 export class CreateAndSetDefaultServerLocation {
     private connectionString = AppProcessEnvironment.CONFIG_DB_URI;
     private dbString = "SERVER-CONFIG";
 
-    public async run() : Promise<Reliable<any>> {
+    public async run(): Promise<Reliable<any>> {
         const client = await this.mongoClientConnect(this.connectionString);
         const localCode = "763";
-        const createReliable = await this.createLocationData(localCode, client);
-        if(createReliable.type == Type.SUCCESS) {
+        const skipIfExist = false;
+        const createReliable = await this.createLocationData(localCode, client, skipIfExist);
+        if (createReliable.type == Type.SUCCESS) {
             await this.setDefaultLocationToCurrentServerConfig(localCode, client);
         }
         return createReliable;
@@ -25,7 +31,7 @@ export class CreateAndSetDefaultServerLocation {
         return /^-?\d+$/.test(value);
     }
 
-    public async createLocationData(localCode: string, client: MongoClient.MongoClient) : Promise<Reliable<any>> {
+    public async createLocationData(localCode: string, client: MongoClient.MongoClient, skipIfExist: boolean): Promise<Reliable<any>> {
         const serverConfigString = this.dbString;
         const aliDbString = "ALI-DB";
         const overriden = true;
@@ -46,59 +52,63 @@ export class CreateAndSetDefaultServerLocation {
              ...
          }
          */
-        // Kiểm tra xem quan 9 đã tồn tại chưa
+        // Kiểm tra xem localCode da co hay chua đã tồn tại chưa
         const code = localCode;
         const serverLocationDataCollection = serverConfigDb.collection("server-location-data");
-        var quan9 = await serverLocationDataCollection.findOne({code: code});
+        let locationObject = await serverLocationDataCollection.findOne({ code: code });
 
-        if(quan9) {
-            if(!overriden)
-            return Reliable.Success(quan9);
-            else await serverLocationDataCollection.deleteOne({code: code});
+        if (locationObject) {
+            if (!overriden)
+                return Reliable.Success(locationObject);
+            else await serverLocationDataCollection.deleteOne({ code: code });
         }
         // now we get quan-9 from general location db
         const aliLocationCollection = client.db(aliDbString).collection("ali-location");
-        quan9 = await aliLocationCollection.findOne({code: code});
-        if(!quan9) {
+        locationObject = await aliLocationCollection.findOne({ code: code });
+        if (!locationObject) {
             return Reliable.Failed("The code provided is invalid");
         }
 
-        if(!quan9.keywords) {
-            quan9.keywords = [];
+        if (!locationObject.keywords) {
+            locationObject.keywords = [];
         }
 
-        quan9.initial_keywords = [...quan9.keywords];
-        
+        // đây là mảng keywords được gen bởi script này 
+        const initial_keywords: Keyword[] = [];
+        const keywords: Keyword[] = [];
+
+        locationObject.initial_keywords = [...locationObject.keywords];
+
         const childCodes: string[] = [];
         await this.findAllChildLocationReferences(childCodes, localCode, aliLocationCollection);
 
         const childs: string[] = [];
-        for(var i = 0; i < childCodes.length;i++) {
-            const item = await aliLocationCollection.findOne({code: childCodes[i]});
-            if(item) {
+        for (var i = 0; i < childCodes.length; i++) {
+            const item = await aliLocationCollection.findOne({ code: childCodes[i] });
+            if (item) {
                 /* if the field "name" is not a number */
-                if(item.name && !this.isPositiveNumber(item.name)) {
+                if (item.name && !this.isPositiveNumber(item.name)) {
                     childs.push(item.name);
-                } else if(item.name_with_type) {
+                } else if (item.name_with_type) {
                     childs.push(item.name_with_type);
                 }
             }
         }
 
-        quan9.keywords = [...quan9.keywords, ...childs];
+        locationObject.keywords = [...locationObject.keywords, ...childs];
 
-        await serverLocationDataCollection.insertOne(quan9);
-        return Reliable.Success(quan9);
+        await serverLocationDataCollection.insertOne(locationObject);
+        return Reliable.Success(locationObject);
     }
 
     private async findAllChildLocationReferences(result: string[], localCode: string, collecton: MongoClient.Collection<any>) {
         // find all items having parent_code equals localCode
         // add to result
-        const list = await collecton.find({parent_code: localCode}).toArray();
-        if(list) {
+        const list = await collecton.find({ parent_code: localCode }).toArray();
+        if (list) {
             list.forEach(doc => {
-                const code:string = doc.code;
-                if(code && !result.includes(code)) {
+                const code: string = doc.code;
+                if (code && !result.includes(code)) {
                     result.push(code);
                     this.findAllChildLocationReferences(result, code, collecton);
                 }
@@ -106,29 +116,29 @@ export class CreateAndSetDefaultServerLocation {
         }
     }
 
-    public async setDefaultLocationToCurrentServerConfig(localCode: string, client: MongoClient.MongoClient) : Promise<Reliable<any>> {
+    public async setDefaultLocationToCurrentServerConfig(localCode: string, client: MongoClient.MongoClient): Promise<Reliable<any>> {
         const serverConfigString = this.dbString;
 
         const serverConfigDb = client.db(serverConfigString);
         const serverStateCollection = serverConfigDb.collection("server-state");
 
-        const locationItem = await await serverConfigDb.collection("server-location-data").findOne({code: localCode});
+        const locationItem = await await serverConfigDb.collection("server-location-data").findOne({ code: localCode });
         const displayName = locationItem && locationItem.name_with_type ? locationItem.name_with_type : null;
 
-        var serverCommonState = await serverStateCollection.findOne({name: "server-common-state"});
-        if(!serverCommonState) {
+        var serverCommonState = await serverStateCollection.findOne({ name: "server-common-state" });
+        if (!serverCommonState) {
             serverCommonState = {}
         }
         serverCommonState.locationCode = localCode;
         serverCommonState.locationDisplayName = displayName;
-        await serverStateCollection.updateOne({name: "server-common-state"}, {$set: serverCommonState}, {upsert: true});
-        
+        await serverStateCollection.updateOne({ name: "server-common-state" }, { $set: serverCommonState }, { upsert: true });
+
         return Reliable.Success(null);
     }
 
     private async mongoClientDisconnect(mongoClient?: MongoClient.MongoClient) {
-        if(mongoClient)
-        return await mongoClient?.close(true);
+        if (mongoClient)
+            return await mongoClient?.close(true);
     }
 
     private async mongoClientConnect(url: string): Promise<MongoClient.MongoClient> {
