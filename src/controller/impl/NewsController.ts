@@ -7,6 +7,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import { FeShortFeed } from '@entities/fe/FeFeed';
 import { ConvertNewsToFeFeed, ConvertNewsToFeShortFeed, ConvertNewsToFeFeeds, ConvertNewsToFeShortFeeds } from '@core/usecase/common/ConvertNewsToFeFeed';
 import { GetNewsDetail } from '@core/usecase/common/GetNewsDetail';
+import { GetFeedsGroupBySimilarity, GetFeedsGroupBySimilarityParam } from '@core/usecase/common/GetFeedsGroupBySimilarity';
 
 @controller("/news")
 export class NewsController implements interfaces.Controller {
@@ -27,7 +28,10 @@ export class NewsController implements interfaces.Controller {
     private convertNewsToFeShortFeeds: ConvertNewsToFeShortFeeds,
 
     @inject(TYPES_USECASES.GetNewsDetail)
-    private getNewsDetail: GetNewsDetail) { }
+    private getNewsDetail: GetNewsDetail,
+
+    @inject(TYPES_USECASES.GetFeedsGroupBySimilarity)
+    private getFeedsGroupBySimilarity: GetFeedsGroupBySimilarity) { }
 
   @httpGet('/')
   private async index(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -74,7 +78,24 @@ export class NewsController implements interfaces.Controller {
     try {
       res.status(200).json(data2.type == Type.SUCCESS ? data2.data : { message: data2.message, error: data2.error });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ message: err.message, error: err });
+    }
+  }
+
+  @httpGet('/feed/similarity')
+  private async feedSimilarity(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const per_page = Math.max(Number(req.query["per_page"]?.toString()) || 40, 1);
+    const page = Math.max(Number(req.query["page"]?.toString()) || 1, 1);
+
+    const limit = per_page;
+    const skip = limit * (page - 1);
+
+
+    const data = await this.getFeedsGroupBySimilarity.invoke(new GetFeedsGroupBySimilarityParam(skip, limit));
+    try {
+      res.status(200).json(data.type == Type.SUCCESS ? data.data : { message: data.message, error: data.error });
+    } catch (err) {
+      res.status(400).json({ message: err.message, error: err });
     }
   }
 

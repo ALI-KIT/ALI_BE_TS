@@ -1,12 +1,13 @@
 import { Strategy, ExtractJwt } from 'passport-jwt';
 // load up the user model
 import AppDatabase from '@daos/AppDatabase';
+import { AppProcessEnvironment } from '@loadenv';
 
 const User = AppDatabase.getInstance().UserDao;
 // module.exports = function () {
 //   var opts = {
 //     jwtFromRequest: ExtractJwt.fromAuthHeader(),
-//     secretOrKey: process.env.JWT_SECRET || 'JWTSECRET'
+//     secretOrKey: EnvironmentConstant.getProcessEnv().JWT_SECRET || 'JWTSECRET'
 //   };
 
 //   passport.use(new Strategy(opts, async (jwt_payload, done) => {
@@ -17,8 +18,8 @@ const User = AppDatabase.getInstance().UserDao;
 // };
 
 const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme(process.env.JWT_SCHEME||""),
-  secretOrKey: process.env.JWT_SECRET_OR_KEY
+  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme(AppProcessEnvironment.getProcessEnv().JWT_SCHEME||""),
+  secretOrKey: AppProcessEnvironment.getProcessEnv().JWT_SECRET_OR_KEY
 };
 const passportJWTStrategy = new Strategy(opts, async (jwtPayload, done) => {
   // retrieve mail from jwt payload

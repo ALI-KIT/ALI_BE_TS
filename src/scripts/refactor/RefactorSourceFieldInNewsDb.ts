@@ -1,12 +1,11 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import '@loadenv';
-import { EnvironmentConstant } from '@loadenv';
+import { AppProcessEnvironment } from '@loadenv';
 import CrawlUtil from '@utils/CrawlUtils';
 import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 export class CreateRawContentFieldInNewsDb {
-    private connectionString = EnvironmentConstant.NEWS_DB_URI;
+    private connectionString = AppProcessEnvironment.NEWS_DB_URI;
     private dbString = "ALI-DB";
     private collectionString = "news-2";
     public async run(): Promise<Reliable<any>> {

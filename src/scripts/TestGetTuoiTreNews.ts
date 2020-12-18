@@ -1,10 +1,9 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import '@loadenv';
-import '@mongodb';
 import CrawlUtil from '@utils/CrawlUtils';
 import cheerio from 'cheerio';
 import { Domain } from '@entities/Domain';
 import Sitemapper from 'sitemapper';
+import LoggingUtil from '@utils/LogUtil';
 
 class TestGetTuoiTreNews {
     public async run(): Promise<Reliable<any>> {
@@ -50,10 +49,10 @@ class TestGetTuoiTreNews {
 };
 
 new TestGetTuoiTreNews().run().then((reliable) => {
-    LogUtil.consoleLog("Task finished with below data: ");
-    LogUtil.consoleLog(reliable)
+    LoggingUtil.consoleLog("Task finished with below data: ");
+    LoggingUtil.consoleLog(reliable)
 }).catch(e => {
-    LogUtil.consoleLog(e);
+    LoggingUtil.consoleLog(e);
 }).finally(() => {
     process.exit(0);
 

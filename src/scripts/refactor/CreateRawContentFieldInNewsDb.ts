@@ -1,12 +1,12 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import '@loadenv';
-import { EnvironmentConstant } from '@loadenv';
+import { AppProcessEnvironment } from '@loadenv';
+import CrawlUtil from '@utils/CrawlUtils';
 import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 import textversionjs from 'textversionjs';
 
 export class CreateRawContentFieldInNewsDb {
-    private connectionString = EnvironmentConstant.NEWS_DB_URI;
+    private connectionString = AppProcessEnvironment.NEWS_DB_URI;
     private dbString = "ALI-DB";
     private collectionString = "news-2";
     public async run(): Promise<Reliable<any>> {
@@ -22,7 +22,7 @@ export class CreateRawContentFieldInNewsDb {
         for await (const doc of cursor) {
             i++;
             if (doc.content) {
-                doc.rawContent = this.getRawContent(doc.content);
+                doc.rawContent = CrawlUtil.getRawTextContent(doc.content);
             }
 
             bulkWrites.push({
@@ -44,12 +44,6 @@ export class CreateRawContentFieldInNewsDb {
         LoggingUtil.consoleLog("Updated " + i + " / " + count + " documents")
 
         return Reliable.Success("Flush " + i + " of " + count + " documents in " + this.dbString + "[" + this.collectionString + "].");
-    }
-
-    private getRawContent(content: string) {
-        const imgProcess: textversionjs.imgProcess = (src, alt) => "";
-        const text = textversionjs(content, { imgProcess })
-        return text;
     }
 
     private getRawContentv2(content: string) {

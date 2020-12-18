@@ -1,4 +1,3 @@
-import '@loadenv';
 import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 

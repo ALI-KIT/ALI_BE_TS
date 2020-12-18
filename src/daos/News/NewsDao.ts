@@ -1,5 +1,5 @@
 import { News, ShortNews, NewsSchema } from '@entities/News';
-import { IDao } from '@daos/IDao';
+import { Dao } from '@daos/Dao';
 
 export class PagingData {
     public maxItem: number;
@@ -11,7 +11,7 @@ export class PagingData {
     }
 }
 
-export class NewsDao extends IDao<News> {
+export class NewsDao extends Dao<News> {
     constructor() {
         super('news', NewsSchema)
     }

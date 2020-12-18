@@ -1,4 +1,3 @@
-import '@loadenv';
 import '@mongodb';
 
 import { NewsDao } from '@daos/News/NewsDao';

@@ -40,7 +40,15 @@ export class AnalyzerDocumentData {
         }
 
         let newScore = 0;
-        this.data.forEach(item => newScore += item.score);
+        // cong tong
+        //this.data.forEach(item => newScore += item.score);
+
+        // lay diem cao nhat
+        this.data.forEach(item => {
+            if (item.score > newScore) {
+                newScore = item.score;
+            }
+        })
         this.score = newScore;
 
     }
@@ -200,9 +208,9 @@ export abstract class FeedAnalyzer extends DbScript<any> {
             if (distance <= AnalyzerDocumentData._6_HOURS) {
                 factor = 1;
             } else if (distance <= AnalyzerDocumentData._24_HOUR) {
-                factor = 0.7;
+                factor = 0.8;
             } else if (distance <= AnalyzerDocumentData._3_DAYS) {
-                factor = 0.7 - 0.1 * (distance/ AnalyzerDocumentData._3_DAYS);
+                factor = 0.7 - 0.1 * (distance / AnalyzerDocumentData._3_DAYS);
             } else if (distance <= AnalyzerDocumentData._7_DAYS) {
                 factor = 0.25;
             } else if (distance <= AnalyzerDocumentData._1_MONTH) {

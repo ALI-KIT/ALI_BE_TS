@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+/* import bcrypt from 'bcryptjs';
 import { SuperTest, Test } from 'supertest';
 
 import { User, UserRoles } from '@entities/User';
@@ -29,3 +29,4 @@ export const login = (beforeAgent: SuperTest<Test>, done: any) => {
             done(res.headers['set-cookie']);
         });
 };
+ */

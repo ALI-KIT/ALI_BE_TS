@@ -1,14 +1,16 @@
 import "reflect-metadata";
 
 import { BaseUsecase } from '@core/usecase/BaseUseCase'
-import { Reliable } from '@core/repository/base/Reliable';
+import { Reliable, Type } from '@core/repository/base/Reliable';
 import { NewsRepository } from '@core/repository/base/NewsRepository';
 import { inject, injectable } from 'inversify';
-import { TYPES_REPOSITORY } from '@core/di/Types';
+import { TYPES_REPOSITORY, TYPES_USECASES } from '@core/di/Types';
 import { News } from '@entities/News2';
 import { AliDbClient } from '@dbs/AliDbClient';
 import AppDatabase from '@daos/AppDatabase';
 import MongoClient from 'mongodb';
+import container from '@core/di/InversifyConfigModule';
+import { GetAnalyzerList, GetAnalyzerListParam } from './GetAnalyzerData';
 
 export class Param {
     constructor(readonly locationCodes: string[], readonly keywords: string[], readonly limit: number, readonly skip: number) {
@@ -36,12 +38,19 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
     }
 
     async invoke_V2(param: Param): Promise<Reliable<Array<News>>> {
-        const analyzers = await AliDbClient.getInstance()
-            .useALIDB()
-            .collection("server-analyzer-data")
-            .find({})
-            .sort({ trendingScore: -1 })
-            .skip(param.skip).limit(param.limit).toArray();
+        const getAnalyzerList = container.get<GetAnalyzerList>(TYPES_USECASES.GetAnalyzerList);
+        if (!getAnalyzerList) {
+            return Reliable.Failed("Could get the analyzer list");
+        }
+
+        const analyzersReliable = await getAnalyzerList.invoke(new GetAnalyzerListParam(param.limit, param.skip))
+        if (analyzersReliable.type == Type.FAILED) {
+            return Reliable.Failed(analyzersReliable.message, analyzersReliable.error);
+        } else if (!analyzersReliable.data) {
+            return Reliable.Failed("Could get the analyzer list");
+        }
+
+        const analyzers = analyzersReliable.data;
         const ids: MongoClient.ObjectId[] = []
 
         analyzers.forEach(analyzer => {
@@ -57,9 +66,9 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
         const orderedFeeds: News[] = [];
 
         feeds.forEach(feed => {
-            const id : MongoClient.ObjectId = feed._id;
-            if(id)
-            tempMap.set(id.toHexString(), feed)
+            const id: MongoClient.ObjectId = feed._id;
+            if (id)
+                tempMap.set(id.toHexString(), feed)
         });
         ids.forEach(id => {
             const feed = tempMap.get(id.toHexString());

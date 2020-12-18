@@ -2,7 +2,7 @@ import { Reliable } from '@core/repository/base/Reliable';
 import { AliAggregatorDomain, BaoMoiAggregatorDomain, Domain } from '@entities/Domain';
 import axios from 'axios';
 import cheerio from 'cheerio';
-import textversionjs from 'textversionjs';
+import textversionjs, { styleConfig } from 'textversionjs';
 
 export default class CrawlUtil {
     public static async loadWebsite(url: string): Promise<string | null> {
@@ -57,10 +57,18 @@ export default class CrawlUtil {
         }
     }
 
+    private static styleConfig: styleConfig = {
+        imgProcess: (src: string, alt: string) => "\n",
+        linkProcess: (href: string, linkText: string) => " ",
+        oIndentionChar: " ",
+        uIndentionChar: " ",
+        headingStyle: "linebreak",
+    }
+
     public static getRawTextContent(content: string) {
-        const imgProcess: textversionjs.imgProcess = (src: any, alt: any) => "";
-        const text = textversionjs(content, { imgProcess })
-        return text;
+        const text = textversionjs(content, CrawlUtil.styleConfig);
+        const text2 = text.replace(/<h([1-6])[^>]*>([^<]*)<\/h\1>/gi, "\n").normalize().replace(/[\r\n]{2,}/g, "\n").trim();
+        return text2;
     }
 
     public static buildBaoMoiAggregatorDomain(url: string): Domain {

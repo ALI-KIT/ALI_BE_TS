@@ -1,4 +1,4 @@
-import { EnvironmentConstant } from '@loadenv';
+import { AppProcessEnvironment } from '@loadenv';
 import MongoClient from 'mongodb';
 
 /**
@@ -13,11 +13,11 @@ export class AliDbClient {
     private async connect(): Promise<void> {
         //TODO: Init các collection
         if (!this.defaultNewsClient) {
-            this.defaultNewsClient = await this.mongoClientConnect(EnvironmentConstant.NEWS_DB_URI);
+            this.defaultNewsClient = await this.mongoClientConnect(AppProcessEnvironment.NEWS_DB_URI);
         }
 
         if (!this.defaultConfigClient) {
-            this.defaultConfigClient = await this.mongoClientConnect(EnvironmentConstant.CONFIG_DB_URI);
+            this.defaultConfigClient = await this.mongoClientConnect(AppProcessEnvironment.CONFIG_DB_URI);
         }
     }
 

@@ -1,7 +1,7 @@
 import { Place, PlaceSchema } from '@entities/Place'
-import { IDao } from '@daos/IDao';
+import { Dao } from '@daos/Dao';
 
-export class PlaceDao extends IDao<Place> {
+export class PlaceDao extends Dao<Place> {
     constructor() {
         super('place', PlaceSchema);
     }
