@@ -6,7 +6,6 @@ import { paramMissingError } from '@shared/constants';
 import { UserRoles } from '@entities/User';
 import newController from '@controller/NewsController';
 import controlCenter from '@controller/ControlCenterController';
-import AuthRouter from '@routes/Auth';
 
 
 // Init shared
@@ -14,7 +13,6 @@ const router = Router();//.use(adminMW);
 
 router.use('/news', newController);
 router.use('/control-center', controlCenter);
-router.use('/auth',AuthRouter)
 // /******************************************************************************
 //  *                      Get All Users - "GET /api/users/all"
 //  ******************************************************************************/

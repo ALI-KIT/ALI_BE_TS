@@ -9,7 +9,7 @@ import { BAD_REQUEST } from 'http-status-codes';
 import 'express-async-errors';
 
 import BaseRouter from '@routes/Api';
-import AuthRouter from '@routes/Auth'
+import AuthRouter from '@routes/Auth';
 
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
@@ -90,6 +90,9 @@ if (process.env.NODE_ENV === 'production') {
 
 // Add APIs
 app.use('/api', BaseRouter);
+// auth api
+app.use('/auth',AuthRouter);
+
 
 //enable pre-flight
 //app.options('*', cors(options));
