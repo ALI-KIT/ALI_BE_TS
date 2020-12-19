@@ -124,7 +124,7 @@ export class OGNewsParser {
         const locals: Local[] = [];
 
         if (title == "" || summary == "") {
-            return Reliable.Failed("Couldn't get title or summary from this article");
+            return Reliable.Failed("Fail to get title or summary from the article [" + crawler.url + "]");
         }
 
         return Reliable.Success({

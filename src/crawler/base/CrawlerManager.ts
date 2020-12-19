@@ -31,6 +31,7 @@ export class CrawlerManagerCounter {
 }
 
 export abstract class BaseCrawlerManager implements ICrawlerManager {
+    private static readonly MAX_PROMISE_CONCURRENCY = 20;
     protected static _count = 1;
 
     protected readonly promiseQueue: PQueue;
@@ -70,7 +71,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public constructor(name?: string, session?: string) {
         this.name = name || this.startTime.toString();
         this.currentSession = session || this.startTime.toString();
-        this.promiseQueue = new PQueue({ concurrency: 100 })
+        this.promiseQueue = new PQueue({ concurrency: CrawlerManager.MAX_PROMISE_CONCURRENCY })
         this.promiseQueue.timeout = 1000 * 60 * 5;
         this.promiseQueue.on('idle', () => {
             LoggingUtil.consoleLog(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
