@@ -34,9 +34,18 @@ export class AppRunner {
         this.appAnalyzer = new AppAnalyzer();
         this.startAt = Date.now();
         LoggingUtil.logToString = true;
-        const result = await this.appAnalyzer.run();
+        let result: Reliable<any>;
+        try {
+            result = await this.appAnalyzer.run();
+            LoggingUtil.consoleLog("Task finished with below data: ");
+            LoggingUtil.consoleLog(result)
+        } catch (e) {
+            LoggingUtil.consoleLog(e);
+        };
+
         this.endAt = Date.now();
         this.lastReliable = result;
+
         this.appAnalyzer = null;
         this.lastMessage = "";
     }
