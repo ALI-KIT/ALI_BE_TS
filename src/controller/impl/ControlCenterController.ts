@@ -8,6 +8,7 @@ import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
 import { AliDbClient } from '@dbs/AliDbClient';
 import { ObjectId } from 'mongodb'
 import LoggingUtil from '@utils/LogUtil';
+import { AppRunner } from "@scripts/schedule/AppRunner";
 
 @controller("/control-center")
 export class ControlCenterController implements interfaces.Controller {
@@ -29,6 +30,36 @@ export class ControlCenterController implements interfaces.Controller {
         }
     }
 
+    @httpGet('/crawler')
+    private async startCrawlerIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
+        AppRunner.getInstance().start()
+            .catch(e => { AppRunner.getInstance().appAnalyzer = null });
+
+        try {
+            res.status(200).json(AppRunner.getInstance().getStatus());
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
+    @httpGet('/crawler/stats')
+    private async crawlerStats(req: express.Request, res: express.Response, next: express.NextFunction) {
+        try {
+            res.status(200).json(AppRunner.getInstance().getStatus());
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
+    @httpGet('/crawler/log')
+    private async crawlerLog(req: express.Request, res: express.Response, next: express.NextFunction) {
+        try {
+            res.status(200).send((LoggingUtil.getLogString() || "No log found.").replace(/\n/g, "<br />"));
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
     @httpGet('/cmd/:cmd')
     private async command(req: express.Request, res: express.Response, next: express.NextFunction) {
         const cmd = Number(req.params["cmd"]?.toString() || "0") || 0;
@@ -43,7 +74,7 @@ export class ControlCenterController implements interfaces.Controller {
                     if (manager.status == State.RUNNING) {
                         message = "Crawler is already running."
                     } else {
-                         await manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+                        await manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
                         message = "Start crawler successfully";
                     }
                 }
