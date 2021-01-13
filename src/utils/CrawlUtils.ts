@@ -18,7 +18,7 @@ export default class CrawlUtil {
 
     public static async loadWebsiteReliable(url: string): Promise<Reliable<string>> {
         try {
-            const p = await axios.get(url);
+            const p = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36' }  });
             if (!p.data) {
                 return Reliable.Failed("Error when loading website [" + url + "]. Status code " + p.status);
             } else return Reliable.Success<string>(p.data);

@@ -5,8 +5,8 @@ import { Exception } from 'handlebars';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
-    // timeOut = 45 minutes
-    public timeOut = 45 * 60 * 1000;
+    // timeOut = 90 minutes
+    public timeOut = 90 * 60 * 1000;
     public async run(): Promise<Reliable<T>> {
         const timeOut = this.timeOut;
         const scriptName = this.constructor.name;

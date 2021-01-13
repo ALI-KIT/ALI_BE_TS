@@ -3,6 +3,7 @@ import { Crawler, State } from '@crawler/base/Crawler';
 import { AliCrawlerFilter, CrawlerFilter, FilterAction } from '@crawler/interactor/CrawlerFilter';
 import LoggingUtil from '@utils/LogUtil';
 import PQueue from 'p-queue/dist';
+import { NewsCrawler } from './NewsCrawler';
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): Promise<void>;
     isAllowRecursion: boolean;
@@ -170,8 +171,8 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
                     if (reliable.type == Type.SUCCESS) {
                         this.counter.SaveResultSuccess++;
                         // check if this result is a news object
-                        if(reliable.data && reliable.data._id && reliable.data.source?.url) {
-                            this.counter.SaveResultSuccess_News ++;
+                        if (reliable.data && reliable.data._id && reliable.data.source?.url) {
+                            this.counter.SaveResultSuccess_News++;
                         }
                     } else {
                         this.counter.SaveResultFailed++;
@@ -203,8 +204,10 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             // remove from crawling list
             const currentPosition = this.crawlingList.indexOf(crawler);
-            if (currentPosition >= -1)
+            if (currentPosition >= -1) {
                 this.crawlingList.splice(currentPosition, 1)
+            }
+            //LoggingUtil.consoleLog("Excuted " + this.counter.Excuted + ", Success = " + this.counter.Success + ", Failed = " + this.counter.Failed);
 
         }, { priority })
     }
@@ -238,6 +241,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
     public async waitToIdle() {
         await this.promiseQueue.onIdle();
+        await NewsCrawler.saveLeft();
     }
 
 }

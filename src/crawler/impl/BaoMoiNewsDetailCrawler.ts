@@ -12,7 +12,7 @@ export class BaoMoiNewsDetailCrawler extends OpenGraphNewsCrawler {
         const $ = cheerio.load(htmlContent, { decodeEntities: false });
 
         const sourceUrl = $('p.bm-source a').attr('href') || "";
-        const source: Domain = CrawlUtil.buildSourceDomain($('div.article a.source')?.first()?.text()?.trim() || '', sourceUrl);
+        const source: Domain = CrawlUtil.buildSourceDomain($('div.article span.source')?.first()?.text()?.trim() || '', sourceUrl);
 
         const aggregator: Domain = CrawlUtil.buildBaoMoiAggregatorDomain(this.url);
 

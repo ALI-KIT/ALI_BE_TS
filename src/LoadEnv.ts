@@ -39,13 +39,15 @@ export class AppProcessEnvironment {
     // this is the mongodb uri of the atlas remote db
     public static readonly URI_REMOTE = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_REMOTE || "";
 
+    public static readonly URI_REMOTE_2 = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_REMOTE_2 || "";
+
     public static readonly ENV_MODE: Mode = (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'production') ? Mode.PRODUCTION : Mode.DEVELOPMENT;
     public static readonly IS_PRODUCTION: boolean = AppProcessEnvironment.ENV_MODE == Mode.PRODUCTION;
 
     /**
-     * Database tin tức sẽ lưu ở local (dung lượng lớn)
+     * Database tin tức sẽ lưu ở remote 2 (dung luong nho nhung on dinh)
      */
-    public static readonly NEWS_DB_URI: string = AppProcessEnvironment.URI_LOCAL;
+    public static readonly NEWS_DB_URI: string = AppProcessEnvironment.URI_REMOTE_2;
 
     /**
      * Còn database config sẽ lưu ở remote (dung lượng nhỏ)
