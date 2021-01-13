@@ -60,6 +60,12 @@ export class ControlCenterController implements interfaces.Controller {
         }
     }
 
+    @httpGet('/crawler/stop')
+    private async crawlerStop(req: express.Request, res: express.Response, next: express.NextFunction) {
+        AppRunner.getInstance().stop()
+        return await this.crawlerStats(req, res, next);
+    }
+
     @httpGet('/cmd/:cmd')
     private async command(req: express.Request, res: express.Response, next: express.NextFunction) {
         const cmd = Number(req.params["cmd"]?.toString() || "0") || 0;
