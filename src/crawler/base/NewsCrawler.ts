@@ -12,16 +12,20 @@ class NewsBulkWriter {
     index = 0;
 
     private async saveInternal(query: CreateQuery<News>) {
-        this.index ++;
+        if (!query.title || !query.summary || !query.thumbnail) {
+            return;
+        }
+
+        this.index++;
         this.operations.push({
             replaceOne: {
-                filter : { "source.url": query.source?.url},
+                filter: { "source.url": query.source?.url },
                 upsert: true,
-                replacement:  query
+                replacement: query
             }
         });
 
-        if(this.index % this.size === 0) {
+        if (this.index % this.size === 0) {
             await AppDatabase.getInstance().news2Dao.model.bulkWrite(this.operations);
             this.operations = [];
             LoggingUtil.consoleLog("Upsert " + this.index + " documents");
@@ -29,7 +33,7 @@ class NewsBulkWriter {
     }
 
     private async saveLeftInternal() {
-        if(this.operations.length != 0) {
+        if (this.operations.length != 0) {
             await AppDatabase.getInstance().news2Dao.model.bulkWrite(this.operations);
             this.operations = [];
         }
