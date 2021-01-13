@@ -15,7 +15,6 @@ import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
 import "reflect-metadata";
-import { Container } from 'inversify';
 import container from '@core/di/InversifyConfigModule'
 import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-utils';
 
