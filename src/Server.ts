@@ -10,6 +10,7 @@ import 'express-async-errors';
 
 import BaseRouter from '@routes/Api';
 import AuthRouter from '@routes/Auth';
+import HomeRouter from '@routes/Home';
 
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
@@ -89,6 +90,8 @@ app.use('/api', BaseRouter);
 // auth api
 app.use('/auth',AuthRouter);
 
+//app.use('/', HomeRouter);
+
 
 //enable pre-flight
 //app.options('*', cors(options));
@@ -107,10 +110,10 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
  *                              Serve front-end content
  ***********************************************************************************/
 
-// const viewsDir = path.join(__dirname, 'views');
-// app.set('views', viewsDir);
-// const staticDir = path.join(__dirname, 'public');
-// app.use(express.static(staticDir));
+ //const viewsDir = path.join(__dirname, 'views');
+ //app.set('views', viewsDir);
+ const staticDir = path.join(__dirname, 'public');
+ app.use(express.static(staticDir));
 
 // app.get('/', (req: Request, res: Response) => {
 //     res.sendFile('login.html', {root: viewsDir});
