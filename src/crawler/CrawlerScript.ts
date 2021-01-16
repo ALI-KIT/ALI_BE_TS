@@ -68,7 +68,7 @@ export default class CrawlerScript extends DbScript<any> {
             counter: null,
         });
 
-        this.manager = CrawlerManager.getInstance('app-crawler-manager');
+        this.manager = new CrawlerManager('app-crawler-manager');
         this.manager.isAllowRecursion = false;
 
         this.manager.onActive = () => {
@@ -102,7 +102,7 @@ export default class CrawlerScript extends DbScript<any> {
                 LoggingUtil.consoleLog("\n\n-------------- Force TERNIMINATING PROCESS due to timeout --------------\n\n");
                 Logger.writeCronLog(s.session).finally(() => {
                     process.exit(0);
-                })
+                });
 
             }, waitToKillProcessTimeout);
 

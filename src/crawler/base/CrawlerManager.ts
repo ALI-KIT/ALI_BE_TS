@@ -270,28 +270,8 @@ export enum RepeatMode {
 
 export class CrawlerManager extends BaseCrawlerManager {
 
-    protected constructor(name?: string, session?: string) {
+    public constructor(name?: string, session?: string) {
         super(name, session)
-    }
-
-    private static instances: CrawlerManager[] = [];
-
-    private static createInstance(name?: string, session?: string): CrawlerManager {
-        const manager = new CrawlerManager(name);
-        this.instances.push(manager)
-        return manager;
-    }
-
-    public static getInstance(name?: string): CrawlerManager {
-        return this.instances.find(manager => {
-            return manager.name === name
-        }) || CrawlerManager.createInstance(name);
-    }
-
-    public static findInstance(name?: string): CrawlerManager | null {
-        return this.instances.find(manager => {
-            return manager.name === name
-        }) || null
     }
 }
 

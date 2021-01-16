@@ -54,7 +54,12 @@ export class ControlCenterController implements interfaces.Controller {
     @httpGet('/crawler/log')
     private async crawlerLog(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
-            res.status(200).send((LoggingUtil.getLogString() || "No log found.").replace(/\n/g, "<br />"));
+            let log : string = LoggingUtil.getLogString();
+            if(!log || log=="") {
+                log = "No log found.";
+            }
+            log = log.replace(/\n/g, "<br />");
+            res.status(200).send(log);
         } catch (err) {
             res.status(400).json({ error: "err.message" });
         }
@@ -64,56 +69,5 @@ export class ControlCenterController implements interfaces.Controller {
     private async crawlerStop(req: express.Request, res: express.Response, next: express.NextFunction) {
         AppRemoteRunner.getInstance().stop()
         return await this.crawlerStats(req, res, next);
-    }
-
-    @httpGet('/cmd/:cmd')
-    private async command(req: express.Request, res: express.Response, next: express.NextFunction) {
-        const cmd = Number(req.params["cmd"]?.toString() || "0") || 0;
-        const token = req.query["token"]?.toString() || ""
-        var message = null
-        if (token !== "dtrung-ntruong-1334557") message = "Wrong token, your token \"" + token + "\" is invalid or expired";
-
-        if (!message) {
-            switch (cmd) {
-                case 101: {
-                    const manager: CrawlerManager = CrawlerManager.getInstance('app-crawler-manager');
-                    if (manager.status == State.RUNNING) {
-                        message = "Crawler is already running."
-                    } else {
-                        await manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
-                        message = "Start crawler successfully";
-                    }
-                }
-                    break;
-                case 102: {
-                    const manager = CrawlerManager.findInstance("app-crawler-manager");
-                    if (manager && manager.status == State.RUNNING) {
-                        manager.stop();
-                        message = "Stop crawler sucessfully"
-                    } else {
-                        message = "Crawler is not running. crawler status: " + ((manager) ? manager?.status : "  not existed");
-                    }
-                }
-                    break
-                case 103:
-                    const baseUrl = req.query["token"]?.toString() || ""
-                    const result = await AppDatabase.getInstance().news2Dao.findOne({ "source.baseUrl": baseUrl })
-                    message = result || "News not found "
-                    break;
-                default:
-                    message = "Command not found";
-            }
-
-        }
-        if (!message) {
-            message = "No message was received";
-        }
-
-        try {
-            res.status(200).send(message)
-        } catch (error) {
-            LoggingUtil.consoleLog(error)
-            res.status(500).send(error)
-        }
     }
 }
