@@ -24,7 +24,7 @@ export default class CrawlerScript extends DbScript<any> {
     public async waitOnFinish(): Promise<Reliable<any>> {
         // wait the crawler manager to idle (finished)
         await this.manager?.waitToIdle();
-        LoggingUtil.allowLogging = true;
+        LoggingUtil.getInstance().isAllowLogging = true;
 
         LoggingUtil.consoleLog("manager is on idle");
         const finishedAt = Date.now();

@@ -8,7 +8,7 @@ import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
 import { AliDbClient } from '@dbs/AliDbClient';
 import { ObjectId } from 'mongodb'
 import LoggingUtil from '@utils/LogUtil';
-import { AppRunner } from "@scripts/schedule/AppRunner";
+import { AppRemoteRunner } from "@scripts/schedule/AppRunner";
 
 @controller("/control-center")
 export class ControlCenterController implements interfaces.Controller {
@@ -32,11 +32,11 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler')
     private async startCrawlerIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRunner.getInstance().start()
-            .catch(e => { AppRunner.getInstance().appAnalyzer = null });
+        AppRemoteRunner.getInstance().start()
+            .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
-            res.status(200).json(AppRunner.getInstance().getStatus());
+            res.status(200).json(AppRemoteRunner.getInstance().getStatus());
         } catch (err) {
             res.status(400).json({ error: "err.message" });
         }
@@ -45,7 +45,7 @@ export class ControlCenterController implements interfaces.Controller {
     @httpGet('/crawler/stats')
     private async crawlerStats(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
-            res.status(200).json(AppRunner.getInstance().getStatus());
+            res.status(200).json(AppRemoteRunner.getInstance().getStatus());
         } catch (err) {
             res.status(400).json({ error: "err.message" });
         }
@@ -62,7 +62,7 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler/stop')
     private async crawlerStop(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRunner.getInstance().stop()
+        AppRemoteRunner.getInstance().stop()
         return await this.crawlerStats(req, res, next);
     }
 

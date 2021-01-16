@@ -30,8 +30,8 @@ export interface News extends Document {
 export const NewsSchema: Schema = new Schema({
     title: { type: String, required: true, default: '' },
     summary: { type: String, required: true, default: '' },
-    content: { type: String, required: true, default: '' },
-    rawContent: { type: String, required: true, default: '' },
+    content: { type: String, required: false, default: '' },
+    rawContent: { type: String, required: false, default: '' },
     thumbnail: { type: String, required: false, default: '' },
 
     /* ngày kéo dữ liệu */

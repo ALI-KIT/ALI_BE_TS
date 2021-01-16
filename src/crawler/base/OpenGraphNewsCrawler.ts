@@ -102,7 +102,7 @@ export class OGNewsParser {
         const shouldParseWithMozillaReadability: boolean = !articleParserData;
         const mozillaReadabilityArticle = (shouldParseWithMozillaReadability) ? new Readability(new JSDOM(htmlContent).window.document).parse() : null;
         const content = articleParserData?.content || mozillaReadabilityArticle?.content || "";
-        const rawContent = CrawlUtil.getRawTextContent(content);
+        const rawContent = CrawlUtil.getRawTextContent(content) || "";
 
         const crawlDate = new Date(Date.now());
         const pDString = $('meta[property="article\\:published_time"]')?.attr('content');

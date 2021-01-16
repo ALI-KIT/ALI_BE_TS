@@ -9,17 +9,18 @@ import { LimitDocument } from './LimitDocument';
 const RUN_AT_START_UP = false;
 
 export class AppAnalyzer extends DbScript<any> {
+    public tasks: DbScript<any>[] = [
+        new CrawlerScript(),
+        new LimitDocument(),
+        new FetchNewsFeedAnalyzer(),
+        new GroupingBySimilarity(),
+    ]
     constructor() {
         super();
         this.timeOut = 2 * 45 * 60 * 60 * 1000; // timeout 90'
     }
     protected async runInternal(): Promise<Reliable<any>> {
-        const tasks: DbScript<any>[] = [
-            new CrawlerScript(),
-            new LimitDocument(),
-            new FetchNewsFeedAnalyzer(),
-            new GroupingBySimilarity(),
-        ];
+        const tasks = this.tasks;
 
         const resultArray = [];
         for (let task of tasks) {
