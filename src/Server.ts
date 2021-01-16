@@ -21,6 +21,7 @@ import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-util
 
 // TODO: Add all controller here
 import '@controller/impl/NewsController';
+import '@controller/impl/StatisticsController';
 import '@controller/impl/ControlCenterController';
 
 import passport from 'passport';
