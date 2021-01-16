@@ -7,15 +7,16 @@ import { Reliable } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
 
 export class BaoMoiTinMoiCrawler extends NewsCrawler {
-    private static getBMTMUrl(page: number) {
+    private static getBMTMUrl(bmtUrl: string, page: number) {
         //https://baomoi.com/tin-moi/trang1.epi?loadmore=1
-        return 'https://baomoi.com/tin-moi/trang' + page + '.epi?loadmore=1'
+        return bmtUrl + '/trang' + page + '.epi?loadmore=1'
     }
 
     public page: number;
 
-    constructor(page: number = 1, priority: number = 5) {
-        super(BaoMoiTinMoiCrawler.getBMTMUrl(page));
+    constructor(page: number = 1, priority: number = 5,  bmtUrl: string = "https://baomoi.com/tin-moi") {
+        
+        super(BaoMoiTinMoiCrawler.getBMTMUrl(bmtUrl, page));
         this.page = page;
         this.priority = priority;
     }

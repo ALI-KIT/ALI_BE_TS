@@ -5,15 +5,14 @@ import { News } from '@entities/News2';
 import CrawlUtil from '@utils/CrawlUtils';
 import cheerio from 'cheerio';
 import { CreateQuery } from 'mongoose';
+import { BaoMoiXemTinCrawler } from './BaoMoiXemTinCrawler';
 
 export class BaoMoiNewsDetailCrawler extends OpenGraphNewsCrawler {
 
     protected async parseHtmlThen(htmlContent: string, prevData: Reliable<CreateQuery<News>>): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(htmlContent, { decodeEntities: false });
 
-        const sourceUrl = $('p.bm-source a').attr('href') || "";
-        const source: Domain = CrawlUtil.buildSourceDomain($('div.article span.source')?.first()?.text()?.trim() || '', sourceUrl);
-
+        const source: Domain = BaoMoiXemTinCrawler.buildSourceDomain($);
         const aggregator: Domain = CrawlUtil.buildBaoMoiAggregatorDomain(this.url);
 
         if (prevData.data) {

@@ -8,7 +8,7 @@ import LoggingUtil from '@utils/LogUtil';
 class NewsBulkWriter {
     private static instance = new NewsBulkWriter();
     private operations = [];
-    private readonly size = 650;
+    private readonly size = 25;
     index = 0;
 
     private async saveInternal(query: CreateQuery<News>) {

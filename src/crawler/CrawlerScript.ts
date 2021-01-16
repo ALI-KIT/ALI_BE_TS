@@ -1,7 +1,7 @@
 import { CrawlerManager } from "./base/CrawlerManager";
 
 import { Logger } from '@utils/AppDbLogging';
-import { State } from './base/Crawler';
+import { Crawler, State } from './base/Crawler';
 import { AliAggregatorCrawler } from './impl/AliAggregatorCrawler';
 import { Reliable } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
@@ -47,6 +47,12 @@ export default class CrawlerScript extends DbScript<any> {
         return Reliable.Success(counter);
     }
 
+    public onCreateCrawlers(): Crawler<any>[] {
+        return [
+            new AliAggregatorCrawler()
+        ]
+    }
+
     public async runInternal(): Promise<Reliable<any>> {
         const maxTimeout = 1 * 60 * 60 * 1000;
         const waitToKillProcessTimeout = 5 * 60 * 1000;
@@ -70,8 +76,10 @@ export default class CrawlerScript extends DbScript<any> {
                 LoggingUtil.consoleLog("manager is on active");
         };
 
-        await this.manager.addNewCrawler(new AliAggregatorCrawler());
-        //await this.manager.addNewCrawler(new BaoMoiTinMoiCrawler(1));
+        const crawlers = this.onCreateCrawlers();
+        for (let i = 0; i < crawlers.length; i++) {
+            await this.manager.addNewCrawler(crawlers[i]);
+        }
 
         /* Force idling crawler manager or terniminating the process after timeout duration */
 

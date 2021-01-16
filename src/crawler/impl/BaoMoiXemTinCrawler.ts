@@ -15,6 +15,21 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         this.priority = priority;
     }
 
+    public static buildSourceDomain($: CheerioStatic): Domain {
+        const sourceUrl = $('.bm-source .source')?.first()?.text()?.trim() || '';
+        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || '';
+        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || ''
+
+        const name = prettyUrl;
+        const source: Domain = {
+            name: name,
+            baseUrl: baseUrl,
+            displayName: $('.article .source .image')?.first()?.attr("alt")?.trim() || '',
+            url: sourceUrl
+        }
+        return source;
+    }
+
     async parseHtml(html: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(html, { decodeEntities: false });
 
@@ -34,17 +49,7 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             url: this.url
         };
 
-        const sourceUrl = $('p.bm-source a').attr('href') || ''
-        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || '';
-        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || ''
-
-        const name = prettyUrl;
-        const source: Domain = {
-            name: name,
-            baseUrl: baseUrl,
-            displayName: $('div.article a.source')?.first()?.text()?.trim() || '',
-            url: sourceUrl
-        }
+        const source = BaoMoiXemTinCrawler.buildSourceDomain($);
 
         const thumbnail = $('div.article p.body-image img').first().attr('src') || '';
 
@@ -61,7 +66,8 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         LoggingUtil.consoleLog("should craw tag : " + this.manager?.isAllowRecursion);
 
         if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0) {
-            for (let value in tagUrlArray) {
+            for (let i = 0;i<tagUrlArray.length; i++ ) {
+                const value = tagUrlArray[i];
                 LoggingUtil.consoleLog('xem tin found new tag url [' + value + ']');
                 await this.manager?.addNewCrawler(new BaoMoiTagCrawler(value, value, 1, this.priority - 2));
             };

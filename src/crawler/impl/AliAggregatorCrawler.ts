@@ -23,7 +23,7 @@ export class AliAggregatorCrawler extends Crawler<any> {
         const crawlers: Crawler<any>[] = [
 
             new BaoMoiTinMoiCrawler(),
-            //new BaoMoiSitemapCrawler(),
+            new BaoMoiSitemapCrawler(),
             new VnExpressTinMoiRssCrawler(),
             new TuoiTreSitemapCrawler(),
             new ThanhNienSitemapCrawler(),
