@@ -3,9 +3,11 @@ import { Crawler, State } from '@crawler/base/Crawler';
 import { AliCrawlerFilter, CrawlerFilter, FilterAction } from '@crawler/interactor/CrawlerFilter';
 import LoggingUtil from '@utils/LogUtil';
 import PQueue from 'p-queue/dist';
+import { NewsCrawler } from './NewsCrawler';
 export interface ICrawlerManager {
     addNewCrawler(crawler: Crawler<any>): Promise<void>;
     isAllowRecursion: boolean;
+    isCachingResultInsteadOfSaving :boolean;
 }
 
 export class CrawlerManagerCounter {
@@ -15,22 +17,24 @@ export class CrawlerManagerCounter {
     public AddedToQueue = 0;
 
     public Started = 0;
-    public Excuted = 0;
-    public ExcutedFailed = 0;
-    public ExcutedSuccessNonResult = 0;
-    public ExcutedSuccessWithResult = 0;
+    public ExecutionCount = 0;
+    public FailedExecution = 0;
+    public SuccessExecutionNonResult = 0;
+    public SuccessExecutionWithResult = 0;
+    public SuccessExecution = 0;
 
-    public RejectOnSaveResult = 0;
+    public NonSaveResultCount = 0;
 
-    public SaveResult = 0;
-    public SaveResultSuccess = 0;
-    public SaveResultSuccess_News = 0;
-    public SaveResultFailed = 0;
+    public SavingResultCount = 0;
+    public SavingSuccessResult = 0;
+    public News_SavingSuccessResult = 0;
+    public SavingFailedResult = 0;
     public Success = 0;
     public Failed = 0;
 }
 
 export abstract class BaseCrawlerManager implements ICrawlerManager {
+    private static readonly MAX_PROMISE_CONCURRENCY = 10;
     protected static _count = 1;
 
     protected readonly promiseQueue: PQueue;
@@ -54,11 +58,15 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public status: State = State.PENDING;
     public callback?: Callback;
     public _isAllowRecursion: boolean = false;
+    public isCachingResultInsteadOfSaving = false;
+
+    public readonly cachingResult: any[] = [];
+
     public readonly filter: AliCrawlerFilter = new AliCrawlerFilter(this);
     public readonly counter = new CrawlerManagerCounter();
 
 
-    // k phai
+    // should each crawler starting other crawler
     get isAllowRecursion(): boolean {
         return this._isAllowRecursion
     }
@@ -70,7 +78,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
     public constructor(name?: string, session?: string) {
         this.name = name || this.startTime.toString();
         this.currentSession = session || this.startTime.toString();
-        this.promiseQueue = new PQueue({ concurrency: 100 })
+        this.promiseQueue = new PQueue({ concurrency: CrawlerManager.MAX_PROMISE_CONCURRENCY })
         this.promiseQueue.timeout = 1000 * 60 * 5;
         this.promiseQueue.on('idle', () => {
             LoggingUtil.consoleLog(`Queue is idle.  Size: ${this.promiseQueue.size}  Pending: ${this.promiseQueue.pending}`);
@@ -149,35 +157,42 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             // execute the crawler
             let reliable = await crawler.execute();
-            this.counter.Excuted++;
+            this.counter.ExecutionCount++;
 
 
             if (reliable.type == Type.FAILED) {
-                this.counter.ExcutedFailed++;
+                this.counter.FailedExecution++;
             } else if (reliable.data) {
-                this.counter.ExcutedSuccessWithResult++;
+                this.counter.SuccessExecutionWithResult++;
+                this.counter.SuccessExecution++;
             } else {
-                this.counter.ExcutedSuccessNonResult++;
+                this.counter.SuccessExecutionNonResult++;
+                this.counter.SuccessExecution++;
             }
 
             // save result
             if (reliable.type == Type.SUCCESS && reliable.data) {
-                // check if we should save result
-                if (await this.filter.allowAction(FilterAction.ON_SAVE_RESULT, crawler, true)) {
+                // if flag {cachingResult} is turned on
+                if (this.isCachingResultInsteadOfSaving) {
+                    this.cachingResult.push(reliable.data);
+                }
+                else if (await this.filter.allowAction(FilterAction.ON_SAVE_RESULT, crawler, true)) {
+                    // check if we should save result
+
                     reliable = await crawler.saveResult(reliable.data);
-                    this.counter.SaveResult++;
+                    this.counter.SavingResultCount++;
                     if (reliable.type == Type.SUCCESS) {
-                        this.counter.SaveResultSuccess++;
+                        this.counter.SavingSuccessResult++;
                         // check if this result is a news object
-                        if(reliable.data && reliable.data._id && reliable.data.source?.url) {
-                            this.counter.SaveResultSuccess_News ++;
+                        if (reliable.data && reliable.data?.title && reliable.data.source?.url) {
+                            this.counter.News_SavingSuccessResult++;
                         }
                     } else {
-                        this.counter.SaveResultFailed++;
+                        this.counter.SavingFailedResult++;
                     }
                 } else {
                     // do not save result
-                    this.counter.RejectOnSaveResult++;
+                    this.counter.NonSaveResultCount++;
                 }
             }
 
@@ -202,8 +217,10 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
             // remove from crawling list
             const currentPosition = this.crawlingList.indexOf(crawler);
-            if (currentPosition >= -1)
+            if (currentPosition >= -1) {
                 this.crawlingList.splice(currentPosition, 1)
+            }
+            //LoggingUtil.consoleLog("Excuted " + this.counter.Excuted + ", Success = " + this.counter.Success + ", Failed = " + this.counter.Failed);
 
         }, { priority })
     }
@@ -237,6 +254,7 @@ export abstract class BaseCrawlerManager implements ICrawlerManager {
 
     public async waitToIdle() {
         await this.promiseQueue.onIdle();
+        await NewsCrawler.saveLeft();
     }
 
 }
@@ -252,28 +270,8 @@ export enum RepeatMode {
 
 export class CrawlerManager extends BaseCrawlerManager {
 
-    protected constructor(name?: string, session?: string) {
+    public constructor(name?: string, session?: string) {
         super(name, session)
-    }
-
-    private static instances: CrawlerManager[] = [];
-
-    private static createInstance(name?: string, session?: string): CrawlerManager {
-        const manager = new CrawlerManager(name);
-        this.instances.push(manager)
-        return manager;
-    }
-
-    public static getInstance(name?: string): CrawlerManager {
-        return this.instances.find(manager => {
-            return manager.name === name
-        }) || CrawlerManager.createInstance(name);
-    }
-
-    public static findInstance(name?: string): CrawlerManager | null {
-        return this.instances.find(manager => {
-            return manager.name === name
-        }) || null
     }
 }
 

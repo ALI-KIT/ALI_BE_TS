@@ -65,20 +65,46 @@ export class AliCrawlerFilter extends CrawlerFilterComposite {
 
 export class CheckDuplicatedInDatabase extends CrawlerFilter {
     public name = "CheckDuplicateDatabase";
+    private recentUrls = [];
+    private baoMoiRecentUrls = [];
+    private getRecentUrl = false;
 
     public async onFilterActionForResult(filterAction: FilterAction, crawler: Crawler<any>): Promise<Reliable<CrawlerFilter>> {
+        if (!this.getRecentUrl) {
+            this.recentUrls = (await AppDatabase.getInstance().news2Dao.model.aggregate(
+                [
+                    {
+                        "$match": {
+                            "publicationDate": { "$gte": new Date('2020-12-20') }
+                        }
+                    },
+                    { "$project": { "url": "$source.url" } }]).exec() as any[]).map(o => o.url);
+            this.baoMoiRecentUrls = (await AppDatabase.getInstance().news2Dao.model.aggregate(
+                [
+                    {
+                        "$match": {
+                            "publicationDate": { "$gte": new Date('2020-12-20') }
+                        }
+                    },
+                    {"$project": {"url": "$aggregator.url"}}
+            ]) as any[]).map(o => o.url);
+            this.getRecentUrl = true;
+        }
+
         switch (filterAction) {
             case FilterAction.ON_ADDED_TO_MANAGER:
             case FilterAction.ON_SAVE_RESULT:
                 // + Nếu crawler name là baomoi => crawler.source.url != database.aggerator.url
-                // + Nếu không, crawler.source.url != database.aggerator.url
+                // + Nếu không, crawler.source.url != database.source.url
 
                 let found: boolean;
-                if (crawler.name === "baomoi") {
+               /*  if (crawler.name === "baomoi") {
                     found = (await AppDatabase.getInstance().news2Dao.findOne({ 'aggregator.url': crawler.url })) ? true : false;
                 } else {
                     found = (await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': crawler.url })) ? true : false;
-                }
+                } */
+
+                found = this.recentUrls.indexOf(crawler.url) != -1;
 
                 if (found) {
                     return Reliable.Custom(Type.FAILED, "This url had been crawled before", undefined, this);

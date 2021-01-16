@@ -102,7 +102,7 @@ export class OGNewsParser {
         const shouldParseWithMozillaReadability: boolean = !articleParserData;
         const mozillaReadabilityArticle = (shouldParseWithMozillaReadability) ? new Readability(new JSDOM(htmlContent).window.document).parse() : null;
         const content = articleParserData?.content || mozillaReadabilityArticle?.content || "";
-        const rawContent = CrawlUtil.getRawTextContent(content);
+        const rawContent = CrawlUtil.getRawTextContent(content) || "";
 
         const crawlDate = new Date(Date.now());
         const pDString = $('meta[property="article\\:published_time"]')?.attr('content');
@@ -124,7 +124,7 @@ export class OGNewsParser {
         const locals: Local[] = [];
 
         if (title == "" || summary == "") {
-            return Reliable.Failed("Couldn't get title or summary from this article");
+            return Reliable.Failed("Fail to get title or summary from the article [" + crawler.url + "]");
         }
 
         return Reliable.Success({

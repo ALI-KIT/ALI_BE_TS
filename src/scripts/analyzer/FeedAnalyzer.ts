@@ -158,7 +158,7 @@ export abstract class FeedAnalyzer extends DbScript<any> {
         return Reliable.Success("Upsert " + i + " documents");
     }
 
-    abstract async createCursor(): Promise<Reliable<Readable>>/*  {
+    abstract createCursor(): Promise<Reliable<Readable>>/*  {
         //const cursor = AppDatabase.getInstance().news2Dao.model.find({}).cursor()
         const cursor = this.client.db("").collection("").find({})
         return Reliable.Success(cursor)

@@ -1,7 +1,6 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { ICrawlerManager } from '@crawler/base/CrawlerManager';
 import CrawlUtil from '@utils/CrawlUtils';
-import { load } from 'cheerio';
 import { BaseCrawlerManager } from './CrawlerManager';
 
 export interface ICrawler {
@@ -71,21 +70,26 @@ export abstract class Crawler<T> implements ICrawler {
      * Chạy crawler này.
      * Bao gồm các bước: fetch trang web, phân tích trang và trả về kết quả
      */
-    public abstract async execute(): Promise<Reliable<T>>;
+    public abstract execute(): Promise<Reliable<T>>;
 
     /**
      * * Khi đã xong quá trình crawl. Crawler Manger gọi hàm này để crawler lưu lại kết quả đã crawl được.
      *   Có thể trả về bất cứ thứ gì vì Crawler Manager chỉ quan tâm trạng thái Success or Failed
      * * @param result
      */
-    public abstract async saveResult(result: T): Promise<Reliable<any>>;
+    public abstract saveResult(result: T): Promise<Reliable<any>>;
 }
 
 export abstract class HtmlCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
         const url = this.url;
 
-        const loadHtmlReliable = await this.loadHtml(url);
+        let loadHtmlReliable = await this.loadHtml(url);
+
+        //try one more time
+        if(loadHtmlReliable.type == Type.FAILED) {
+            loadHtmlReliable = await this.loadHtml(url);
+        }
 
         /* step: fetch html content */
         if (loadHtmlReliable.type == Type.FAILED) {
@@ -104,5 +108,5 @@ export abstract class HtmlCrawler<T> extends Crawler<T> {
         return await CrawlUtil.loadWebsiteReliable(url);
     }
 
-    protected abstract async parseHtml(content: string): Promise<Reliable<T>>;
+    protected abstract parseHtml(content: string): Promise<Reliable<T>>;
 }
