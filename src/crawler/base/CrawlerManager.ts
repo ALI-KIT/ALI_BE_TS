@@ -34,7 +34,7 @@ export class CrawlerManagerCounter {
 }
 
 export abstract class BaseCrawlerManager implements ICrawlerManager {
-    private static readonly MAX_PROMISE_CONCURRENCY = 1;
+    private static readonly MAX_PROMISE_CONCURRENCY = 10;
     protected static _count = 1;
 
     protected readonly promiseQueue: PQueue;
