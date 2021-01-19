@@ -14,7 +14,6 @@ export interface User extends Document {
   comparePassword(password: any, cb: (error: any, isMatch: any) => void): void;
   id: number;
   name: string;
-  username: string;
   email: string;
   password: string;
   role: UserRoles;
@@ -31,12 +30,6 @@ export const UserSchema: Schema = new Schema({
     type: String,
     required: true, // required
     unique: true, // unique email
-    trim: true,
-  },
-  username: {
-    type: String,
-    unique: true, // unique username
-    required: true, // required
     trim: true,
   },
   password: {
