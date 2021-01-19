@@ -6,7 +6,6 @@ import { NewsRepository } from '@core/repository/base/NewsRepository';
 import { inject, injectable } from 'inversify';
 import { TYPES_REPOSITORY, TYPES_USECASES } from '@core/di/Types';
 import { News } from '@entities/News2';
-import { AliDbClient } from '@dbs/AliDbClient';
 import AppDatabase from '@daos/AppDatabase';
 import MongoClient from 'mongodb';
 import container from '@core/di/InversifyConfigModule';
@@ -30,14 +29,10 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
     }
 
     async invoke(param: Param): Promise<Reliable<Array<News>>> {
-        return this.invoke_V2(param);
+        return this.invokeInternal(param);
     }
 
-    async invoke_V1(param: Param): Promise<Reliable<Array<News>>> {
-        return await this.newsRepository.getNewsFeed(param.locationCodes, param.keywords, param.limit, param.skip);
-    }
-
-    async invoke_V2(param: Param): Promise<Reliable<Array<News>>> {
+    async invokeInternal(param: Param): Promise<Reliable<Array<News>>> {
         const getAnalyzerList = container.get<GetAnalyzerList>(TYPES_USECASES.GetAnalyzerList);
         if (!getAnalyzerList) {
             return Reliable.Failed("Could get the analyzer list");

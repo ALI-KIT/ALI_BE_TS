@@ -2,7 +2,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import { DbScript } from '../DbScript';
 import MongoClient from 'mongodb';
 
-import { FindKeywords_In_Keywords_Analyzer, FindKeywords_In_RawContent_Analyzer, FindKeywords_In_Summary_Analyzer, FindKeywords_In_Title_Analyzer, GetDefaultKeywords, KeywordsAnalyzer } from './CommonAnalyzer';
+import { FindKeywords_In_Keywords_Analyzer, FindKeywords_In_RawContent_Analyzer, FindKeywords_In_Summary_Analyzer, FindKeywords_In_Title_Analyzer, GetDefaultKeywords, KeywordsAnalyzer } from './Commons';
 import { FeedAnalyzer } from './FeedAnalyzer';
 import { AliDbClient } from '@dbs/AliDbClient';
 import LoggingUtil from '@utils/LogUtil';

@@ -1,5 +1,5 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import AppDatabase from '@daos/AppDatabase';
+import { GetKeywordsData } from '@core/usecase/common/GetKeywordsData';
 import { AliDbClient } from '@dbs/AliDbClient';
 import { DbScript } from '@scripts/DbScript';
 import { KeywordsUtil } from '@utils/KeywordsUtil';
@@ -8,45 +8,7 @@ import { AnalyzerDocumentData, FeedAnalyzer } from './FeedAnalyzer';
 
 export class GetDefaultKeywords extends DbScript<string[]> {
     public async runInternal(): Promise<Reliable<string[]>> {
-        return this.getKeywordsOfDefaultLocation();
-    }
-    public async getKeywordsOfDefaultLocation(): Promise<Reliable<string[]>> {
-        return await this.getKeywordsByLocationCode();
-    }
-
-    public async getKeywordsByLocationCode(locationCodes: string[] = []): Promise<Reliable<string[]>> {
-        const result: string[] = [];
-
-        /** chúng ta sẽ sử dụng default location nếu location không được cung cấp sẵn */
-        if (locationCodes.length == 0) {
-            const serverState = await AliDbClient
-                .getInstance()
-                .useServerConfig()
-                .collection("server-state")
-                .findOne({ name: "server-common-state" });
-            if (serverState && serverState.locationCode && typeof (serverState.locationCode) === 'string') {
-                locationCodes.push(serverState.locationCode);
-            }
-        }
-
-        for (var i = 0; i < locationCodes.length; i++) {
-            const location = await AliDbClient
-                .getInstance()
-                .useServerConfig()
-                .collection("server-location-data")
-                .findOne({ code: locationCodes[i] });
-
-            if (location && location.keywords && Array.isArray(location.keywords)) {
-                const keywords = Array.from(location.keywords);
-                keywords.forEach(element => {
-                    if (typeof (element) === 'string' && !result.includes(element)) {
-                        result.push(element);
-                    }
-                });
-            }
-        }
-
-        return Reliable.Success(result);
+        return new GetKeywordsData().invoke([]);
     }
 }
 
@@ -73,7 +35,7 @@ export abstract class KeywordsAnalyzer extends FeedAnalyzer {
         return new GetDefaultKeywords().run();
     }
 
-    async abstract createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>>;
+    abstract createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>>;
 
     async analyzeNewData(old: AnalyzerDocumentData, document: any): Promise<Reliable<AnalyzerDocumentData>> {
         return super.analyzeNewData(old, document);
