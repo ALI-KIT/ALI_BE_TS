@@ -1,5 +1,6 @@
 import { Reliable } from "@core/repository/base/Reliable";
 import { DynamicSourceOGNewsCrawler } from "@crawler/base/OpenGraphNewsCrawler";
+import { TuoiTreSitemapCrawler } from "@crawler/base/SitemapNewsCrawler";
 import CrawlerScript from "@crawler/CrawlerScript";
 import { AliAggregatorCrawler } from "@crawler/impl/AliAggregatorCrawler";
 import { BaoMoiNewsDetailCrawler as BaoMoiXemTinOpenGraphCrawler } from "@crawler/impl/BaoMoiNewsDetailCrawler";
@@ -14,20 +15,20 @@ import { DbScript } from "@scripts/DbScript";
 class TestCrawlerScript extends CrawlerScript {
     public onCreateCrawlers() {
         if (this.manager) {
-            this.manager.isCachingResultInsteadOfSaving = false;
+            this.manager.isCachingResultInsteadOfSaving = true;
             this.manager.isAllowRecursion = true;
         }
         return [
-            new BaoMoiTinMoiCrawler(1,5, "https://baomoi.com/tim-kiem/qu%E1%BA%ADn-9")
+            new DynamicNewsSourceGetterCrawler(false, [])
         ]
     }
 
-    /*    public async runInternal(): Promise<Reliable<any>> {
-           await super.runInternal();
-           const result = Reliable.Success(this.manager!!.cachingResult)
-   
-           return result;
-       } */
+    public async runInternal(): Promise<Reliable<any>> {
+        await super.runInternal();
+        const result = Reliable.Success(this.manager!!.cachingResult)
+
+        return result;
+    }
 }
 
 /**

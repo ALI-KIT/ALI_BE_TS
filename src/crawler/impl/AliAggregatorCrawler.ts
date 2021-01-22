@@ -5,6 +5,7 @@ import { DantriSitemapCrawler, SitemapNewsCrawler, ThanhNienSitemapCrawler, Tuoi
 import { DynamicNewsSourceGetter } from '@crawler/interactor/DynamicNewsSourceGetter';
 import { BaoMoiSitemapCrawler } from './BaoMoiSitemapCrawler';
 import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
+import DynamicNewsSourceGetterCrawler from './DynamicSourceGetterCrawler';
 
 export class AliAggregatorCrawler extends Crawler<any> {
     constructor() {
@@ -23,11 +24,12 @@ export class AliAggregatorCrawler extends Crawler<any> {
         const crawlers: Crawler<any>[] = [
 
             new BaoMoiTinMoiCrawler(),
+            new DynamicNewsSourceGetterCrawler(false, [])
             //new BaoMoiSitemapCrawler(),
-            new VnExpressTinMoiRssCrawler(),
-            new TuoiTreSitemapCrawler(),
-            new ThanhNienSitemapCrawler(),
-            new DantriSitemapCrawler()
+            //new VnExpressTinMoiRssCrawler(),
+            //new TuoiTreSitemapCrawler(),
+            //new ThanhNienSitemapCrawler(),
+            //new DantriSitemapCrawler()
         ];
 
         // add all dynamic sources
