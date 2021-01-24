@@ -1,17 +1,17 @@
 import { Reliable } from '@core/repository/base/Reliable';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { MongoDbBackendClient } from '@daos/MongoDbBackendClient';
 import { injectable } from 'inversify';
 import { BaseUsecase } from '../BaseUseCase';
 
-export class GetAnalyzerListParam {
+export class Params {
     constructor(readonly limit: number, readonly skip: number) {
     }
 }
 
 @injectable()
-export class GetAnalyzerList extends BaseUsecase<GetAnalyzerListParam, Reliable<Array<any>>> {
-    async invoke(param: GetAnalyzerListParam): Promise<Reliable<Array<any>>> {
-        const data = await AliDbClient.getInstance()
+export class GetAnalyzerData extends BaseUsecase<Params, Reliable<Array<any>>> {
+    async invoke(param: Params): Promise<Reliable<Array<any>>> {
+        const data = await MongoDbBackendClient.getInstance()
             .useALIDB()
             .collection("server-analyzer-data")
             .find({})

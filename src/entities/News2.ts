@@ -1,5 +1,5 @@
 import { Local } from '@entities/Local'
-import { Document, Schema, model } from 'mongoose'
+import { Document, Schema } from 'mongoose'
 import { Domain } from '@entities/Domain'
 
 export interface News extends Document {
@@ -27,7 +27,7 @@ export interface News extends Document {
     url: { type: String, default: '' }
 }) */
 
-export const NewsSchema: Schema = new Schema({
+export const NewsSchema = new Schema<News>({
     title: { type: String, required: true, default: '' },
     summary: { type: String, required: true, default: '' },
     content: { type: String, required: false, default: '' },

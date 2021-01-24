@@ -7,7 +7,7 @@ import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 export class CreateRawContentFieldInNewsDb {
-    private connectionString = AppProcessEnvironment.NEWS_DB_URI;
+    private connectionString = AppProcessEnvironment.NEWS_CRAWLER_URI;
     private dbString = "ALI-DB";
     private collectionString = "news-2";
     public async run(): Promise<Reliable<any>> {

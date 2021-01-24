@@ -12,7 +12,7 @@ import { AppProcessEnvironment } from '@loadenv';
 
 
 const router = Router();
-const userDao = AppDatabase.getInstance().UserDao;
+const userDao = AppDatabase.getInstance().userDao;
 const jwtService = new JwtService();
 
 

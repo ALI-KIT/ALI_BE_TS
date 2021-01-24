@@ -10,7 +10,6 @@ import 'express-async-errors';
 
 import BaseRouter from '@routes/Api';
 import AuthRouter from '@routes/Auth';
-import HomeRouter from '@routes/Home';
 
 import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
@@ -27,6 +26,10 @@ import "@controller/impl/CoreController";
 
 import passport from 'passport';
 import { AppProcessEnvironment } from '@loadenv';
+import { MongoDbConnector } from '@mongodb';
+
+// connect mongodb
+MongoDbConnector.connect();
 
 // Init express
 const expressApp = express();

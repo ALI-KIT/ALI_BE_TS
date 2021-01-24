@@ -38,6 +38,7 @@
   "dependencies": {
     "@mozilla/readability": "github:mozilla/readability",
     "@types/leven": "^2.1.2",
+    "@types/simplecrawler": "^1.1.1",
     "@types/string-similarity": "^4.0.0",
     "@types/textversionjs": "^1.1.0",
     "@types/xml2js": "^0.4.5",
@@ -79,6 +80,7 @@
     "rss-parser": "^3.9.0",
     "set-clustering": "^1.1.0",
     "similarity": "^1.2.1",
+    "simplecrawler": "^1.1.9",
     "sitemap": "^6.3.2",
     "sitemapper": "^3.0.5",
     "string-similarity": "^4.0.2",

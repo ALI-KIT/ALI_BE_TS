@@ -1,6 +1,6 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { DynamicSource, SourceStatus, SourceType } from '@crawler/interactor/DynamicNewsSourceGetter';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { MongoDbCrawlerClient } from '@daos/MongoDbCrawlerClient';
 import { DbScript } from '@scripts/DbScript';
 
 const RUN_AT_STARTUP = true;
@@ -89,7 +89,7 @@ export class CreateInitialDynamicNewsSources extends DbScript<any> {
                 SourceStatus.ENABLED
             )
         ]
-        const collection = AliDbClient.getInstance().useServerConfig().collection("dynamic-news-sources");
+        const collection = MongoDbCrawlerClient.getInstance().useServerConfig().collection("dynamic-news-sources");
         for (const ds of list) {
 
             await collection.updateOne({ url: ds.url }, {

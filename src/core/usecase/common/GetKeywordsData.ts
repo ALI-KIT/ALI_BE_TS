@@ -1,5 +1,4 @@
 import { Reliable, Type } from "@core/repository/base/Reliable";
-import { AliDbClient } from "@dbs/AliDbClient";
 import { GetLocationData } from "./GetLocationsData";
 
 /**

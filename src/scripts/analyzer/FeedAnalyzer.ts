@@ -1,5 +1,4 @@
 import MongoClient from 'mongodb';
-import { AliDbClient } from '@dbs/AliDbClient';
 import { Readable } from 'stream';
 import { DbScript } from '@scripts/DbScript';
 import { Reliable, Type } from '@core/repository/base/Reliable';
@@ -96,7 +95,8 @@ export class AnalyzerDocumentData {
  * Bước 4: Up-sert kết quả vào db (giống nhau trên mọi analyzer)
  */
 export abstract class FeedAnalyzer extends DbScript<any> {
-    constructor(public readonly name: string, public readonly sessionCode: string) { super() }
+    public abstract readonly name: string;
+    constructor(public newsCollection: MongoClient.Collection<any>, public analyzerCollection: MongoClient.Collection<any>, public readonly sessionCode: string) { super() }
 
     /**
      * Return the score 
@@ -113,7 +113,7 @@ export abstract class FeedAnalyzer extends DbScript<any> {
 
         /* step 2: loop on every documents */
         const cursor = cursorReliable.data;
-        const tempAnalyzerCollection = AliDbClient.getInstance().useALIDB().collection("server-analyzer-data");
+        const analyzerCollection = this.analyzerCollection;
         let bulkWrites = [];
         const bulkDocumentsSize = 300;
         let i = 0;
@@ -145,14 +145,14 @@ export abstract class FeedAnalyzer extends DbScript<any> {
             });
 
             if (i % bulkDocumentsSize === 0) {
-                await tempAnalyzerCollection.bulkWrite(bulkWrites);
+                await analyzerCollection.bulkWrite(bulkWrites);
                 bulkWrites = [];
                 LoggingUtil.consoleLog("Upsert " + i + " documents");
             }
         }
 
         if (bulkWrites.length != 0) {
-            await tempAnalyzerCollection.bulkWrite(bulkWrites);
+            await analyzerCollection.bulkWrite(bulkWrites);
         }
         LoggingUtil.consoleLog("Upsert " + i + " documents");
         return Reliable.Success("Upsert " + i + " documents");
@@ -165,7 +165,7 @@ export abstract class FeedAnalyzer extends DbScript<any> {
     } */
 
     async currentAnalyzerDocumentData(targetId: MongoClient.ObjectId): Promise<Reliable<AnalyzerDocumentData>> {
-        const collection = AliDbClient.getInstance().useALIDB().collection("server-analyzer-data");
+        const collection = this.analyzerCollection;
         const document = await collection.findOne({ targetId: targetId });
         const result = AnalyzerDocumentData.refine(targetId, document);
         return Reliable.Success(result);

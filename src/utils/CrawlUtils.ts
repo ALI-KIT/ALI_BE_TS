@@ -4,6 +4,8 @@ import axios, { AxiosError } from 'axios';
 //import axiosRetry  from 'axios-retry';
 import cheerio from 'cheerio';
 import textversionjs, { styleConfig } from 'textversionjs';
+import mongoose, { Connection } from "mongoose";
+
 
 //axiosRetry(axios, { retries: 3 });
 
@@ -100,5 +102,20 @@ export default class CrawlUtil {
         }
         return source;
     }
+
+    public static async connectMongoose(uri: string): Promise<Reliable<Connection>> {
+        try {
+            const connection = await mongoose.createConnection(uri, {
+                useUnifiedTopology: true,
+                useNewUrlParser: true,
+                useCreateIndex: true
+            });
+            return Reliable.Success(connection);
+        } catch (e) {
+            return Reliable.Failed(e);
+
+        }
+    }
+
 }
 

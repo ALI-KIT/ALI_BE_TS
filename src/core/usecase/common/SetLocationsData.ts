@@ -1,10 +1,10 @@
 import { Reliable } from "@core/repository/base/Reliable";
-import { AliDbClient } from "@dbs/AliDbClient";
+import { MongoDbBackendClient } from "@daos/MongoDbBackendClient";
 import { GetLocationData } from "./GetLocationsData";
 
 export class SetLocationData {
     async invoke(locations: any[]): Promise<Reliable<any[]>> {
-        const collection = AliDbClient.getInstance().useServerConfig().collection("server-location-data");
+        const collection = MongoDbBackendClient.getInstance().useServerConfig().collection("server-location-data");
 
         for (let i = 0; i < locations.length; i++) {
             const location = locations[i];

@@ -16,7 +16,7 @@ class TestCrawlerScript extends CrawlerScript {
     public onCreateCrawlers() {
         if (this.manager) {
             this.manager.isCachingResultInsteadOfSaving = true;
-            this.manager.isAllowRecursion = true;
+            this.manager.isAllowRecursion = false;
         }
         return [
             new DynamicNewsSourceGetterCrawler(false, [])

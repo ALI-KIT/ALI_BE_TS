@@ -1,5 +1,6 @@
 import { News, ShortNews, NewsSchema } from '@entities/News';
 import { Dao } from '@daos/Dao';
+import { Connection } from 'mongoose';
 
 export class PagingData {
     public maxItem: number;

@@ -9,7 +9,7 @@ import { News } from '@entities/News2';
 import AppDatabase from '@daos/AppDatabase';
 import MongoClient from 'mongodb';
 import container from '@core/di/InversifyConfigModule';
-import { GetAnalyzerList, GetAnalyzerListParam } from './GetAnalyzerData';
+import { GetAnalyzerData, Params } from './GetAnalyzerData';
 
 export class Param {
     constructor(readonly locationCodes: string[], readonly keywords: string[], readonly limit: number, readonly skip: number) {
@@ -33,12 +33,12 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
     }
 
     async invokeInternal(param: Param): Promise<Reliable<Array<News>>> {
-        const getAnalyzerList = container.get<GetAnalyzerList>(TYPES_USECASES.GetAnalyzerList);
-        if (!getAnalyzerList) {
+        const getAnalyzerData = container.get<GetAnalyzerData>(TYPES_USECASES.GetAnalyzerData);
+        if (!getAnalyzerData) {
             return Reliable.Failed("Could get the analyzer list");
         }
 
-        const analyzersReliable = await getAnalyzerList.invoke(new GetAnalyzerListParam(param.limit, param.skip))
+        const analyzersReliable = await getAnalyzerData.invoke(new Params(param.limit, param.skip))
         if (analyzersReliable.type == Type.FAILED) {
             return Reliable.Failed(analyzersReliable.message, analyzersReliable.error);
         } else if (!analyzersReliable.data) {

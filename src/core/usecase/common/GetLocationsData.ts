@@ -1,11 +1,9 @@
 import { Reliable } from "@core/repository/base/Reliable";
-import { AliDbClient } from "@dbs/AliDbClient";
-import { injectable } from "inversify";
+import { MongoDbBackendClient } from "@daos/MongoDbBackendClient";
 
 /**
  * Lấy toàn bộ location 
  */
-@injectable()
 export class GetLocationData {
     async invoke(locationCodes: string[] = []): Promise<Reliable<any[]>> {
         /** chúng ta sẽ sử dụng toàn bộ location trên db nếu location không được cung cấp sẵn trong tham số */
@@ -13,7 +11,7 @@ export class GetLocationData {
         /** lấy mảng location object */
         let locations : string[]= [];
         try {
-            const collection = AliDbClient.getInstance().useServerConfig().collection("server-location-data");
+            const collection = MongoDbBackendClient.getInstance().useServerConfig().collection("server-location-data");
 
             if (locationCodes.length != 0) {
                 /* find in list */

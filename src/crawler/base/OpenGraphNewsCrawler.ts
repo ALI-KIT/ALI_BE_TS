@@ -14,7 +14,7 @@ import { Domain } from '@entities/Domain';
 
 export class OGNewsParser {
 
-    private async extractSections(crawer: Crawler<any>, $: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
+    private async extractSections($: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
         const result: string[] = [];
         const section = $('meta[property="article\\:section"]')?.attr('content');
         if (section) {
@@ -35,7 +35,7 @@ export class OGNewsParser {
         return Reliable.Success(result);
     }
 
-    private async extractKeywords(crawer: Crawler<any>, $: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
+    private async extractKeywords($: CheerioStatic, htmlContent: string): Promise<Reliable<string[]>> {
         const result: string[] = [];
         const keywordContent: string[] = [];
 
@@ -77,7 +77,7 @@ export class OGNewsParser {
         return Reliable.Success(result);
     }
 
-    public async execute(crawler: Crawler<any>, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
+    public async execute(crawler: { url: string, displayName: string, name: string }, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
         try {
             return await this.executeInternal(crawler, htmlContent);
         } catch (e) {
@@ -85,7 +85,7 @@ export class OGNewsParser {
         }
     }
 
-    private async executeInternal(crawler: Crawler<any>, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
+    private async executeInternal(crawler: { url: string, displayName: string, name: string }, htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(htmlContent, { decodeEntities: false });
 
         const title = $('meta[property="og\\:title"]')?.first()?.attr('content') || $('meta[name=\'title\']')?.first()?.attr('content') || "";
@@ -116,10 +116,10 @@ export class OGNewsParser {
 
         const source = CrawlUtil.buildSourceDomain(siteName || crawler.displayName, sourceUrl);
 
-        const categoriesReliable = await this.extractSections(crawler, $, htmlContent);
+        const categoriesReliable = await this.extractSections($, htmlContent);
         const categories = categoriesReliable.data || [];
 
-        const keywordsReliable = await this.extractKeywords(crawler, $, htmlContent);
+        const keywordsReliable = await this.extractKeywords($, htmlContent);
         const keywords = keywordsReliable.data || [];
         const locals: Local[] = [];
 

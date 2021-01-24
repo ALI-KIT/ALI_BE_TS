@@ -1,14 +1,8 @@
 import * as express from "express";
 import { controller, interfaces, httpGet } from "inversify-express-utils";
-import { stat } from 'fs';
-import AppDatabase from '@daos/AppDatabase';
-import { CrawlerManager } from '@crawler/base/CrawlerManager';
-import { State } from '@crawler/base/Crawler';
-import { BaoMoiTinMoiCrawler } from '@crawler/impl/BaoMoiTinMoiCrawler';
-import { AliDbClient } from '@dbs/AliDbClient';
-import { ObjectId } from 'mongodb'
+
 import LoggingUtil from '@utils/LogUtil';
-import { AppRemoteRunner } from "@scripts/schedule/AppRunner";
+import { AppRemoteRunner } from "@scripts/schedule/AppRemoteRunner";
 
 @controller("/control-center")
 export class ControlCenterController implements interfaces.Controller {

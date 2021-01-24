@@ -2,7 +2,7 @@ import { Reliable, Type } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
 import { DynamicSourceRssCrawler, RssCrawler } from '@crawler/base/RssCrawler';
 import { DynamicSourceSitemapCrawler } from '@crawler/base/SitemapNewsCrawler';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { MongoDbCrawlerClient } from '@daos/MongoDbCrawlerClient';
 import { DbScript } from '@scripts/DbScript';
 import { stat } from 'fs';
 
@@ -95,7 +95,7 @@ export class DynamicNewsSourceGetter extends DbScript<Crawler<any>[]> {
 
     private async getAllDynamicNewsSources(): Promise<Reliable<DynamicSource[]>> {
         const list: DynamicSource[] = [];
-        const collection = AliDbClient.getInstance().useServerConfig().collection("dynamic-news-sources");
+        const collection = MongoDbCrawlerClient.getInstance().useServerConfig().collection("dynamic-news-sources");
 
         const raws = await collection.find({}).sort({ priority: -1 }).toArray();
 
