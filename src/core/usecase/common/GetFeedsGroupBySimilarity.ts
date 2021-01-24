@@ -20,6 +20,19 @@ export class GetFeedsGroupBySimilarity extends BaseUsecase<GetFeedsGroupBySimila
             .skip(param.skip)
             .limit(param.limit)
             .toArray();
+        if (data) {
+            data.forEach(item => {
+                item.sessionCode = undefined;
+                item.id = item._id;
+                item._id = undefined;
+                if (item.data && Array.isArray(item.data)) {
+                    const arr: any[] = item.data;
+                    if (arr && arr.length > 5) {
+                        item.data = arr.splice(0, 5);
+                    }
+                }
+            })
+        }
         if (!data) {
             return Reliable.Failed("Null data");
         } else {

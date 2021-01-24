@@ -14,7 +14,7 @@ const RUN_AT_START_UP = false;
 export class AppAnalyzer extends DbScript<any> {
     public tasks: DbScript<any>[] = [];
     public runAnalyticsTask = true;
-    public runCrawlerTasks = true;
+    public runCrawlerTasks = false;
     protected async prepare(): Promise<Reliable<string>> {
         const s = await super.prepare();
 
