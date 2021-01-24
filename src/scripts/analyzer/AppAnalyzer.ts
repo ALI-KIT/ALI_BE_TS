@@ -13,6 +13,8 @@ const RUN_AT_START_UP = false;
 
 export class AppAnalyzer extends DbScript<any> {
     public tasks: DbScript<any>[] = [];
+    public runAnalyticsTask = true;
+    public runCrawlerTasks = true;
     protected async prepare(): Promise<Reliable<string>> {
         const s = await super.prepare();
 
@@ -20,7 +22,7 @@ export class AppAnalyzer extends DbScript<any> {
             return s;
         }
 
-        if (MongoDbConnector.INSTANCE.states[0] == State.ON && MongoDbConnector.INSTANCE.states[2] == State.ON) {
+        if (this.runCrawlerTasks && MongoDbConnector.INSTANCE.states[0] == State.ON && MongoDbConnector.INSTANCE.states[2] == State.ON) {
             // crawl news into database
             this.tasks.push(new CrawlerScript());
             // remove old documents if it exceeds 47k documents
@@ -29,7 +31,7 @@ export class AppAnalyzer extends DbScript<any> {
             this.tasks.push(new BeAnalyticsTrigger());
         }
 
-        if (MongoDbConnector.INSTANCE.states[1] == State.ON && MongoDbConnector.INSTANCE.states[3] == State.ON) {
+        if (this.runAnalyticsTask && MongoDbConnector.INSTANCE.states[1] == State.ON && MongoDbConnector.INSTANCE.states[3] == State.ON) {
             // fetch local news from crawler database into backend database
             this.tasks.push(new CrawlerToBackend_FetchNewsFeed_Analyzer());
 

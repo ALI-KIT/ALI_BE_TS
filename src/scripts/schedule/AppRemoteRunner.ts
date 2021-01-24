@@ -25,7 +25,7 @@ export class AppRemoteRunner {
     /**
      * Start or skip if any
      */
-    public async start() {
+    public async start(crawler: boolean = true, analytics: boolean = true) {
         if (this.appAnalyzer) {
             this.lastMessage = "Already running";
             return;
@@ -54,9 +54,9 @@ export class AppRemoteRunner {
     /**
      * Stop the old if any then start new session
      */
-    public async restart() {
+    public async restart(crawler: boolean = true, analytics: boolean = true) {
         this.stop();
-        this.start();
+        this.start(crawler, analytics);
     }
 
     /**

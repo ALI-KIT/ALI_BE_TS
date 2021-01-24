@@ -9,7 +9,7 @@ export class BeAnalyticsTrigger extends DbScript<any> {
         const beServers = await CrawlerDatabase.getInstance().beAnalyticsServerDao.model.find({}).exec();
         for (let i = 0; i < beServers.length; i++) {
             LoggingUtil.consoleLog("Triggering analytics [" + beServers[i] + "] at [" + beServers[i].analyticsUrl);
-            const analyticsUrl = beServers[i].analyticsUrl + "/api/v2/control-center/crawler";
+            const analyticsUrl = beServers[i].analyticsUrl;
             const reliable = await CrawlUtil.loadWebsiteReliable(analyticsUrl);
             if (reliable.type == Type.FAILED) {
                 LoggingUtil.consoleLog(reliable);

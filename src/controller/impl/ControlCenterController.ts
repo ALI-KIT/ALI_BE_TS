@@ -26,7 +26,31 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler')
     private async startCrawlerIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start()
+        AppRemoteRunner.getInstance().start(true, false)
+            .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
+
+        try {
+            res.status(200).json(AppRemoteRunner.getInstance().getStatus());
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
+    @httpGet('/analytics')
+    private async startAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
+        AppRemoteRunner.getInstance().start(false, true)
+            .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
+
+        try {
+            res.status(200).json(AppRemoteRunner.getInstance().getStatus());
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
+    @httpGet('/deploy')
+    private async startCrawlerAndAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
+        AppRemoteRunner.getInstance().start(false, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
@@ -48,8 +72,8 @@ export class ControlCenterController implements interfaces.Controller {
     @httpGet('/crawler/log')
     private async crawlerLog(req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
-            let log : string = LoggingUtil.getLogString();
-            if(!log || log=="") {
+            let log: string = LoggingUtil.getLogString();
+            if (!log || log == "") {
                 log = "No log found.";
             }
             log = log.replace(/\n/g, "<br />");
