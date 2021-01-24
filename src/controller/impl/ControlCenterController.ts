@@ -36,7 +36,7 @@ export class ControlCenterController implements interfaces.Controller {
         }
     }
 
-    @httpGet('/analytics')
+    @httpGet('/crawler/analytics')
     private async startAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
         AppRemoteRunner.getInstance().start(false, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
@@ -48,7 +48,7 @@ export class ControlCenterController implements interfaces.Controller {
         }
     }
 
-    @httpGet('/deploy')
+    @httpGet('/crawler/all')
     private async startCrawlerAndAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
         AppRemoteRunner.getInstance().start(false, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });

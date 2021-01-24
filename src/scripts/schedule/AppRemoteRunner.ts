@@ -33,6 +33,8 @@ export class AppRemoteRunner {
 
         this.lastMessage = "Created new session"
         this.appAnalyzer = new AppAnalyzer();
+        this.appAnalyzer.runCrawlerTasks = crawler;
+        this.appAnalyzer.runAnalyticsTask = analytics;
         this.startAt = Date.now();
         LoggingUtil.getInstance().isLogToString = true;
         let result: Reliable<any>;
