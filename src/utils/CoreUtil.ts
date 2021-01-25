@@ -1,12 +1,18 @@
-import { Reliable } from "@core/repository/base/Reliable";
+import { Reliable, Type } from "@core/repository/base/Reliable";
 import express from "express";
 
 export class CoreUtil {
-    public static tryCatchJsonReliableResponse(promise: Promise<Reliable<any>>, res: express.Response) {
-      /*   try {
-            res.status(200).json(promise()));
+    
+    static async sendJsonResponse(func: () => Promise<Reliable<any>>, res: express.Response) {
+        try {
+            const reliable = await func();
+            if (reliable.type == Type.SUCCESS) {
+                res.status(200).json(reliable.data);
+            } else {
+                res.status(500).json(reliable);
+            }
         } catch (err) {
-            res.status(400).json({ message: err.message, error: err });
-        } */
+            res.status(500).json(Reliable.Failed(err.message, err));
+        }
     }
 }

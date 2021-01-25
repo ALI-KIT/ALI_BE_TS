@@ -8,6 +8,8 @@ import { FeShortFeed } from '@entities/fe/FeFeed';
 import { ConvertNewsToFeFeed, ConvertNewsToFeShortFeed, ConvertNewsToFeFeeds, ConvertNewsToFeShortFeeds } from '@core/usecase/common/ConvertNewsToFeFeed';
 import { GetNewsDetail } from '@core/usecase/common/GetNewsDetail';
 import { GetFeedsGroupBySimilarity, GetFeedsGroupBySimilarityParam } from '@core/usecase/common/GetFeedsGroupBySimilarity';
+import { CoreUtil } from "@utils/CoreUtil";
+import { getSimilarityById } from "@core/usecase/common/GetSimilarityById";
 
 @controller("/news")
 export class NewsController implements interfaces.Controller {
@@ -84,6 +86,11 @@ export class NewsController implements interfaces.Controller {
 
   @httpGet('/feed/similarity')
   private async feedSimilarity(req: express.Request, res: express.Response, next: express.NextFunction) {
+    return await this.getSimilarities(req, res, next);
+  }
+
+  @httpGet('/similarity')
+  private async getSimilarities(req: express.Request, res: express.Response, next: express.NextFunction) {
     const per_page = Math.max(Number(req.query["per_page"]?.toString()) || 40, 1);
     const page = Math.max(Number(req.query["page"]?.toString()) || 1, 1);
 
@@ -99,4 +106,19 @@ export class NewsController implements interfaces.Controller {
     }
   }
 
+  @httpGet('/similarity/:id')
+  private async getSimilarityById(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const id = req.params["id"]?.toString() || "";
+
+    try {
+      const reliable = await new getSimilarityById(id).invoke();
+      if (reliable.type == Type.SUCCESS) {
+        res.status(200).json(reliable.data);
+      } else {
+        res.status(500).json(reliable);
+      }
+    } catch (err) {
+      res.status(500).json(Reliable.Failed(err.message, err));
+    }
+  }
 }
