@@ -15,6 +15,7 @@ export class AppAnalyzer extends DbScript<any> {
     public tasks: DbScript<any>[] = [];
     public runAnalyticsTask = true;
     public runCrawlerTasks = false;
+    public triggerAnalyticsOnly = false;
     protected async prepare(): Promise<Reliable<string>> {
         const s = await super.prepare();
 
@@ -24,9 +25,12 @@ export class AppAnalyzer extends DbScript<any> {
 
         if (this.runCrawlerTasks && MongoDbConnector.INSTANCE.states[0] == State.ON && MongoDbConnector.INSTANCE.states[2] == State.ON) {
             // crawl news into database
-            this.tasks.push(new CrawlerScript());
-            // remove old documents if it exceeds 47k documents
-            this.tasks.push(new LimitCrawlerDocument());
+            if (!this.triggerAnalyticsOnly) {
+                this.tasks.push(new CrawlerScript());
+
+                // remove old documents if it exceeds 47k documents
+                this.tasks.push(new LimitCrawlerDocument());
+            }
             // trigger sub-domain analytic servers
             this.tasks.push(new BeAnalyticsTrigger());
         }

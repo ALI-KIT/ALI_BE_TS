@@ -24,9 +24,30 @@ export class ControlCenterController implements interfaces.Controller {
         }
     }
 
+    /**
+     * Request to start crawler
+     */
     @httpGet('/crawler')
     private async startCrawlerIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(true, false)
+        AppRemoteRunner.getInstance().start(true, false, false)
+            .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
+
+        try {
+            res.status(200).json(AppRemoteRunner.getInstance().getStatus());
+        } catch (err) {
+            res.status(400).json({ error: "err.message" });
+        }
+    }
+
+    /**
+     * Request to trigger the be analytics
+     * @param req 
+     * @param res 
+     * @param next 
+     */
+    @httpGet('/crawler/triggerBeAnalytics')
+    private async triggerBeAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
+        AppRemoteRunner.getInstance().start(true, true, false)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
@@ -38,7 +59,7 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler/analytics')
     private async startAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(false, true)
+        AppRemoteRunner.getInstance().start(false, false, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
@@ -50,7 +71,7 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler/all')
     private async startCrawlerAndAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(false, true)
+        AppRemoteRunner.getInstance().start(true, false, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {

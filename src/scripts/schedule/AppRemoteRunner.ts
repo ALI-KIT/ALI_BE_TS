@@ -25,7 +25,7 @@ export class AppRemoteRunner {
     /**
      * Start or skip if any
      */
-    public async start(crawler: boolean = true, analytics: boolean = true) {
+    public async start(crawler: boolean, triggerAnalyticsOnly: boolean, analytics: boolean) {
         if (this.appAnalyzer) {
             this.lastMessage = "Already running";
             return;
@@ -34,6 +34,7 @@ export class AppRemoteRunner {
         this.lastMessage = "Created new session"
         this.appAnalyzer = new AppAnalyzer();
         this.appAnalyzer.runCrawlerTasks = crawler;
+        this.appAnalyzer.triggerAnalyticsOnly = triggerAnalyticsOnly;
         this.appAnalyzer.runAnalyticsTask = analytics;
         this.startAt = Date.now();
         LoggingUtil.getInstance().isLogToString = true;
@@ -56,9 +57,9 @@ export class AppRemoteRunner {
     /**
      * Stop the old if any then start new session
      */
-    public async restart(crawler: boolean = true, analytics: boolean = true) {
+    public async restart(crawler: boolean = true, triggerAnalyticsOnly: boolean, analytics: boolean = true) {
         this.stop();
-        this.start(crawler, analytics);
+        this.start(crawler, triggerAnalyticsOnly, analytics);
     }
 
     /**

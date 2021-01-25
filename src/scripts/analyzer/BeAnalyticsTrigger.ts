@@ -10,7 +10,19 @@ export class BeAnalyticsTrigger extends DbScript<any> {
         for (let i = 0; i < beServers.length; i++) {
             LoggingUtil.consoleLog("Triggering analytics [" + beServers[i] + "] at [" + beServers[i].analyticsUrl);
             const analyticsUrl = beServers[i].analyticsUrl;
-            const reliable = await CrawlUtil.loadWebsiteReliable(analyticsUrl);
+            // call the analytics url, if it failed, retrying for a number of times
+            let retryLeft = 10;
+            let reliable: Reliable<any>;
+            do {
+                reliable = await CrawlUtil.loadWebsiteReliable(analyticsUrl);
+
+                if (retryLeft <= 0) {
+                    break;
+                }
+                retryLeft--;
+
+            } while (reliable.type == Type.FAILED || retryLeft <= 0);
+
             if (reliable.type == Type.FAILED) {
                 LoggingUtil.consoleLog(reliable);
             };
