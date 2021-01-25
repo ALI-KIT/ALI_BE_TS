@@ -1,11 +1,13 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
+import { BaoMoiXemTinCrawler } from '@crawler/impl/BaoMoiXemTinCrawler';
+import { Domain } from '@entities/Domain';
 import { AppProcessEnvironment } from '@loadenv';
 import CrawlUtil from '@utils/CrawlUtils';
 import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 export class CreateRawContentFieldInNewsDb {
-    private connectionString = AppProcessEnvironment.NEWS_DB_URI;
+    private connectionString = AppProcessEnvironment.NEWS_CRAWLER_URI;
     private dbString = "ALI-DB";
     private collectionString = "news-2";
     public async run(): Promise<Reliable<any>> {
@@ -65,6 +67,27 @@ export class CreateRawContentFieldInNewsDb {
     }
 
     private async refactor(doc: any): Promise<Reliable<any>> {
+        return await this.refactor1(doc);
+    }
+
+    private async refactor2(doc: any): Promise<Reliable<any>> {
+        const source: Domain = doc.source;
+        const aggregator: Domain = doc.aggregator;
+        if (aggregator.name == "baomoi") {
+            const baoMoiUrl = aggregator.url;
+            const parsed = await new BaoMoiXemTinCrawler(baoMoiUrl).execute();
+            if (parsed && parsed.data) {
+                source.baseUrl = parsed.data.source.baseUrl;
+                source.displayName = parsed.data.source.displayName;
+                source.name = parsed.data.source.name;
+                source.url = parsed.data.source.url;
+            }
+
+        }
+        return Reliable.Success("");
+    }
+
+    private async refactor1(doc: any): Promise<Reliable<any>> {
         const source = doc.source;
         if (source) {
             const url = source.url;
@@ -87,7 +110,7 @@ export class CreateRawContentFieldInNewsDb {
                 if (baseUrl.type == Type.FAILED) {
                     message += baseUrl.message + ". ";
                     error = baseUrl.error;
-                } else if(baseUrl.data == "") {
+                } else if (baseUrl.data == "") {
                     message = "Get base url successfully but empty result. ";
                 }
 

@@ -1,11 +1,11 @@
 import { Reliable } from '@core/repository/base/Reliable';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { MongoDbConnector } from '@mongodb';
 import LoggingUtil from '@utils/LogUtil';
 import { Exception } from 'handlebars';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
-    // timeOut = 45 minutes
+    // timeOut = 90 minutes
     public timeOut = 90 * 60 * 1000;
     public async run(): Promise<Reliable<T>> {
         const scriptName = this.constructor.name;
@@ -24,8 +24,7 @@ export abstract class DbScript<T> {
     }
 
     protected async prepare(): Promise<Reliable<string>> {
-        await AliDbClient.connect();
-        return Reliable.Success("");
+        return await MongoDbConnector.connect();
     }
 
     protected abstract runInternal(): Promise<Reliable<T>>;

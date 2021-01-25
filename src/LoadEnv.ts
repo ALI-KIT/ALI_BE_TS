@@ -37,19 +37,28 @@ export class AppProcessEnvironment {
     public static readonly URI_LOCAL = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_LOCAL || "";
 
     // this is the mongodb uri of the atlas remote db
-    public static readonly URI_REMOTE = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_REMOTE || "";
+    public static readonly URI_CONFIG = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_CONFIG || "";
+
+    public static readonly URI_CRAWLER = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_CRAWLER || "";
+
+    public static readonly URI_BACK_END = AppProcessEnvironment.getProcessEnv().ENV_MONGODB_URI_BACK_END || "";
 
     public static readonly ENV_MODE: Mode = (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'production') ? Mode.PRODUCTION : Mode.DEVELOPMENT;
     public static readonly IS_PRODUCTION: boolean = AppProcessEnvironment.ENV_MODE == Mode.PRODUCTION;
 
     /**
-     * Database tin tức sẽ lưu ở local (dung lượng lớn)
+     * Database tin tức sẽ lưu ở remote crawler (dung luong nho nhung on dinh)
      */
-    public static readonly NEWS_DB_URI: string = AppProcessEnvironment.URI_LOCAL;
+    public static readonly NEWS_CRAWLER_URI: string = AppProcessEnvironment.URI_CRAWLER;
+
+    /**
+     * Database tin tức (địa phương) sẽ lưu ở remote back end
+     */
+    public static readonly BACKEND_URI: string = AppProcessEnvironment.URI_BACK_END;
 
     /**
      * Còn database config sẽ lưu ở remote (dung lượng nhỏ)
      */
-    public static readonly CONFIG_DB_URI: string = AppProcessEnvironment.URI_REMOTE;
+    public static readonly CONFIG_DB_URI: string = AppProcessEnvironment.URI_CONFIG;
 
 }

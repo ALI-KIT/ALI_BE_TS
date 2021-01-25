@@ -6,7 +6,7 @@ import { GetNewsFeed } from '../usecase/common/GetNewsFeed';
 import { TYPES_REPOSITORY, TYPES_USECASES } from './Types';
 import { ConvertNewsToFeFeed, ConvertNewsToFeShortFeed, ConvertNewsToFeFeeds, ConvertNewsToFeShortFeeds } from '@core/usecase/common/ConvertNewsToFeFeed';
 import { GetNewsDetail } from '@core/usecase/common/GetNewsDetail';
-import { GetAnalyzerList } from '@core/usecase/common/GetAnalyzerData';
+import { GetAnalyzerData } from '@core/usecase/common/GetAnalyzerData';
 import { GetFeedsGroupBySimilarity } from '@core/usecase/common/GetFeedsGroupBySimilarity';
 
 const container = new Container();
@@ -17,7 +17,7 @@ container.bind<NewsRepository>(TYPES_REPOSITORY.NewsRepository).to(NewsRepositor
 
 // bind usecases
 container.bind<GetNewsFeed>(TYPES_USECASES.GetNewsFeed).to(GetNewsFeed).inSingletonScope();
-container.bind<GetAnalyzerList>(TYPES_USECASES.GetAnalyzerList).to(GetAnalyzerList);
+container.bind<GetAnalyzerData>(TYPES_USECASES.GetAnalyzerData).to(GetAnalyzerData);
 
 container.bind<ConvertNewsToFeFeed>(TYPES_USECASES.ConvertNewsToFeFeed).to(ConvertNewsToFeFeed).inSingletonScope();
 container.bind<ConvertNewsToFeShortFeed>(TYPES_USECASES.ConvertNewsToFeShortFeed).to(ConvertNewsToFeShortFeed).inSingletonScope();

@@ -84,7 +84,12 @@ export abstract class HtmlCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
         const url = this.url;
 
-        const loadHtmlReliable = await this.loadHtml(url);
+        let loadHtmlReliable = await this.loadHtml(url);
+
+        //try one more time
+        if(loadHtmlReliable.type == Type.FAILED) {
+            loadHtmlReliable = await this.loadHtml(url);
+        }
 
         /* step: fetch html content */
         if (loadHtmlReliable.type == Type.FAILED) {

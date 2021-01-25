@@ -3,7 +3,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import AppDatabase from '@daos/AppDatabase';
 import { AppProcessEnvironment } from '@loadenv';
 
-const User = AppDatabase.getInstance().UserDao;
+const User = AppDatabase.getInstance().userDao;
 // module.exports = function () {
 //   var opts = {
 //     jwtFromRequest: ExtractJwt.fromAuthHeader(),

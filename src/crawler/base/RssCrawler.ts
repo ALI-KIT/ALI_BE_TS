@@ -33,7 +33,7 @@ export abstract class RssCrawler extends HtmlCrawler<any> {
 
     }
 
-    protected abstract async parseHtmlInternal(links: string[]): Promise<Reliable<string[]>>;
+    protected abstract parseHtmlInternal(links: string[]): Promise<Reliable<string[]>>;
 
     public async saveResult(result: string[]): Promise<Reliable<string[]>> {
         return Reliable.Success(result);

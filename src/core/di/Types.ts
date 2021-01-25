@@ -9,7 +9,7 @@ const TYPES_USECASES = {
     ConvertNewsToFeShortFeed: Symbol.for("ConvertNewsToFeShortFeed"),
     ConvertNewsToFeFeeds: Symbol.for("ConvertNewsToFeFeeds"),
     ConvertNewsToFeShortFeeds: Symbol.for("ConvertNewsToFeShortFeeds"),
-    GetAnalyzerList: Symbol.for("GetAnalyzerList"),
+    GetAnalyzerData: Symbol.for("GetAnalyzerList"),
 
     GetNewsDetail: Symbol.for("GetNewsDetail")
 }

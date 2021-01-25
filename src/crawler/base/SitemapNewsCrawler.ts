@@ -41,7 +41,7 @@ export abstract class SitemapCrawler<T> extends Crawler<T> {
 
     }
 
-    protected async abstract parseSiteMap(sitemaps: string[]): Promise<Reliable<T>>;
+    protected abstract parseSiteMap(sitemaps: string[]): Promise<Reliable<T>>;
 }
 
 export abstract class SitemapNewsCrawler extends SitemapCrawler<string[]> {
@@ -50,7 +50,7 @@ export abstract class SitemapNewsCrawler extends SitemapCrawler<string[]> {
      * Add các crawler tương ứng với mỗi sitemap url
      * @param sitemaps 
      */
-    protected abstract async parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>>;
+    protected abstract parseSiteMap(sitemaps: string[]): Promise<Reliable<string[]>>;
 
     public async saveResult(data: string[]): Promise<Reliable<string[]>> {
         return Reliable.Success(data);

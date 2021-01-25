@@ -1,27 +1,57 @@
-import '@mongodb';
-
+import { AppProcessEnvironment } from '@loadenv';
 import { NewsDao } from '@daos/News/NewsDao';
-import {NewsDao as News2Dao} from '@daos/News2/News2Dao';
-import { PlaceDao } from '@daos/PlaceDao';
+import { NewsDao as News2Dao } from '@daos/News2/News2Dao';
 import UserDao from '@daos/User/UserDao';
+import CrawlUtil from '@utils/CrawlUtils';
+import { PlaceDao } from './PlaceDao';
+import { Reliable, Type } from '@core/repository/base/Reliable';
 
+/**
+ * Object Modeling Database for Backend App ( & App Analytics also)
+ */
 export default class AppDatabase {
-    public newsDao = new NewsDao();
-    public news2Dao = new News2Dao();
-    public placeDao = new PlaceDao();
-    public UserDao = new UserDao();
-    
-    
-    private constructor() {}
+    public readonly newsDao = new NewsDao();
+    public readonly news2Dao = new News2Dao();
+    public readonly placeDao = new PlaceDao();
+    public readonly userDao: UserDao = new UserDao();
+
+    private constructor() { }
 
     private static instance: AppDatabase;
-    
-    
+
     public static getInstance(): AppDatabase {
         if (!AppDatabase.instance) {
             AppDatabase.instance = new AppDatabase();
         }
 
         return AppDatabase.instance;
+    }
+
+    public async initInternal(): Promise<Reliable<any>> {
+        const appBeAnalyticsConnection = await CrawlUtil.connectMongoose(AppProcessEnvironment.BACKEND_URI);
+
+        if (appBeAnalyticsConnection.type == Type.FAILED || !appBeAnalyticsConnection.data) {
+            return appBeAnalyticsConnection;
+        }
+
+        const connection = appBeAnalyticsConnection.data;
+        const dbConnection = connection.useDb("ALI-DB");
+
+        const reliables: Reliable<any>[] = [
+            await this.newsDao.init(dbConnection),
+            await this.news2Dao.init(dbConnection),
+            await this.userDao.init(dbConnection),
+            await this.placeDao.init(dbConnection),]
+
+        for (let i = 0; i < reliables.length; i++) {
+            if (reliables[i].type == Type.FAILED) {
+                return reliables[i];
+            }
+        }
+        return Reliable.Success(null);
+    }
+
+    public static async init(): Promise<Reliable<any>> {
+        return await AppDatabase.getInstance().initInternal();
     }
 }

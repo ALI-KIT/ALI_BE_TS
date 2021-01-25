@@ -5,7 +5,7 @@ import { injectable } from 'inversify';
  */
 @injectable()
 export abstract class BaseUsecase<Param, Result> {
-    abstract async invoke(param: Param): Promise<Result>
+    abstract invoke(param: Param): Promise<Result>
 }
 
 /**
@@ -14,5 +14,5 @@ export abstract class BaseUsecase<Param, Result> {
  */
 @injectable()
 export abstract class BaseUsecaseNoParam<Result> {
-    abstract async invoke(): Promise<Result>
+    abstract invoke(): Promise<Result>
 }

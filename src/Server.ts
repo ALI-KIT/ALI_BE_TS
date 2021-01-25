@@ -15,22 +15,27 @@ import logger from '@shared/Logger';
 import { cookieProps } from '@shared/constants';
 
 import "reflect-metadata";
-import { Container } from 'inversify';
 import container from '@core/di/InversifyConfigModule'
 import { interfaces, InversifyExpressServer, TYPE } from 'inversify-express-utils';
 
 // TODO: Add all controller here
 import '@controller/impl/NewsController';
+import '@controller/impl/StatisticsController';
 import '@controller/impl/ControlCenterController';
+import "@controller/impl/CoreController";
 
 import passport from 'passport';
 import { AppProcessEnvironment } from '@loadenv';
+import { MongoDbConnector } from '@mongodb';
+
+// connect mongodb
+MongoDbConnector.connect();
 
 // Init express
 const expressApp = express();
-const server = new InversifyExpressServer(container, null,  {rootPath: '/api/v2'}, expressApp);
+const server = new InversifyExpressServer(container, null, { rootPath: '/api/v2' }, expressApp);
 server.setConfig((app) => {
-    app.use(cors({origin: true}));
+    app.use(cors({ origin: true }));
     app.options('*', cors());
 });
 const app = server.build();
@@ -88,7 +93,9 @@ if (AppProcessEnvironment.getProcessEnv().NODE_ENV === 'production') {
 // Add APIs
 app.use('/api', BaseRouter);
 // auth api
-app.use('/auth',AuthRouter);
+app.use('/auth', AuthRouter);
+
+//app.use('/', HomeRouter);
 
 
 //enable pre-flight
@@ -108,10 +115,10 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
  *                              Serve front-end content
  ***********************************************************************************/
 
-// const viewsDir = path.join(__dirname, 'views');
-// app.set('views', viewsDir);
-// const staticDir = path.join(__dirname, 'public');
-// app.use(express.static(staticDir));
+//const viewsDir = path.join(__dirname, 'views');
+//app.set('views', viewsDir);
+const staticDir = path.join(__dirname, 'public');
+app.use(express.static(staticDir));
 
 // app.get('/', (req: Request, res: Response) => {
 //     res.sendFile('login.html', {root: viewsDir});

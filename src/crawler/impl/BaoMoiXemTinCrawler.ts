@@ -15,13 +15,33 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         this.priority = priority;
     }
 
+    public static buildSourceDomain($: CheerioStatic): Domain {
+        const sourceUrl = $('.bm-source .source')?.first()?.text()?.trim() || '';
+        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || '';
+        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || ''
+
+        const name = prettyUrl;
+        const source: Domain = {
+            name: name,
+            baseUrl: baseUrl,
+            displayName: $('.article .source .image')?.first()?.attr("alt")?.trim() || '',
+            url: sourceUrl
+        }
+        return source;
+    }
+
     async parseHtml(html: string): Promise<Reliable<CreateQuery<News>>> {
         const $ = cheerio.load(html, { decodeEntities: false });
 
-        const title = $('h1.article__header').text()
-        const summary = $('div.article__sapo').text()
+        const title = $('h1.article__header').text() || ''
+        const summary = $('div.article__sapo').text() || ''
+
+        if (!title || !summary) {
+            return Reliable.Failed(" Failed to get title or summary from " + this.url);
+        }
+
         const content = $('div.article__body').html() || ''
-        const rawContent = CrawlUtil.getRawTextContent(content);
+        const rawContent = CrawlUtil.getRawTextContent(content) || '';
         const aggregator: Domain = {
             name: 'baomoi',
             baseUrl: this.baseUrl,
@@ -29,18 +49,8 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
             url: this.url
         };
 
-        const sourceUrl = $('p.bm-source a').attr('href') || ''
-        const prettyUrl = CrawlUtil.prettyUrl(sourceUrl).data || "";
-        const baseUrl = CrawlUtil.baseUrl(sourceUrl).data || "";
+        const source = BaoMoiXemTinCrawler.buildSourceDomain($);
 
-        const name = prettyUrl;
-        const source: Domain = {
-            name: name,
-            baseUrl: baseUrl,
-            displayName: $('div.article a.source')?.first()?.text()?.trim() || '',
-            url: sourceUrl
-        }
-        
         const thumbnail = $('div.article p.body-image img').first().attr('src') || '';
 
         const crawlDate = new Date(Date.now());
@@ -56,7 +66,8 @@ export class BaoMoiXemTinCrawler extends NewsCrawler {
         LoggingUtil.consoleLog("should craw tag : " + this.manager?.isAllowRecursion);
 
         if (this.manager?.isAllowRecursion && tagUrlArray && tagUrlArray.length !== 0) {
-            for (let value in tagUrlArray) {
+            for (let i = 0;i<tagUrlArray.length; i++ ) {
+                const value = tagUrlArray[i];
                 LoggingUtil.consoleLog('xem tin found new tag url [' + value + ']');
                 await this.manager?.addNewCrawler(new BaoMoiTagCrawler(value, value, 1, this.priority - 2));
             };

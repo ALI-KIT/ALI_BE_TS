@@ -5,6 +5,7 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import { paramMissingError } from '@shared/constants';
 import { UserRoles } from '@entities/User';
 import newController from '@controller/NewsController';
+import statisticsController from '@controller/StatisticsController';
 import controlCenter from '@controller/ControlCenterController';
 
 
@@ -12,6 +13,7 @@ import controlCenter from '@controller/ControlCenterController';
 const router = Router();//.use(adminMW);
 
 router.use('/news', newController);
+router.use('/statistics', statisticsController);
 router.use('/control-center', controlCenter);
 // /******************************************************************************
 //  *                      Get All Users - "GET /api/users/all"

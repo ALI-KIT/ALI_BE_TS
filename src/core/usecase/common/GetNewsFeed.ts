@@ -6,11 +6,10 @@ import { NewsRepository } from '@core/repository/base/NewsRepository';
 import { inject, injectable } from 'inversify';
 import { TYPES_REPOSITORY, TYPES_USECASES } from '@core/di/Types';
 import { News } from '@entities/News2';
-import { AliDbClient } from '@dbs/AliDbClient';
 import AppDatabase from '@daos/AppDatabase';
 import MongoClient from 'mongodb';
 import container from '@core/di/InversifyConfigModule';
-import { GetAnalyzerList, GetAnalyzerListParam } from './GetAnalyzerData';
+import { GetAnalyzerData, Params } from './GetAnalyzerData';
 
 export class Param {
     constructor(readonly locationCodes: string[], readonly keywords: string[], readonly limit: number, readonly skip: number) {
@@ -30,20 +29,16 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
     }
 
     async invoke(param: Param): Promise<Reliable<Array<News>>> {
-        return this.invoke_V2(param);
+        return this.invokeInternal(param);
     }
 
-    async invoke_V1(param: Param): Promise<Reliable<Array<News>>> {
-        return await this.newsRepository.getNewsFeed(param.locationCodes, param.keywords, param.limit, param.skip);
-    }
-
-    async invoke_V2(param: Param): Promise<Reliable<Array<News>>> {
-        const getAnalyzerList = container.get<GetAnalyzerList>(TYPES_USECASES.GetAnalyzerList);
-        if (!getAnalyzerList) {
+    async invokeInternal(param: Param): Promise<Reliable<Array<News>>> {
+        const getAnalyzerData = container.get<GetAnalyzerData>(TYPES_USECASES.GetAnalyzerData);
+        if (!getAnalyzerData) {
             return Reliable.Failed("Could get the analyzer list");
         }
 
-        const analyzersReliable = await getAnalyzerList.invoke(new GetAnalyzerListParam(param.limit, param.skip))
+        const analyzersReliable = await getAnalyzerData.invoke(new Params(param.limit, param.skip))
         if (analyzersReliable.type == Type.FAILED) {
             return Reliable.Failed(analyzersReliable.message, analyzersReliable.error);
         } else if (!analyzersReliable.data) {

@@ -12,7 +12,7 @@ import { AppProcessEnvironment } from '@loadenv';
 
 
 const router = Router();
-const userDao = AppDatabase.getInstance().UserDao;
+const userDao = AppDatabase.getInstance().userDao;
 const jwtService = new JwtService();
 
 
@@ -30,7 +30,7 @@ router.post('/login', async (request, response) => {
     if (!user) {
       response.status(UNAUTHORIZED).send({
         success: false,
-        message: "email is doesn't exist",
+        message: "Email doesn't exist",
       });
     } else {
       user.comparePassword(password, (error, isMatch) => {
@@ -42,14 +42,14 @@ router.post('/login', async (request, response) => {
             .send({
               success: true,
               user: user,
-              token: `${AppProcessEnvironment.getProcessEnv().JWT_TOKEN_PREFIX} ${token}`,
+              token: token,
             });
         } else {
           response
             .status(UNAUTHORIZED)
             .send({
               success: false,
-              message: "password is not match",
+              message: "Password isn't match",
             });
         }
       });
@@ -61,7 +61,7 @@ router.post('/login', async (request, response) => {
 const getUser = (request: Request): User | null => {
   if (request) {
     var data = request.body as User;
-    if (data.email && data.username && data.password && data.name) {
+    if (data.email && data.password && data.name) {
       return data;
     }
   }
@@ -76,24 +76,24 @@ router.post('/register', async (req: Request, res: Response) => {
   let message = "";
   if (data != null) {
     const findUser = await userDao.findOne({ email: data.email });
-    if (findUser == null) {
+    if (findUser === null) {
       const reliable = await userDao.create(data);
       let result = reliable.data;
-      if (result && reliable.type == Type.SUCCESS) {
+      if (result && reliable.type === Type.SUCCESS) {
         res.status(OK).send({
           success: true,
-          message: "success!!",
+          message: "Success!!",
           user: result,
           token: (result as User).generateToken()
         });
       }
     }
     else {
-      message = "email is exist";
+      message = "This email address is already being used";
 
     }
   } else {
-    message = "data invalid";
+    message = "Something went wrong";
   }
   res.status(BAD_REQUEST).send({
     success: false,

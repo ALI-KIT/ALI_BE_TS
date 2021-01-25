@@ -9,11 +9,11 @@ import MongoClient from 'mongodb';
 import similarity from 'similarity';
 import leven from 'leven';
 import clustering from 'set-clustering';
-import { GetAnalyzerList, GetAnalyzerListParam } from '@core/usecase/common/GetAnalyzerData';
+import { GetAnalyzerData, Params } from '@core/usecase/common/GetAnalyzerData';
 import { GetNewsFeed, Param } from '@core/usecase/common/GetNewsFeed';
 import { News } from '@entities/News2';
 import { FeShortFeed } from '@entities/fe/FeFeed';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { MongoDbBackendClient } from '@daos/MongoDbBackendClient';
 
 const RUN_AT_START_UP = false;
 
@@ -101,13 +101,13 @@ export class GroupingBySimilarity extends DbScript<any> {
 
         const sortedSimilarFeed = similarFeeds.sort((a, b) => a.index - b.index);
 
-          sortedSimilarFeed.forEach((feeds, index) => {
-              feeds.index = index;
-          })
+        sortedSimilarFeed.forEach((feeds, index) => {
+            feeds.index = index;
+        })
 
         // now save to database
-        const collection = AliDbClient.getInstance().useALIDB().collection("analyzer-similarity");
-        const saveResult = await collection.insertMany(sortedSimilarFeed);
+        const collection = MongoDbBackendClient.getInstance().useALIDB().collection("analyzer-similarity");
+        const saveResult = (sortedSimilarFeed.length != 0) ? await collection.insertMany(sortedSimilarFeed) : "Empty Similarity List";
         await collection.deleteMany({ sessionCode: { $ne: sessionCode } });
 
 

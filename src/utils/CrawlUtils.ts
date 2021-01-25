@@ -1,13 +1,18 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AliAggregatorDomain, BaoMoiAggregatorDomain, Domain } from '@entities/Domain';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+//import axiosRetry  from 'axios-retry';
 import cheerio from 'cheerio';
 import textversionjs, { styleConfig } from 'textversionjs';
+import mongoose, { Connection } from "mongoose";
+
+
+//axiosRetry(axios, { retries: 3 });
 
 export default class CrawlUtil {
     public static async loadWebsite(url: string): Promise<string | null> {
         return await axios
-            .get(url)
+            .get(encodeURI(url))
             .then(response => response.data)
             .catch(error => {
                 error.status = (error.response && error.response.status) || 500;
@@ -18,13 +23,19 @@ export default class CrawlUtil {
 
     public static async loadWebsiteReliable(url: string): Promise<Reliable<string>> {
         try {
-            const p = await axios.get(url);
+            const p = await axios.get(url, {
+                headers: {
+                    'User-Agent': 'Googlebot-News',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+                },
+                timeout: 20000,
+            });
             if (!p.data) {
-                return Reliable.Failed("Error when loading website [" + url + "]. Status code " + p.status);
+                return Reliable.Failed("Error when loading website [" + url + "], no data in response");
             } else return Reliable.Success<string>(p.data);
 
         } catch (e) {
-            return Reliable.Failed<string>("Error when loading website [" + url + "]. ", e);
+            return Reliable.Failed<string>("Error when loading website [" + url + "], statusCode = " + e.code + ", " + e?.response?.data, e);
         }
     }
 
@@ -91,5 +102,20 @@ export default class CrawlUtil {
         }
         return source;
     }
+
+    public static async connectMongoose(uri: string): Promise<Reliable<Connection>> {
+        try {
+            const connection = await mongoose.createConnection(uri, {
+                useUnifiedTopology: true,
+                useNewUrlParser: true,
+                useCreateIndex: true
+            });
+            return Reliable.Success(connection);
+        } catch (e) {
+            return Reliable.Failed(e);
+
+        }
+    }
+
 }
 

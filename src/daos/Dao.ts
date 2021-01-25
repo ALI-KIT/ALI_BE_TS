@@ -1,12 +1,14 @@
 import { Reliable } from '@core/repository/base/Reliable';
-import { Schema, model, Model, Document, CreateQuery, MongooseFilterQuery } from 'mongoose'
+import { Schema, Model, Document, CreateQuery, MongooseFilterQuery, Connection } from 'mongoose'
 
-export abstract class Dao<T extends Document> {
-    public model: Model<T, {}>
+export class Dao<T extends Document> {
+    public model: Model<T, {}> | null = null;
 
+    public constructor(private collectionName: string, private schema: Schema<any>) { }
 
-    public constructor(collectionName: string, schema: Schema<any>) {
-        this.model = model<T>(collectionName, schema)
+    public async init(connection: Connection): Promise<Reliable<any>> {
+        this.model = connection.model<T>(this.collectionName, this.schema);
+        return Reliable.Success(null);
     }
 
     public async create(doc: CreateQuery<T>): Promise<Reliable<T>> {

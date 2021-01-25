@@ -1,58 +1,20 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import AppDatabase from '@daos/AppDatabase';
-import { AliDbClient } from '@dbs/AliDbClient';
+import { GetKeywordsData } from '@core/usecase/common/GetKeywordsData';
 import { DbScript } from '@scripts/DbScript';
 import { KeywordsUtil } from '@utils/KeywordsUtil';
 import { Readable } from 'stream';
+import MongoClient from 'mongodb';
 import { AnalyzerDocumentData, FeedAnalyzer } from './FeedAnalyzer';
 
 export class GetDefaultKeywords extends DbScript<string[]> {
     public async runInternal(): Promise<Reliable<string[]>> {
-        return this.getKeywordsOfDefaultLocation();
-    }
-    public async getKeywordsOfDefaultLocation(): Promise<Reliable<string[]>> {
-        return await this.getKeywordsByLocationCode();
-    }
-
-    public async getKeywordsByLocationCode(locationCodes: string[] = []): Promise<Reliable<string[]>> {
-        const result: string[] = [];
-
-        /** chúng ta sẽ sử dụng default location nếu location không được cung cấp sẵn */
-        if (locationCodes.length == 0) {
-            const serverState = await AliDbClient
-                .getInstance()
-                .useServerConfig()
-                .collection("server-state")
-                .findOne({ name: "server-common-state" });
-            if (serverState && serverState.locationCode && typeof (serverState.locationCode) === 'string') {
-                locationCodes.push(serverState.locationCode);
-            }
-        }
-
-        for (var i = 0; i < locationCodes.length; i++) {
-            const location = await AliDbClient
-                .getInstance()
-                .useServerConfig()
-                .collection("server-location-data")
-                .findOne({ code: locationCodes[i] });
-
-            if (location && location.keywords && Array.isArray(location.keywords)) {
-                const keywords = Array.from(location.keywords);
-                keywords.forEach(element => {
-                    if (typeof (element) === 'string' && !result.includes(element)) {
-                        result.push(element);
-                    }
-                });
-            }
-        }
-
-        return Reliable.Success(result);
+        return new GetKeywordsData().invoke([]);
     }
 }
 
 export abstract class KeywordsAnalyzer extends FeedAnalyzer {
-    constructor(name: string, sessionCode: string, private keywords: string[] | null = null) {
-        super(name, sessionCode);
+    constructor(newsCollection: MongoClient.Collection, analyzerCollection: MongoClient.Collection, sessionCode: string, private keywords: string[] | null = null) {
+        super(newsCollection, analyzerCollection, sessionCode);
     }
     // override
     async createCursor(): Promise<Reliable<Readable>> {
@@ -73,7 +35,7 @@ export abstract class KeywordsAnalyzer extends FeedAnalyzer {
         return new GetDefaultKeywords().run();
     }
 
-    async abstract createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>>;
+    abstract createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>>;
 
     async analyzeNewData(old: AnalyzerDocumentData, document: any): Promise<Reliable<AnalyzerDocumentData>> {
         return super.analyzeNewData(old, document);
@@ -82,11 +44,10 @@ export abstract class KeywordsAnalyzer extends FeedAnalyzer {
 }
 
 export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] | null = null) {
-        super("find-keywords-in-field-keywords", sessionCode, keywords);
-    }
+    public name = "find-keywords-in-field-keywords";
+
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
-        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find(keywords.length == 0 ? {} : { keywords: { $in: keywords } });
+        const cursor = this.newsCollection.find(keywords.length == 0 ? {} : { keywords: { $in: keywords } });
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 
@@ -96,13 +57,12 @@ export class FindKeywords_In_Keywords_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] | null = null) {
-        super("find-keywords-in-field-title", sessionCode, keywords);
-    }
+    public name ="find-keywords-in-field-title";
+
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
 
         const regexString = KeywordsUtil.buildRegexString(keywords);
-        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find({ title: { $regex: regexString } })
+        const cursor = this.newsCollection.find({ title: { $regex: regexString } })
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 
@@ -112,13 +72,12 @@ export class FindKeywords_In_Title_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] | null = null) {
-        super("find-keywords-in-field-summary", sessionCode, keywords);
-    }
+    public name = "find-keywords-in-field-summary";
+  
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
 
         const regexString = KeywordsUtil.buildRegexString(keywords);
-        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find({ summary: { $regex: regexString } })
+        const cursor = this.newsCollection.find({ summary: { $regex: regexString } })
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 
@@ -129,13 +88,12 @@ export class FindKeywords_In_Summary_Analyzer extends KeywordsAnalyzer {
 }
 
 export class FindKeywords_In_RawContent_Analyzer extends KeywordsAnalyzer {
-    constructor(sessionCode: string, keywords: string[] | null = null) {
-        super("find-keywords-in-field-rawContent", sessionCode, keywords);
-    }
+    public name = "find-keywords-in-field-rawContent";
+   
     async createCursorWithProvidedKeywords(keywords: string[]): Promise<Reliable<Readable>> {
 
         const regexString = KeywordsUtil.buildRegexString(keywords);
-        const cursor = AliDbClient.getInstance().useALIDB().collection("news-2").find({ rawContent: { $regex: regexString } })
+        const cursor = this.newsCollection.find({ rawContent: { $regex: regexString } })
         return (cursor) ? Reliable.Success(cursor) : Reliable.Failed("Could not create query cursor");
     }
 
