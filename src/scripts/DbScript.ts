@@ -6,14 +6,15 @@ import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
     // timeOut = 45 minutes
-    public timeOut = 45 * 60 * 1000;
+    public timeOut = 90 * 60 * 1000;
     public async run(): Promise<Reliable<T>> {
-        const timeOut = this.timeOut;
         const scriptName = this.constructor.name;
-        setTimeout(function () {
-            const message = "Script \"" + scriptName + "\" reached timeout (" + timeOut + "ms ).";
-            throw new Exception(message);
-        }, this.timeOut);
+        if (this.timeOut > 0) {
+            setTimeout(function () {
+                const message = "Script \"" + scriptName + "\" reached timeout (" + this.timeOut + "ms ).";
+                throw new Exception(message);
+            }, this.timeOut);
+        }
         try {
             await this.prepare();
             return await this.runInternal();
