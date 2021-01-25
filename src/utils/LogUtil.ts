@@ -42,7 +42,7 @@ export default class LoggingUtil {
                 LoggingUtil.getInstance().loggedString = LoggingUtil.getInstance().loggedString.substring(0, 150 * 100 - 1)
             }
 
-            LoggingUtil.getInstance().loggedString = message + "\n" + LoggingUtil.getInstance().loggedString;
+            LoggingUtil.getInstance().loggedString = (message ? JSON.stringify(message) : message) + "\n" + LoggingUtil.getInstance().loggedString;
         }
     }
 }

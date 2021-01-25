@@ -8,7 +8,7 @@ export class BeAnalyticsTrigger extends DbScript<any> {
     protected async runInternal(): Promise<Reliable<any>> {
         const beServers = await CrawlerDatabase.getInstance().beAnalyticsServerDao.model.find({}).exec();
         for (let i = 0; i < beServers.length; i++) {
-            LoggingUtil.consoleLog("Triggering analytics [" + beServers[i] + "] at [" + beServers[i].analyticsUrl);
+            LoggingUtil.consoleLog("Triggering analytics [" + beServers[i].name + "] at [" + beServers[i].analyticsUrl);
             const analyticsUrl = beServers[i].analyticsUrl;
             // call the analytics url, if it failed, retrying for a number of times
             let retryLeft = 10;
