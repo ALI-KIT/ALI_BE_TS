@@ -42,3 +42,4 @@ yarn.lock
 
 # ignore package-lock
 package-lock.json
+env/development.env
