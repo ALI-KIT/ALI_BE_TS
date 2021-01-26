@@ -39,7 +39,7 @@ export class GroupingBySimilarity extends DbScript<any> {
     public async runInternal(): Promise<Reliable<any>> {
         const sessionCode = new MongoClient.ObjectId().toHexString();
 
-        const param = new Param([], [], 0, 0);
+        const param = new Param( 0, 0);
         const findInContent = false;
 
         const listReliable = await this.getNewFeeds.invoke(param);

@@ -1,7 +1,7 @@
 import * as express from "express";
 import { interfaces, controller, httpGet, httpPost, httpDelete, request, queryParam, response, requestParam } from "inversify-express-utils";
 import { injectable, inject } from "inversify";
-import { GetNewsFeed } from '@core/usecase/common/GetNewsFeed';
+import { GetNewsFeed, Param } from '@core/usecase/common/GetNewsFeed';
 import { TYPES_USECASES } from '@core/di/Types';
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { FeShortFeed } from '@entities/fe/FeFeed';
@@ -45,21 +45,19 @@ export class NewsController implements interfaces.Controller {
   private async feed(req: express.Request, res: express.Response, next: express.NextFunction) {
     const per_page = Math.max(Number(req.query["per_page"]?.toString()) || 40, 1);
     const page = Math.max(Number(req.query["page"]?.toString()) || 1, 1);
+    const order_by = req.query["order_by"] as string || "trendingScore";
+    const sort = req.query["sort"] as string || "desc";
+    const sortArg = {};
+    sortArg[order_by] = (sort == "asc") ? 1 : -1;
 
     const limit = per_page;
     const skip = limit * (page - 1);
+    const param = new Param(limit, skip, {}, sortArg);
 
-    const locationQuery = req.query["location"] || [];
-    const codeQuery = req.query["keyword"] || [];
-
-    const locationCodes: string[] = Array.isArray(locationQuery) ? locationQuery as string[] : [locationQuery.toString()];
-    const keywords: string[] = Array.isArray(codeQuery) ? codeQuery as string[] : [codeQuery.toString()];
-    const len = keywords.length;
-
-    const data = await this.getNewsFeed.invoke({ locationCodes, keywords, limit, skip });
-    const data2 = (data.type == Type.FAILED) ? data : await this.convertNewsToFeShortFeeds.invoke(data.data || []);
+    const reliablePre = await this.getNewsFeed.invoke(param);
+    const reliable = (reliablePre.type == Type.FAILED) ? reliablePre : await this.convertNewsToFeShortFeeds.invoke(reliablePre.data || []);
     try {
-      res.status(200).json(data2.type == Type.SUCCESS ? data2.data : { message: data2.message, error: data2.error });
+      res.status(200).json(reliable.type == Type.SUCCESS ? reliable.data : { message: reliable.message, error: reliable.error });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }

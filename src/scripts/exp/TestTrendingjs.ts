@@ -5,7 +5,7 @@ import trendingjs from "trendingjs";
 
 export class TestTrendingjs extends DbScript<any> {
     protected async runInternal(): Promise<Reliable<any>> {
-        const params = new Param([], [], 1000, 0);
+        const params = new Param(1000, 0);
         const feedsReliable = await new GetNewsFeed().invoke(params);
 
         if (feedsReliable.type == Type.FAILED || !feedsReliable.data) {

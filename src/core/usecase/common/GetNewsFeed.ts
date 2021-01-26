@@ -11,7 +11,7 @@ import container from '@core/di/InversifyConfigModule';
 import { GetAnalyzerData, Params } from './GetAnalyzerData';
 
 export class Param {
-    constructor(readonly locationCodes: string[], readonly keywords: string[], readonly limit: number, readonly skip: number) {
+    constructor(readonly limit: number, readonly skip: number, readonly query: any = {}, readonly sort : any = { "trendingScore": -1 }) {
     }
 }
 
@@ -36,7 +36,7 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
             return Reliable.Failed("Could get the analyzer list");
         }
 
-        const analyzersReliable = await getAnalyzerData.invoke(new Params(param.limit, param.skip))
+        const analyzersReliable = await getAnalyzerData.invoke(new Params(param.limit, param.skip, param.query, param.sort))
         if (analyzersReliable.type == Type.FAILED) {
             return Reliable.Failed(analyzersReliable.message, analyzersReliable.error);
         } else if (!analyzersReliable.data) {

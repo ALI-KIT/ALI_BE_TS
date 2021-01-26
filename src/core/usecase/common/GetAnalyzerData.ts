@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 import { BaseUsecase } from '../BaseUseCase';
 
 export class Params {
-    constructor(readonly limit: number, readonly skip: number) {
+    constructor(readonly limit: number, readonly skip: number, readonly query = {}, readonly sort = { "trendingScore": -1 }) {
     }
 }
 
@@ -14,8 +14,8 @@ export class GetAnalyzerData extends BaseUsecase<Params, Reliable<Array<any>>> {
         const data = await MongoDbBackendClient.getInstance()
             .useALIDB()
             .collection("server-analyzer-data")
-            .find({})
-            .sort({ trendingScore: -1 })
+            .find(param.query)
+            .sort(param.sort)
             .skip(param.skip)
             .limit(param.limit)
             .toArray();

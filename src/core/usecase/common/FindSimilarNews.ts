@@ -26,7 +26,7 @@ export class FindSimilarNews extends BaseUsecase<FindSimilarNewsParam, Reliable<
     }
 
     async invoke(param: FindSimilarNewsParam): Promise<Reliable<News[]>> {
-        const listReliable = await this.getNewsFeed.invoke(new Param([], [], 0, 0));
+        const listReliable = await this.getNewsFeed.invoke(new Param(0, 0));
         if (listReliable.type == Type.FAILED || !listReliable.data) {
             return listReliable;
         }
