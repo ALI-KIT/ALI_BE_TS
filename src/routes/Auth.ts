@@ -8,8 +8,6 @@ import AppDatabase from '@daos/AppDatabase';
 import { User } from '@entities/User';
 import { Type } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
-import { AppProcessEnvironment } from '@loadenv';
-
 
 const router = Router();
 const userDao = AppDatabase.getInstance().userDao;

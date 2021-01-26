@@ -42,7 +42,6 @@ export class MongoDbConnector {
             LoggingUtil.consoleLog(name + " failed to connect!");
             LoggingUtil.consoleLog(reliable);
             LoggingUtil.consoleLog("App will be terniminated soon!");
-            process.exit(1);
         } else {
             LoggingUtil.consoleLog(name + " is connected");
         }
@@ -114,6 +113,17 @@ export class MongoDbConnector {
         if (changed) {
             this.logStates();
         }
-        return Reliable.Success(null);
+        let success = true;
+        for (let i = 0; i < this.states.length; i++) {
+            if (this.states[i] == State.CRASHED) {
+                success = false;
+                break;
+            }
+        }
+        if (success) {
+            return Reliable.Success(null);
+        } else {
+            return Reliable.Failed(this.states.toString());
+        }
     }
 }

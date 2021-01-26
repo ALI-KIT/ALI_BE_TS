@@ -26,7 +26,7 @@ class NewsBulkWriter {
         });
 
         if (this.index % this.size === 0) {
-            const result = await CrawlerDatabase.getInstance().news2Dao.model.bulkWrite(this.operations);
+            const result = await (await CrawlerDatabase.waitInstance()).news2Dao.model.bulkWrite(this.operations);
             this.operations = [];
             LoggingUtil.consoleLog("Upsert " + this.index + " documents");
         }
@@ -35,7 +35,7 @@ class NewsBulkWriter {
     private async saveLeftInternal() {
         if (this.operations.length != 0) {
             try {
-                const result = await CrawlerDatabase.getInstance().news2Dao.model.bulkWrite(this.operations);
+                const result = await (await CrawlerDatabase.waitInstance()).news2Dao.model.bulkWrite(this.operations);
                 this.operations = [];
             } catch (e) {
                 LoggingUtil.consoleLog(e);
@@ -71,13 +71,13 @@ export abstract class NewsCrawler extends HtmlCrawler<CreateQuery<News>> {
         }
 
         // check if document.source.url exists in database
-        const exists = await CrawlerDatabase.getInstance().news2Dao.model.exists({ 'source.url': result.source?.url });
+        const exists = await (await CrawlerDatabase.waitInstance()).news2Dao.model.exists({ 'source.url': result.source?.url });
         if (exists) {
             return Reliable.Failed('News existed in database: ' + result.title);
         }
         else {
             // create document
-            const re = await CrawlerDatabase.getInstance().news2Dao.create(result);
+            const re = await (await CrawlerDatabase.waitInstance()).news2Dao.create(result);
             if (re.type == Type.FAILED || !re.data) {
                 return Reliable.Failed("Error when trying to save news [" + result.title + "]. ");
             } else {

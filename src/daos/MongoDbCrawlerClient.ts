@@ -1,5 +1,6 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AppProcessEnvironment } from '@loadenv';
+import { MongoDbConnector } from '@mongodb';
 import MongoClient from 'mongodb';
 
 /**
@@ -56,6 +57,11 @@ export class MongoDbCrawlerClient {
 
     public static getInstance(): MongoDbCrawlerClient {
         return MongoDbCrawlerClient.instance;
+    }
+
+    public static async waitInstance(): Promise<MongoDbCrawlerClient> {
+        await MongoDbConnector.connect();
+        return MongoDbCrawlerClient.getInstance();
     }
 
     public static async init(): Promise<Reliable<any>> {

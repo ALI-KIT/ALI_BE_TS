@@ -10,6 +10,7 @@ import { GetNewsDetail } from '@core/usecase/common/GetNewsDetail';
 import { GetFeedsGroupBySimilarity, GetFeedsGroupBySimilarityParam } from '@core/usecase/common/GetFeedsGroupBySimilarity';
 import { CoreUtil } from "@utils/CoreUtil";
 import { getSimilarityById } from "@core/usecase/common/GetSimilarityById";
+import { GetCrawlerNewsFeed } from "@core/usecase/common/GetCrawlerNewsFeed";
 
 @controller("/news")
 export class NewsController implements interfaces.Controller {
@@ -112,6 +113,34 @@ export class NewsController implements interfaces.Controller {
 
     try {
       const reliable = await new getSimilarityById(id).invoke();
+      if (reliable.type == Type.SUCCESS) {
+        res.status(200).json(reliable.data);
+      } else {
+        res.status(500).json(reliable);
+      }
+    } catch (err) {
+      res.status(500).json(Reliable.Failed(err.message, err));
+    }
+  }
+
+  /**
+   * This method provides a way to fetch news from "Crawler Database"
+   */
+  @httpGet('/pool')
+  private async getCrawlerNews(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const per_page = Math.max(Number(req.query["per_page"]?.toString()) || 40, 1);
+    const page = Math.max(Number(req.query["page"]?.toString()) || 1, 1);
+    const order_by = req.query["order_by"] as string || "publicationDate";
+    const sort = req.query["sort"] as string || "desc";
+
+    const limit = per_page;
+    const skip = limit * (page - 1);
+    const sortArg = {};
+    sortArg[order_by] = (sort == "asc") ? 1 : -1;
+
+    try {
+      const preReliable = await new GetCrawlerNewsFeed().invoke({}, order_by && sort && sortArg, limit, skip);
+      const reliable = (preReliable.type == Type.FAILED) ? preReliable : await this.convertNewsToFeShortFeeds.invoke(preReliable.data!!);
       if (reliable.type == Type.SUCCESS) {
         res.status(200).json(reliable.data);
       } else {

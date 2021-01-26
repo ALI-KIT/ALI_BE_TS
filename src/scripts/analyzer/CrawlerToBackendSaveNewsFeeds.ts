@@ -42,7 +42,7 @@ export class CrawlerToBackendSaveNewsFeed extends DbScript<any> {
             }
 
             const targetId = new mongodb.ObjectId(item.targetId);
-            const newsFrom = await CrawlerDatabase.getInstance().news2Dao.model.findById(rawTargetId).exec();
+            const newsFrom = await (await CrawlerDatabase.waitInstance()).news2Dao.model.findById(rawTargetId).exec();
             if (newsFrom) {
 
                 const newsTo: CreateQuery<News> = {
@@ -70,14 +70,14 @@ export class CrawlerToBackendSaveNewsFeed extends DbScript<any> {
             }
 
             if (i % bulkDocumentsSize == 0) {
-                await AppDatabase.getInstance().news2Dao.model.bulkWrite(bulkWrites);
+                await (await AppDatabase.waitInstance()).news2Dao.model.bulkWrite(bulkWrites);
                 bulkWrites = [];
             }
 
         }
 
         if (bulkWrites.length != 0) {
-            await AppDatabase.getInstance().news2Dao.model.bulkWrite(bulkWrites);
+            await (await AppDatabase.waitInstance()).news2Dao.model.bulkWrite(bulkWrites);
         }
 
         const log = "Upsert " + i + " news from CrawlerDatabase to AppDatabase";

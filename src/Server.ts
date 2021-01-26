@@ -27,9 +27,20 @@ import "@controller/impl/CoreController";
 import passport from 'passport';
 import { AppProcessEnvironment } from '@loadenv';
 import { MongoDbConnector } from '@mongodb';
+import { Type } from '@core/repository/base/Reliable';
+import LoggingUtil from '@utils/LogUtil';
 
 // connect mongodb
-MongoDbConnector.connect();
+MongoDbConnector.connect().then(reliable => {
+    if (reliable.type == Type.FAILED) {
+        LoggingUtil.consoleLog(reliable);
+        LoggingUtil.consoleLog("App failed to connect to database!");
+        LoggingUtil.consoleLog("App will be terniminated soon!");
+        process.exit(1);
+    }
+
+    
+});
 
 // Init express
 const expressApp = express();

@@ -6,7 +6,7 @@ import LoggingUtil from "@utils/LogUtil";
 
 export class BeAnalyticsTrigger extends DbScript<any> {
     protected async runInternal(): Promise<Reliable<any>> {
-        const beServers = await CrawlerDatabase.getInstance().beAnalyticsServerDao.model.find({}).exec();
+        const beServers = await (await CrawlerDatabase.waitInstance()).beAnalyticsServerDao.model.find({}).exec();
         for (let i = 0; i < beServers.length; i++) {
             LoggingUtil.consoleLog("Triggering analytics [" + beServers[i].name + "] at [" + beServers[i].analyticsUrl);
             const analyticsUrl = beServers[i].analyticsUrl;

@@ -1,7 +1,6 @@
-import { Reliable } from '@core/repository/base/Reliable';
+import { Reliable, Type } from '@core/repository/base/Reliable';
 import { MongoDbConnector } from '@mongodb';
 import LoggingUtil from '@utils/LogUtil';
-import { Exception } from 'handlebars';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
@@ -12,14 +11,17 @@ export abstract class DbScript<T> {
         if (this.timeOut > 0) {
             setTimeout(function () {
                 const message = "Script \"" + scriptName + "\" reached timeout (" + this.timeOut + "ms ).";
-                throw new Exception(message);
+                throw message;
             }, this.timeOut);
         }
         try {
-            await this.prepare();
+            const prepared = await this.prepare();
+            if (prepared.type == Type.FAILED) {
+                return Reliable.Failed(prepared.message, prepared.error);
+            }
             return await this.runInternal();
         } catch (e) {
-            return Reliable.Failed("Error when executing script", e);
+            return Reliable.Failed("Error when preparing or running script", e);
         }
     }
 

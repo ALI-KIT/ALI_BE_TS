@@ -5,6 +5,7 @@ import UserDao from '@daos/User/UserDao';
 import CrawlUtil from '@utils/CrawlUtils';
 import { PlaceDao } from './PlaceDao';
 import { Reliable, Type } from '@core/repository/base/Reliable';
+import { MongoDbConnector } from '@mongodb';
 
 /**
  * Object Modeling Database for Backend App ( & App Analytics also)
@@ -25,6 +26,11 @@ export default class AppDatabase {
         }
 
         return AppDatabase.instance;
+    }
+
+    public static async waitInstance(): Promise<AppDatabase> {
+        await MongoDbConnector.connect();
+        return AppDatabase.getInstance();
     }
 
     public async initInternal(): Promise<Reliable<any>> {

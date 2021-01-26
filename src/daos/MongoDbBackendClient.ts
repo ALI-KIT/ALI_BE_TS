@@ -1,5 +1,6 @@
 import { Reliable } from '@core/repository/base/Reliable';
 import { AppProcessEnvironment } from '@loadenv';
+import { MongoDbConnector } from '@mongodb';
 import MongoClient from 'mongodb';
 
 /**
@@ -33,6 +34,11 @@ export class MongoDbBackendClient {
     private constructor() { }
     public static getInstance(): MongoDbBackendClient {
         return MongoDbBackendClient.instance;
+    }
+
+    public static async waitInstance(): Promise<MongoDbBackendClient> {
+        await MongoDbConnector.connect();
+        return MongoDbBackendClient.getInstance();
     }
 
     public static async init(): Promise<Reliable<any>> {

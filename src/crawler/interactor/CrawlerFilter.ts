@@ -71,7 +71,7 @@ export class CheckDuplicatedInDatabase extends CrawlerFilter {
 
     public async onFilterActionForResult(filterAction: FilterAction, crawler: Crawler<any>): Promise<Reliable<CrawlerFilter>> {
         if (!this.getRecentUrl) {
-            this.recentUrls = (await AppDatabase.getInstance().news2Dao.model.aggregate(
+            this.recentUrls = (await (await AppDatabase.waitInstance()).news2Dao.model.aggregate(
                 [
                     {
                         "$match": {
@@ -79,7 +79,7 @@ export class CheckDuplicatedInDatabase extends CrawlerFilter {
                         }
                     },
                     { "$project": { "url": "$source.url" } }]).exec() as any[]).map(o => o.url);
-            this.baoMoiRecentUrls = (await AppDatabase.getInstance().news2Dao.model.aggregate(
+            this.baoMoiRecentUrls = (await (await AppDatabase.waitInstance()).news2Dao.model.aggregate(
                 [
                     {
                         "$match": {
@@ -99,9 +99,9 @@ export class CheckDuplicatedInDatabase extends CrawlerFilter {
 
                 let found: boolean;
                /*  if (crawler.name === "baomoi") {
-                    found = (await AppDatabase.getInstance().news2Dao.findOne({ 'aggregator.url': crawler.url })) ? true : false;
+                    found = (await (await AppDatabase.waitInstance()).news2Dao.findOne({ 'aggregator.url': crawler.url })) ? true : false;
                 } else {
-                    found = (await AppDatabase.getInstance().news2Dao.findOne({ 'source.url': crawler.url })) ? true : false;
+                    found = (await (await AppDatabase.waitInstance()).news2Dao.findOne({ 'source.url': crawler.url })) ? true : false;
                 } */
 
                 found = this.recentUrls.indexOf(crawler.url) != -1;

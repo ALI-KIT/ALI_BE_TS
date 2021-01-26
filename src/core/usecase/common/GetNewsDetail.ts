@@ -14,7 +14,7 @@ export class GetNewsDetail extends BaseUsecase<string, Reliable<News>> {
         if (!id) return Reliable.Failed("Id must not be null or empty");
 
         try {
-            const news = await AppDatabase.getInstance().news2Dao.findById(id);
+            const news = await (await AppDatabase.waitInstance()).news2Dao.findById(id);
             return Reliable.Success(news);
         } catch (e) {
             return Reliable.Failed("Could not get news detail", e);

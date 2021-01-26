@@ -4,6 +4,7 @@ import CrawlUtil from '@utils/CrawlUtils';
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { BeAnalyticsServer, BeAnalyticsServerSchema } from '@entities/BeAnalyticsServer';
 import { Dao } from './Dao';
+import { MongoDbConnector } from '@mongodb';
 
 
 /**
@@ -17,7 +18,7 @@ export default class CrawlerDatabase {
 
     private static instance: CrawlerDatabase;
 
-    public async initInternal(): Promise<Reliable<any>> {
+    private async initInternal(): Promise<Reliable<any>> {
         const crawlerConnection = await CrawlUtil.connectMongoose(AppProcessEnvironment.NEWS_CRAWLER_URI);
         const serverConfigConnection = await CrawlUtil.connectMongoose(AppProcessEnvironment.CONFIG_DB_URI);
         if (crawlerConnection.type == Type.FAILED || !crawlerConnection.data) {
@@ -51,6 +52,11 @@ export default class CrawlerDatabase {
         }
 
         return CrawlerDatabase.instance;
+    }
+
+    public static async waitInstance(): Promise<CrawlerDatabase> {
+        await MongoDbConnector.connect();
+        return CrawlerDatabase.getInstance();
     }
 
     public static async init(): Promise<Reliable<any>> {

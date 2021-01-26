@@ -2,7 +2,6 @@ import "reflect-metadata";
 
 import { BaseUsecase } from '@core/usecase/BaseUseCase'
 import { Reliable, Type } from '@core/repository/base/Reliable';
-import { NewsRepository } from '@core/repository/base/NewsRepository';
 import { inject, injectable } from 'inversify';
 import { TYPES_REPOSITORY, TYPES_USECASES } from '@core/di/Types';
 import { News } from '@entities/News2';
@@ -23,16 +22,15 @@ export class Param {
  */
 @injectable()
 export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
-    public static readonly useV2 = true;
-    constructor(@inject(TYPES_REPOSITORY.NewsRepository) private newsRepository: NewsRepository) {
+    constructor() {
         super();
     }
 
     async invoke(param: Param): Promise<Reliable<Array<News>>> {
-        return this.invokeInternal(param);
+        return await this.invokeInternal(param);
     }
 
-    async invokeInternal(param: Param): Promise<Reliable<Array<News>>> {
+    private async invokeInternal(param: Param): Promise<Reliable<Array<News>>> {
         const getAnalyzerData = container.get<GetAnalyzerData>(TYPES_USECASES.GetAnalyzerData);
         if (!getAnalyzerData) {
             return Reliable.Failed("Could get the analyzer list");
@@ -56,7 +54,7 @@ export class GetNewsFeed extends BaseUsecase<Param, Reliable<Array<News>>> {
                 }
             }
         })
-        const feeds = await AppDatabase.getInstance().news2Dao.model.find({ _id: { $in: ids } });
+        const feeds = await (await AppDatabase.waitInstance()).news2Dao.model.find({ _id: { $in: ids } });
         const tempMap = new Map();
         const orderedFeeds: News[] = [];
 
