@@ -8,6 +8,7 @@ import { GetFullKeywordsData } from "@core/usecase/common/GetFullKeywordsData";
 import { GetKeywordsData } from "@core/usecase/common/GetKeywordsData";
 import { CoreUtil } from "@utils/CoreUtil";
 import { GetTrendsRating } from "@core/usecase/trending/GetTrendsRating";
+import { SetKeywordsData } from "@core/usecase/common/SetKeywordsData";
 
 @controller("/")
 export class CoreController implements interfaces.Controller {
@@ -19,6 +20,11 @@ export class CoreController implements interfaces.Controller {
     @httpGet('info/locations')
     private async locations(req: express.Request, res: express.Response, next: express.NextFunction) {
         await CoreUtil.sendJsonResponse(new GetLocationData().invoke, res);
+    }
+
+    @httpPost('info/keywords')
+    private async addKeywords(req: express.Request, res: express.Response, next: express.NextFunction) {
+        await CoreUtil.sendJsonResponse(()=>new SetKeywordsData().invoke([...req.body.keywords]),res);
     }
 
     @httpGet('info/keywords')
