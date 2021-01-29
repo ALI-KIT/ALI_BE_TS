@@ -10,6 +10,7 @@ router.get("/map", (req,res,next)=>{
           data:{
             name: "P. Hiệp Phú", 
             numOfArticles: 5,
+	    time: new Date(),
             tag:"Hiep Phu"
           }
         },
@@ -18,6 +19,7 @@ router.get("/map", (req,res,next)=>{
           lng: 106.8325, 
           data:{
             name: "P. Long Bình", 
+	    time: new Date(),
             numOfArticles: 3,
             tag:"Long Binh"
           }
@@ -27,6 +29,7 @@ router.get("/map", (req,res,next)=>{
           lng: 106.791389, 
           data:{
             name: "P. Tăng Nhơn Phú A", 
+	    time: new Date(),
             numOfArticles: 12,
             tag:"Tang Nhon Phu A"
           }
@@ -36,6 +39,7 @@ router.get("/map", (req,res,next)=>{
           lng: 106.798056, 
           data:{
             name: "P. Phước Long", 
+	    time: new Date(),
             numOfArticles: 5,
             tag:"Phuoc Long"
           }
