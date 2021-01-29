@@ -13,7 +13,7 @@ export class TestTrendingjs extends DbScript<any> {
         }
         const input = feedsReliable.data.map(feed => feed.title + ". " + feed.summary);
 
-        const trends = trendingjs(input, 20);
+        const trends = trendingjs(input, 100, { minWord: 10, wordChain: 4, intelligenceMode: true });
         return Reliable.Success(trends);
     }
 

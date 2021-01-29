@@ -7,6 +7,7 @@ import { Reliable, Type } from "@core/repository/base/Reliable";
 import { GetFullKeywordsData } from "@core/usecase/common/GetFullKeywordsData";
 import { GetKeywordsData } from "@core/usecase/common/GetKeywordsData";
 import { CoreUtil } from "@utils/CoreUtil";
+import { GetTrendsRating } from "@core/usecase/trending/GetTrendsRating";
 
 @controller("/")
 export class CoreController implements interfaces.Controller {
@@ -34,11 +35,9 @@ export class CoreController implements interfaces.Controller {
     private async updateKeywords(req: express.Request, res: express.Response, next: express.NextFunction) {
     }
 
-    @httpPost('deploy')
-    private async deploy(req: express.Request, res: express.Response, next: express.NextFunction) {
-        
+    @httpGet('trends/rating')
+    private async getTrendsRating(req: express.Request, res: express.Response, next: express.NextFunction) {
+        await CoreUtil.sendJsonResponse(() => new GetTrendsRating().invoke(), res);
     }
-
-
 
 }

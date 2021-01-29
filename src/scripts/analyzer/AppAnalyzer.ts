@@ -8,6 +8,7 @@ import { GroupingBySimilarity } from './GroupBySimilarity';
 import { LimitBackendDocument, LimitCrawlerDocument } from './LimitDocument';
 import { BeAnalyticsTrigger } from './BeAnalyticsTrigger';
 import { CrawlerToBackend_FetchNewsFeed_Analyzer } from './CrawlerToBackend_FetchNewsFeeds_Analyzer';
+import { TrendsRatingAnalyzer } from './trending/TrendsRatingAnalyzer';
 
 const RUN_AT_START_UP = false;
 
@@ -44,6 +45,9 @@ export class AppAnalyzer extends DbScript<any> {
 
             // fetch headlines news
             this.tasks.push(new GroupingBySimilarity());
+
+            // trends-rating
+            this.tasks.push(new TrendsRatingAnalyzer());
 
             // remove old documents (backend database) if it exceeds 40k documents
             this.tasks.push(new LimitBackendDocument());

@@ -1,9 +1,7 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import Sitemapper from 'sitemapper';
 import { Crawler } from './Crawler';
-import { CrawlerFactory } from './CrawlerFactory';
-import { ICrawlerManager } from './CrawlerManager';
-import { DanTriNewsDetailCrawler, DynamicSourceOGNewsCrawler, ThanhNienNewsDetailCrawler, TuoiTreNewsDetailCrawler } from './OpenGraphNewsCrawler';
+import { DynamicSourceOGNewsCrawler} from './OpenGraphNewsCrawler';
 
 export abstract class SitemapCrawler<T> extends Crawler<T> {
     public async execute(): Promise<Reliable<T>> {
@@ -54,57 +52,6 @@ export abstract class SitemapNewsCrawler extends SitemapCrawler<string[]> {
 
     public async saveResult(data: string[]): Promise<Reliable<string[]>> {
         return Reliable.Success(data);
-    }
-}
-
-export class TuoiTreSitemapCrawler extends SitemapNewsCrawler {
-    constructor() {
-        super("tuoi-tre-sitemap",
-            "Tuổi Trẻ Online");
-    }
-
-    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        for (const url of data) {
-            await this.manager?.addNewCrawler(new TuoiTreNewsDetailCrawler(url));
-        };
-        return Reliable.Success<string[]>(data);
-    }
-}
-
-/* export class VnExpressSitemapCrawler extends SitemapNewsCrawler {
-    constructor() {
-        super(  "tuoi-tre-sitemap",
-        "Tuổi Trẻ Online", 
-        "https://tuoitre.vn",
-        "https://tuoitre.vn/Sitemap/GoogleNews.ashx");
-    }
-} */
-
-export class ThanhNienSitemapCrawler extends SitemapNewsCrawler {
-    constructor() {
-        super("thanh-nien-sitemap",
-            "Thanh Niên");
-    }
-
-    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        for (const url of data) {
-            await this.manager?.addNewCrawler(new ThanhNienNewsDetailCrawler(url));
-        }
-        return Reliable.Success<string[]>(data);
-    }
-}
-
-export class DantriSitemapCrawler extends SitemapNewsCrawler {
-    constructor() {
-        super("tuoi-tre-sitemap",
-            "Tuổi Trẻ Online");
-    }
-
-    protected async parseSiteMap(data: string[]): Promise<Reliable<string[]>> {
-        for (const url of data) {
-            await this.manager?.addNewCrawler(new DanTriNewsDetailCrawler(url));
-        };
-        return Reliable.Success<string[]>(data);
     }
 }
 

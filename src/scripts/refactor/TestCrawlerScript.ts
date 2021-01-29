@@ -1,11 +1,6 @@
 import { Reliable } from "@core/repository/base/Reliable";
 import { DynamicSourceOGNewsCrawler } from "@crawler/base/OpenGraphNewsCrawler";
-import { TuoiTreSitemapCrawler } from "@crawler/base/SitemapNewsCrawler";
 import CrawlerScript from "@crawler/CrawlerScript";
-import { AliAggregatorCrawler } from "@crawler/impl/AliAggregatorCrawler";
-import { BaoMoiNewsDetailCrawler as BaoMoiXemTinOpenGraphCrawler } from "@crawler/impl/BaoMoiNewsDetailCrawler";
-import { BaoMoiTinMoiCrawler } from "@crawler/impl/BaoMoiTinMoiCrawler";
-import { BaoMoiXemTinCrawler } from "@crawler/impl/BaoMoiXemTinCrawler";
 import DynamicNewsSourceGetterCrawler from "@crawler/impl/DynamicSourceGetterCrawler";
 import { DbScript } from "@scripts/DbScript";
 
@@ -36,11 +31,11 @@ class TestCrawlerScript extends CrawlerScript {
  */
 export default class TestSingleCrawlerScript extends DbScript<any> {
     protected async runInternal(): Promise<Reliable<any>> {
-        const tin = new DynamicSourceOGNewsCrawler("https://www.tienphong.vn/xa-hoi/chan-dung-nu-thong-doc-dau-tien-cua-ngan-hang-nha-nuoc-1748883.tpo");
+        const tin = new DynamicSourceOGNewsCrawler("https://www.24h.com.vn/cong-nghe-thong-tin/hot-intel-bom-them-gan-nua-ti-usd-vao-nha-may-chipset-tai-tpthu-duc-c55a1221425.html");
         const result = await tin.execute();
         return result;
     }
 
 }
 
-DbScript.exec(new TestCrawlerScript());
+DbScript.exec(new TestSingleCrawlerScript());

@@ -6,6 +6,8 @@ import CrawlUtil from '@utils/CrawlUtils';
 import { PlaceDao } from './PlaceDao';
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { MongoDbConnector } from '@mongodb';
+import { Dao } from './Dao';
+import { TrendsRating, TrendsRatingDocument, TrendsRatingSchema } from '@entities/TrendsRating';
 
 /**
  * Object Modeling Database for Backend App ( & App Analytics also)
@@ -15,6 +17,8 @@ export default class AppDatabase {
     public readonly news2Dao = new News2Dao();
     public readonly placeDao = new PlaceDao();
     public readonly userDao: UserDao = new UserDao();
+
+    public readonly trendsRatingDao = new Dao<TrendsRatingDocument>("trends-rating", TrendsRatingSchema);
 
     private constructor() { }
 
@@ -47,7 +51,8 @@ export default class AppDatabase {
             await this.newsDao.init(dbConnection),
             await this.news2Dao.init(dbConnection),
             await this.userDao.init(dbConnection),
-            await this.placeDao.init(dbConnection),]
+            await this.placeDao.init(dbConnection),
+            await this.trendsRatingDao.init(dbConnection)];
 
         for (let i = 0; i < reliables.length; i++) {
             if (reliables[i].type == Type.FAILED) {

@@ -1,7 +1,5 @@
 import { Reliable, Type } from '@core/repository/base/Reliable';
 import { Crawler } from '@crawler/base/Crawler';
-import { VnExpressTinMoiRssCrawler } from '@crawler/base/RssCrawler';
-import { DantriSitemapCrawler, SitemapNewsCrawler, ThanhNienSitemapCrawler, TuoiTreSitemapCrawler } from '@crawler/base/SitemapNewsCrawler';
 import { DynamicNewsSourceGetter } from '@crawler/interactor/DynamicNewsSourceGetter';
 import { BaoMoiSitemapCrawler } from './BaoMoiSitemapCrawler';
 import { BaoMoiTinMoiCrawler } from './BaoMoiTinMoiCrawler';
@@ -26,10 +24,6 @@ export class AliAggregatorCrawler extends Crawler<any> {
             new BaoMoiTinMoiCrawler(),
             new DynamicNewsSourceGetterCrawler(false, [])
             //new BaoMoiSitemapCrawler(),
-            //new VnExpressTinMoiRssCrawler(),
-            //new TuoiTreSitemapCrawler(),
-            //new ThanhNienSitemapCrawler(),
-            //new DantriSitemapCrawler()
         ];
 
         // add all dynamic sources

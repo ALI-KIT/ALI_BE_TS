@@ -3,14 +3,11 @@ import { Local } from '@entities/Local';
 import { News } from '@entities/News2';
 import cheerio from 'cheerio';
 import { CreateQuery } from 'mongoose';
-import { Crawler } from './Crawler';
-import { ICrawlerManager } from './CrawlerManager';
 import { NewsCrawler } from './NewsCrawler';
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from 'jsdom';
 import { extract } from 'article-parser';
 import CrawlUtil from '@utils/CrawlUtils';
-import { Domain } from '@entities/Domain';
 
 export class OGNewsParser {
 
@@ -105,11 +102,10 @@ export class OGNewsParser {
         const rawContent = CrawlUtil.getRawTextContent(content) || "";
 
         const crawlDate = new Date(Date.now());
-        const pDString = $('meta[property="article\\:published_time"]')?.attr('content');
+        const pDString = $('meta[property="article\\:published_time"]')?.attr('content') || $('meta[name="pubdate"]')?.attr('content');
         const publicationDate = new Date(pDString || Date.now());
 
         const thumbnail = $('meta[property="og\\:image"]')?.first()?.attr('content') || $('meta[itemprop=\'image\']')?.first()?.attr('content') || articleParserData?.image || "";
-
 
         const sourceUrl = crawler.url;
         const aggregator = CrawlUtil.buildAliAggregatorDomain(crawler.url);
@@ -144,7 +140,11 @@ export class OGNewsParser {
     }
 }
 
-export abstract class OpenGraphNewsCrawler extends NewsCrawler {
+/**
+ * Just receive a url
+ * Load that url and try to get the news detail
+ */
+export class OpenGraphNewsCrawler extends NewsCrawler {
 
     protected async parseHtml(htmlContent: string): Promise<Reliable<CreateQuery<News>>> {
         const ogpData = await new OGNewsParser().execute(this, htmlContent);
@@ -172,32 +172,5 @@ export abstract class OpenGraphNewsCrawler extends NewsCrawler {
     }
 }
 
-/**
- * Just receive a url
- * Load that url and try to get the news detail
- */
+
 export class DynamicSourceOGNewsCrawler extends OpenGraphNewsCrawler { }
-
-export class TuoiTreNewsDetailCrawler extends OpenGraphNewsCrawler {
-    constructor(url: string) {
-        super(url, "Tuổi Trẻ Online");
-    }
-}
-
-export class VnExpressNewsDetailCrawler extends OpenGraphNewsCrawler {
-    constructor(url: string) {
-        super(url, "VnExpress");
-    }
-}
-
-export class ThanhNienNewsDetailCrawler extends OpenGraphNewsCrawler {
-    constructor(url: string) {
-        super(url, "Báo Thanh niên");
-    }
-}
-
-export class DanTriNewsDetailCrawler extends OpenGraphNewsCrawler {
-    constructor(url: string) {
-        super(url, "BáoBáo Dân trí");
-    }
-}
