@@ -13,6 +13,12 @@ import { SetLocationData } from "@core/usecase/common/SetLocationsData";
 
 @controller("/")
 export class CoreController implements interfaces.Controller {
+
+    @httpGet('')
+    private async home(req: express.Request, res: express.Response, next: express.NextFunction) {
+        await CoreUtil.sendJsonResponse(new GetInfo().invoke, res);
+    }
+
     @httpGet('info')
     private async info(req: express.Request, res: express.Response, next: express.NextFunction) {
         await CoreUtil.sendJsonResponse(new GetInfo().invoke, res);

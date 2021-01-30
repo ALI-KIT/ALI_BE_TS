@@ -29,6 +29,7 @@ import { AppProcessEnvironment } from '@loadenv';
 import { MongoDbConnector } from '@mongodb';
 import { Type } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
+import { HomeRouter } from '@routes/Home';
 
 // connect mongodb
 MongoDbConnector.connect().then(reliable => {
@@ -106,7 +107,7 @@ app.use('/api', BaseRouter);
 // auth api
 app.use('/auth', AuthRouter);
 
-//app.use('/', HomeRouter);
+app.use('/', HomeRouter);
 
 
 //enable pre-flight
