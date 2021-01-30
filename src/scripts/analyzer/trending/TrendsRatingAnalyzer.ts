@@ -58,19 +58,21 @@ export class TrendsRatingAnalyzer extends DbScript<any> {
             if (!oldTrendsRating.data) {
                 status = 0;
             } else {
-                const prevTrend = oldTrendsRating.data.data.find(item => item.text);
-                if (!prevTrend) {
+                const prevTrendIndex = oldTrendsRating.data.data.findIndex(item => (item.text == trend.text));
+                if (prevTrendIndex == -1) {
                     status = 0;
-                } else if (prevTrend.count < trend.count) {
+                } else if (prevTrendIndex < i) {
                     status = -1;
-                } else if (prevTrend.count == trend.count) {
-                    status = 0;
+                } else if (prevTrendIndex == i) {
+                    // keeping previous index
+                    const prevStatus = oldTrendsRating.data.data[prevTrendIndex].status;
+                    status = /* prevStatus == 0 ? 1 : */ prevStatus;
                 } else {
                     status = 1;
                 }
             }
             total += trend.count;
-            newTrendsRating.data.push({ text: trend.text, count: trend.count, status: 0 })
+            newTrendsRating.data.push({ text: trend.text, count: trend.count, status: status })
         }
 
         newTrendsRating.total = total;

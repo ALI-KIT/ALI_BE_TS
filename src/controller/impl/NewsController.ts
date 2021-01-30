@@ -11,6 +11,7 @@ import { GetFeedsGroupBySimilarity, GetFeedsGroupBySimilarityParam } from '@core
 import { CoreUtil } from "@utils/CoreUtil";
 import { getSimilarityById } from "@core/usecase/common/GetSimilarityById";
 import { GetCrawlerNewsFeed } from "@core/usecase/common/GetCrawlerNewsFeed";
+import { KeywordsUtil } from "@utils/KeywordsUtil";
 
 @controller("/news")
 export class NewsController implements interfaces.Controller {
@@ -47,12 +48,24 @@ export class NewsController implements interfaces.Controller {
     const page = Math.max(Number(req.query["page"]?.toString()) || 1, 1);
     const order_by = req.query["order_by"] as string || "trendingScore";
     const sort = req.query["sort"] as string || "desc";
+    const query = req.query["query"] as string || undefined;
+
+    const regex = query && KeywordsUtil.buildRegexString(Array(query));
+    const queryArg = query ? {
+      $or: [
+        { title: { $regex: regex } },
+        { summary: { $regex: regex } },
+        { keywords: { $in: Array(query) } }
+      ]
+    } : {};
+
     const sortArg = {};
+
     sortArg[order_by] = (sort == "asc") ? 1 : -1;
 
     const limit = per_page;
     const skip = limit * (page - 1);
-    const param = new Param(limit, skip, {}, sortArg);
+    const param = new Param(limit, skip, queryArg, sortArg);
 
     const reliablePre = await this.getNewsFeed.invoke(param);
     const reliable = (reliablePre.type == Type.FAILED) ? reliablePre : await this.convertNewsToFeShortFeeds.invoke(reliablePre.data || []);

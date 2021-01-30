@@ -7,7 +7,7 @@ export class FindTrends {
     public async invoke(): Promise<Reliable<{ text: string, count: number }[]>> {
 
         // First: get first 1000 news feeds
-        const feedsReliable = await new GetNewsFeed().invoke(new Param(1000, 0));
+        const feedsReliable = await new GetNewsFeed().invoke(new Param(300, 0));
 
         if (feedsReliable.type == Type.FAILED || !feedsReliable.data) {
             return Reliable.Failed(feedsReliable.message, feedsReliable.error);
