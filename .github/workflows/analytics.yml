@@ -1,4 +1,4 @@
-name: News Crawling
+name: News Analytics
 
 on:
   workflow_dispatch:
