@@ -1,0 +1,36 @@
+name: News Crawling
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 * * * *"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: build
+      run: |
+        npm install
+        npm run build
+    - name: crawl
+      run: |
+        npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
+      env:
+        ENV_MONGODB_URI_CONFIG: ${{ secrets.ENV_MONGODB_URI_CONFIG }}
+        ENV_MONGODB_URI_CRAWLER: ${{ secrets.ENV_MONGODB_URI_CRAWLER }}
+        ENV_MONGODB_URI_BACK_END: ${{ secrets.ENV_MONGODB_URI_BACK_END }}
+        ENV_RUN_CRAWLER_TASK: true
+        ENV_RUN_ANALYTICS_TASK: false
+        
