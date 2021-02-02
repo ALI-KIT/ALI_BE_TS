@@ -22,5 +22,5 @@ Build:
 Run:
     stage: run
     script:
-        npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index
+        npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
 
