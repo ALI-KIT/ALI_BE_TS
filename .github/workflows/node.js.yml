@@ -24,26 +24,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install
+    - name: Install Dependencies
       run: |
         npm install
-      env:
-        CI: true
-#  deploy:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: SSH and deploy node app
-#      uses: appleboy/ssh-action@master
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USERNAME }}
-#        key: ${{ secrets.SSH_KEY }}
-#        port: ${{ secrets.SSH_PORT }}
-#        script: |
-#          cd /home/ubuntu/ALI_BE_TS
-#          git pull origin master
-#          npm install
-#          npm run build
-#          pm2 restart ali-be
-            
+    - name: Build
+        npm run build
