@@ -67,6 +67,10 @@ export class AppProcessEnvironment {
             return true;
         }
 
+        if (value) {
+            return false;
+        }
+
         return defaultValue;
     }
 }
