@@ -34,7 +34,7 @@ export class AppRemoteRunner {
         this.lastMessage = "Created new session"
         this.appAnalyzer = new AppAnalyzer();
         this.appAnalyzer.runCrawlerTasks = crawler;
-        this.appAnalyzer.triggerAnalyticsOnly = triggerAnalyticsOnly;
+        this.appAnalyzer.willRunAnalyticsOnly = triggerAnalyticsOnly;
         this.appAnalyzer.runAnalyticsTask = analytics;
         this.startAt = Date.now();
         LoggingUtil.getInstance().isLogToString = true;
