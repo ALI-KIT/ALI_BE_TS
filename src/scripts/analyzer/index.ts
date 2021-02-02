@@ -1,3 +1,4 @@
+import { AppProcessEnvironment } from '@loadenv';
 import LoggingUtil from '@utils/LogUtil';
 import { AppAnalyzer } from './AppAnalyzer';
 

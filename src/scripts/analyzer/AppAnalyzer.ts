@@ -9,14 +9,16 @@ import { LimitBackendDocument, LimitCrawlerDocument } from './LimitDocument';
 import { BeAnalyticsTrigger } from './BeAnalyticsTrigger';
 import { CrawlerToBackend_FetchNewsFeed_Analyzer } from './CrawlerToBackend_FetchNewsFeeds_Analyzer';
 import { TrendsRatingAnalyzer } from './trending/TrendsRatingAnalyzer';
+import { AppProcessEnvironment } from '@loadenv';
 
 const RUN_AT_START_UP = false;
 
 export class AppAnalyzer extends DbScript<any> {
     public tasks: DbScript<any>[] = [];
-    public runAnalyticsTask = false;
-    public runCrawlerTasks = true;
-    public willRunAnalyticsOnly = false;
+    public runAnalyticsTask = AppProcessEnvironment.checkEnv("ENV_RUN_ANALYTICS_TASK", false);
+
+    public runCrawlerTasks = AppProcessEnvironment.checkEnv("ENV_RUN_CRAWLER_TASK", true);
+    public triggerAnalytics = AppProcessEnvironment.checkEnv("ENV_TRIGGER_ANALYTICS", true);
     protected async prepare(): Promise<Reliable<string>> {
         const s = await super.prepare();
 
@@ -26,13 +28,15 @@ export class AppAnalyzer extends DbScript<any> {
 
         if (this.runCrawlerTasks && MongoDbConnector.INSTANCE.states[0] == State.ON && MongoDbConnector.INSTANCE.states[2] == State.ON) {
             // crawl news into database
-            if (!this.willRunAnalyticsOnly) {
-                this.tasks.push(new CrawlerScript());
+            this.tasks.push(new CrawlerScript());
 
-                // remove old documents if it exceeds 45k documents
-                this.tasks.push(new LimitCrawlerDocument());
-            }
-            // trigger analytic processes on sub-domain servers
+            // remove old documents if it exceeds 45k documents
+            this.tasks.push(new LimitCrawlerDocument());
+
+        }
+
+        // trigger analytic processes on sub-domain servers
+        if (this.triggerAnalytics) {
             this.tasks.push(new BeAnalyticsTrigger());
         }
 

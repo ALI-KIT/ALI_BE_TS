@@ -29,7 +29,7 @@ export class ControlCenterController implements interfaces.Controller {
      */
     @httpGet('/crawler')
     private async startCrawlerIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(true, false, false)
+        AppRemoteRunner.getInstance().start(true, true, false)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
@@ -45,9 +45,9 @@ export class ControlCenterController implements interfaces.Controller {
      * @param res 
      * @param next 
      */
-    @httpGet('/crawler/triggerBeAnalytics')
+    @httpGet('/crawler/trigger-analytic-servers')
     private async triggerBeAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(true, true, false)
+        AppRemoteRunner.getInstance().start(false, true, false)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {
@@ -71,7 +71,7 @@ export class ControlCenterController implements interfaces.Controller {
 
     @httpGet('/crawler/all')
     private async startCrawlerAndAnalyticsIfAny(req: express.Request, res: express.Response, next: express.NextFunction) {
-        AppRemoteRunner.getInstance().start(true, false, true)
+        AppRemoteRunner.getInstance().start(true, true, true)
             .catch(e => { AppRemoteRunner.getInstance().appAnalyzer = null });
 
         try {

@@ -4,8 +4,7 @@ import LoggingUtil from '@utils/LogUtil';
 import MongoClient from 'mongodb';
 
 export abstract class DbScript<T> {
-    // timeOut = 90 minutes
-    public timeOut = 90 * 60 * 1000;
+    public timeOut = 0;
     public async run(): Promise<Reliable<T>> {
         const scriptName = this.constructor.name;
         if (this.timeOut > 0) {

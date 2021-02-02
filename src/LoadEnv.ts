@@ -61,4 +61,12 @@ export class AppProcessEnvironment {
      */
     public static readonly CONFIG_DB_URI: string = AppProcessEnvironment.URI_CONFIG;
 
+    public static checkEnv(key: string, defaultValue: boolean): boolean {
+        const value = AppProcessEnvironment.getProcessEnv()[key];
+        if (value && value === "true") {
+            return true;
+        }
+
+        return defaultValue;
+    }
 }
