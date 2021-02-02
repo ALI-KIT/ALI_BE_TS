@@ -28,5 +28,5 @@ jobs:
       run: |
         npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
       env:
-        ENV_RUN_CRAWLER_TASK: false
+        ENV_RUN_CRAWLER_TASK: true
         ENV_RUN_ANALYTICS_TASK: false
