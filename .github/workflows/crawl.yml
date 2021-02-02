@@ -28,5 +28,9 @@ jobs:
       run: |
         npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
       env:
+        ENV_MONGODB_URI_CONFIG: ${{ secrets.ENV_MONGODB_URI_CONFIG }}
+        ENV_MONGODB_URI_CRAWLER: ${{ secrets.ENV_MONGODB_URI_CRAWLER }}
+        ENV_MONGODB_URI_BACK_END: ${{ secrets.ENV_MONGODB_URI_BACK_END }}
         ENV_RUN_CRAWLER_TASK: true
         ENV_RUN_ANALYTICS_TASK: false
+        
