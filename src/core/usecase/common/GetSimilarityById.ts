@@ -5,7 +5,7 @@ import MongoDb from "mongodb";
 export class getSimilarityById {
     public constructor(private id: string) { }
     public async invoke(): Promise<Reliable<any>> {
-        const collection = MongoDbBackendClient.getInstance().useALIDB().collection("analyzer-similarity");
+        const collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("analyzer-similarity");
         let similarity: any;
         const id = this.id;
         try {

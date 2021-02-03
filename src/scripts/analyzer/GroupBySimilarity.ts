@@ -106,7 +106,7 @@ export class GroupingBySimilarity extends DbScript<any> {
         })
 
         // now save to database
-        const collection = MongoDbBackendClient.getInstance().useALIDB().collection("analyzer-similarity");
+        const collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("analyzer-similarity");
         const saveResult = (sortedSimilarFeed.length != 0) ? await collection.insertMany(sortedSimilarFeed) : "Empty Similarity List";
         await collection.deleteMany({ sessionCode: { $ne: sessionCode } });
 

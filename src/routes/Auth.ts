@@ -10,7 +10,6 @@ import { Type } from '@core/repository/base/Reliable';
 import LoggingUtil from '@utils/LogUtil';
 
 const router = Router();
-const userDao = AppDatabase.getInstance().userDao;
 const jwtService = new JwtService();
 
 
@@ -24,7 +23,7 @@ router.post('/login', async (request, response) => {
   const email = request.body.email || '';
   const password = request.body.password || '';
   if (email && password) {
-    const user = await userDao.findOne({ email: email });
+    const user = await (await AppDatabase.waitInstance()).userDao.findOne({ email: email });
     if (!user) {
       response.status(UNAUTHORIZED).send({
         success: false,
@@ -67,7 +66,7 @@ const getUser = (request: Request): User | null => {
 };
 
 router.post('/register', async (req: Request, res: Response) => {
-
+  const userDao = await (await AppDatabase.waitInstance()).userDao;
   const data = getUser(req);
   LoggingUtil.consoleLog("hello");
   LoggingUtil.consoleLog("data");

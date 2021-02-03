@@ -89,7 +89,7 @@ export class CreateInitialDynamicNewsSources extends DbScript<any> {
                 SourceStatus.ENABLED
             )
         ]
-        const collection = MongoDbCrawlerClient.getInstance().useServerConfig().collection("dynamic-news-sources");
+        const collection = (await MongoDbCrawlerClient.waitInstance()).useServerConfig().collection("dynamic-news-sources");
         for (const ds of list) {
 
             await collection.updateOne({ url: ds.url }, {

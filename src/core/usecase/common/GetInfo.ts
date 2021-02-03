@@ -4,7 +4,7 @@ import { AppProcessEnvironment } from "@loadenv";
 
 export class GetInfo {
     async invoke(): Promise<Reliable<any>> {
-        const configDb = MongoDbBackendClient.getInstance().useServerConfig();
+        const configDb = (await MongoDbBackendClient.waitInstance()).useServerConfig();
         try {
             const serverState = await configDb.collection("server-state").findOne({ name: "server-common-state" });
             serverState._id = undefined;

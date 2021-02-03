@@ -3,7 +3,6 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import AppDatabase from '@daos/AppDatabase';
 import { AppProcessEnvironment } from '@loadenv';
 
-const User = AppDatabase.getInstance().userDao;
 // module.exports = function () {
 //   var opts = {
 //     jwtFromRequest: ExtractJwt.fromAuthHeader(),
@@ -24,7 +23,7 @@ const opts = {
 const passportJWTStrategy = new Strategy(opts, async (jwtPayload, done) => {
   // retrieve mail from jwt payload
   const email = jwtPayload.email;
-  var rs = await User.findOne({ email: email });
+  var rs = await (await AppDatabase.waitInstance()).userDao.findOne({ email: email });
   done(null, (rs == null) ? null : rs);
 });
 

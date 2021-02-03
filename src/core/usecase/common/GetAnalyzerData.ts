@@ -11,7 +11,7 @@ export class Params {
 @injectable()
 export class GetAnalyzerData extends BaseUsecase<Params, Reliable<Array<any>>> {
     async invoke(param: Params): Promise<Reliable<Array<any>>> {
-        const data = await MongoDbBackendClient.getInstance()
+        const data = await (await MongoDbBackendClient.waitInstance())
             .useALIDB()
             .collection("server-analyzer-data")
             .find(param.query)

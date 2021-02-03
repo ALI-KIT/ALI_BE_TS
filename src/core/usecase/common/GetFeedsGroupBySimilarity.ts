@@ -14,7 +14,7 @@ export class GetFeedsGroupBySimilarityParam {
 @injectable()
 export class GetFeedsGroupBySimilarity extends BaseUsecase<GetFeedsGroupBySimilarityParam, Reliable<Array<FeShortFeed>>> {
     async invoke(param: GetFeedsGroupBySimilarityParam): Promise<Reliable<FeShortFeed[]>> {
-        const collection = MongoDbBackendClient.getInstance().useALIDB().collection("analyzer-similarity");
+        const collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("analyzer-similarity");
         const data = await collection.find({})
             .sort({ index: 1 })
             .skip(param.skip)

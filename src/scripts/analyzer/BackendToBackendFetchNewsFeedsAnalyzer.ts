@@ -15,8 +15,8 @@ const RUN_AT_START_UP = false;
 export class BackendToBackendFetchNewsFeedsAnalyzer extends DbScript<any> {
 
     public async runInternal(): Promise<Reliable<any>> {
-        const newsCollection: MongoClient.Collection = MongoDbBackendClient.getInstance().useALIDB().collection("news-2");
-        const analyticsCollection: MongoClient.Collection = MongoDbBackendClient.getInstance().useALIDB().collection("server-analyzer-data");
+        const newsCollection: MongoClient.Collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("news-2");
+        const analyticsCollection: MongoClient.Collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("server-analyzer-data");
 
         const defaultKeywordsReliable = await new GetDefaultKeywords().run();
         if (defaultKeywordsReliable.type == Type.FAILED) {
@@ -43,7 +43,7 @@ export class BackendToBackendFetchNewsFeedsAnalyzer extends DbScript<any> {
         }
 
         // now we remove all documents having score = 0
-        const removeResult = await MongoDbBackendClient.getInstance().useALIDB().collection("server-analyzer-data").deleteMany({ sessionCode: { $ne: sessionCode } })
+        const removeResult = await (await MongoDbBackendClient.waitInstance()).useALIDB().collection("server-analyzer-data").deleteMany({ sessionCode: { $ne: sessionCode } })
         LoggingUtil.consoleLog("Remove " + removeResult.deletedCount + " expired documents");
 
         return Reliable.Success(null);

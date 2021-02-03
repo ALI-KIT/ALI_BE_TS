@@ -95,7 +95,7 @@ export class DynamicNewsSourceGetter extends DbScript<Crawler<any>[]> {
 
     private async getAllDynamicNewsSources(): Promise<Reliable<DynamicSource[]>> {
         const list: DynamicSource[] = [];
-        const collection = MongoDbCrawlerClient.getInstance().useServerConfig().collection("dynamic-news-sources");
+        const collection = (await MongoDbCrawlerClient.waitInstance()).useServerConfig().collection("dynamic-news-sources");
 
         const raws = await collection.find({}).sort({ priority: -1 }).toArray();
 

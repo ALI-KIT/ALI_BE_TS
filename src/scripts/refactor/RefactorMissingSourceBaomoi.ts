@@ -7,7 +7,7 @@ import LoggingUtil from "@utils/LogUtil";
 
 export class RefactorMissingSourceBaomoi extends DbScript<any> {
     protected async runInternal(): Promise<Reliable<any>> {
-        const collection = MongoDbCrawlerClient.getInstance().useALIDB().collection("news-2");
+        const collection = (await MongoDbCrawlerClient.waitInstance()).useALIDB().collection("news-2");
         const cursor = (collection.find({ "aggregator.name": "baomoi", "source.url": { $not: /http/ } }));
         for await (const doc of cursor) {
             const refactor = await this.refactor(doc);

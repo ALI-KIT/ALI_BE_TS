@@ -18,8 +18,8 @@ const RUN_AT_START_UP = false;
 export class CrawlerToBackend_FetchNewsFeed_Analyzer extends DbScript<any> {
 
     public async runInternal(): Promise<Reliable<any>> {
-        const newsCollection: MongoClient.Collection = MongoDbCrawlerClient.getInstance().useALIDB().collection("news-2");
-        const analyticsCollection: MongoClient.Collection = MongoDbBackendClient.getInstance().useALIDB().collection("server-analyzer-data-crawler-to-backend");
+        const newsCollection: MongoClient.Collection = (await MongoDbCrawlerClient.waitInstance()).useALIDB().collection("news-2");
+        const analyticsCollection: MongoClient.Collection = (await MongoDbBackendClient.waitInstance()).useALIDB().collection("server-analyzer-data-crawler-to-backend");
 
         const defaultKeywordsReliable = await new GetDefaultKeywords().run();
         if (defaultKeywordsReliable.type == Type.FAILED) {
@@ -46,7 +46,7 @@ export class CrawlerToBackend_FetchNewsFeed_Analyzer extends DbScript<any> {
         }
 
         // now we remove all documents which weren't created or updated in curren session
-        const removeResult = await MongoDbBackendClient.getInstance().useALIDB().collection("server-analyzer-data-crawler-to-backend").deleteMany({ sessionCode: { $ne: sessionCode } })
+        const removeResult = await (await MongoDbBackendClient.waitInstance()).useALIDB().collection("server-analyzer-data-crawler-to-backend").deleteMany({ sessionCode: { $ne: sessionCode } })
         LoggingUtil.consoleLog("Remove " + removeResult.deletedCount + " expired documents");
 
         // final step
