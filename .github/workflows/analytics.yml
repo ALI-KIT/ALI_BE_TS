@@ -2,12 +2,13 @@ name: News Analytics
 
 on:
   workflow_dispatch:
-  schedule:
-  - cron: "0 * * * *"
+  schedule: # every 1h30'
+  - cron: "0 0,3,6,9,12,15,18,21 * * *"
+  - cron: "30 1,4,7,10,13,16,19,22 * * *"
 
 jobs:
-  build:
-
+  analytic-tpthuduc:
+    name: Analytics on Tp. Thu Duc
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +17,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - name: Install Dependencies
+    - name: Install Dependencies & Build
       run: |
         npm install
         npm run build
-    - name: Analytics on Tp. Thu Duc
+    - name: Analytics on Tp. Thu Duc  
       run: |
         npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
       env:
@@ -30,13 +31,28 @@ jobs:
         ENV_RUN_CRAWLER_TASK: false
         ENV_TRIGGER_ANALYTICS: false
         ENV_RUN_ANALYTICS_TASK: true
-    - name: Analytics on Quan 9
-      run: |
-        npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
-      env:
-        ENV_MONGODB_URI_CONFIG: ${{ secrets.ENV_MONGODB_URI_CONFIG }}
-        ENV_MONGODB_URI_CRAWLER: ${{ secrets.ENV_MONGODB_URI_CRAWLER }}
-        ENV_MONGODB_URI_BACK_END: ${{ secrets.ENV_MONGODB_URI_BACK_END_2 }}
-        ENV_RUN_CRAWLER_TASK: false
-        ENV_TRIGGER_ANALYTICS: false
-        ENV_RUN_ANALYTICS_TASK: true
+  
+  analytic-quan9:
+      name: Analytics on Q9
+      runs-on: ubuntu-latest
+
+      steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Install Dependencies & Build
+        run: |
+          npm install
+          npm run build
+      - name: Analytics on Quan 9
+        run: |
+          npx ts-node -r tsconfig-paths/register ./src/scripts/analyzer/index --env=production
+        env:
+          ENV_MONGODB_URI_CONFIG: ${{ secrets.ENV_MONGODB_URI_CONFIG }}
+          ENV_MONGODB_URI_CRAWLER: ${{ secrets.ENV_MONGODB_URI_CRAWLER }}
+          ENV_MONGODB_URI_BACK_END: ${{ secrets.ENV_MONGODB_URI_BACK_END_2 }}
+          ENV_RUN_CRAWLER_TASK: false
+          ENV_TRIGGER_ANALYTICS: false
+          ENV_RUN_ANALYTICS_TASK: true
