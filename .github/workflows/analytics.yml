@@ -2,8 +2,9 @@ name: News Analytics
 
 on:
   workflow_dispatch:
-  schedule:
-  - cron: "0 * * * *"
+  schedule: # every 1h30'
+  - cron: "0 0,3,6,9,12,15,18,21 * * *"
+  - cron: "30 1,4,7,10,13,16,19,22 * * *"
 
 jobs:
   analytic-tpthuduc:
