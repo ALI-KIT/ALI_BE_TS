@@ -68,9 +68,7 @@ const getUser = (request: Request): User | null => {
 router.post('/register', async (req: Request, res: Response) => {
   const userDao = await (await AppDatabase.waitInstance()).userDao;
   const data = getUser(req);
-  LoggingUtil.consoleLog("hello");
-  LoggingUtil.consoleLog("data");
-  let message = "";
+  let message = "unknown";
   if (data != null) {
     const findUser = await userDao.findOne({ email: data.email });
     if (findUser === null) {
@@ -83,6 +81,9 @@ router.post('/register', async (req: Request, res: Response) => {
           user: result,
           token: (result as User).generateToken()
         });
+      }else{
+        console.log(reliable.type === Type.SUCCESS);
+        message=result.errors;
       }
     }
     else {

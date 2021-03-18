@@ -13,10 +13,12 @@ export class Dao<T extends Document> {
 
     public async create(doc: CreateQuery<T>): Promise<Reliable<T>> {
         try {
+            console.log(doc);
             const data = await this.model.create(doc);
             return Reliable.Success(data);
         }
         catch (error) {
+            console.log(error);
             return Reliable.Failed("Couldnot create new document", error);
         }
     }
