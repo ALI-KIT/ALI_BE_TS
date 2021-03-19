@@ -11,7 +11,7 @@ export class FindTrendsInKeywords {
 
         //TODO: add a date-time range condition
         if (!feeds) {
-            const feedsReliable = await new GetNewsFeed().invoke(new Param(1000, 0));
+            const feedsReliable = await new GetNewsFeed().invoke(new Param(300, 0));
 
             if (feedsReliable.type == Type.FAILED || !feedsReliable.data) {
                 return Reliable.Failed(feedsReliable.message, feedsReliable.error);

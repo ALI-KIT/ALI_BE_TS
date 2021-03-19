@@ -11,7 +11,7 @@ export class TestVNTK extends DbScript<any> {
         if (feedsReliable.type == Type.FAILED || !feedsReliable.data) {
             return feedsReliable;
         }
-        const input = feedsReliable.data.map(feed => feed.title + ". " + feed.summary);
+        const input = feedsReliable.data.map(feed => feed.title + " " + feed.summary);
         const tokenizer = wordTokenizer();
         const map: Map<string, number> = new Map();
 

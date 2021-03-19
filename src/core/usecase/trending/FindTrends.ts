@@ -1,4 +1,6 @@
 import { Reliable, Type } from "@core/repository/base/Reliable";
+import LoggingUtil from "@utils/LogUtil";
+import vntk from "vntk";
 import { GetNewsFeed, Param } from "../common/GetNewsFeed";
 import { CountTrendsInNewsFeeds } from "./CountTrendsInNewsFeeds";
 import { FindTrendsInKeywords } from "./FindTrendsInKeywords";
@@ -6,7 +8,7 @@ import { FindTrendsInKeywords } from "./FindTrendsInKeywords";
 export class FindTrends {
     public async invoke(): Promise<Reliable<{ text: string, count: number }[]>> {
 
-        // First: get first 1000 news feeds
+        // First: get first n news feeds
         const feedsReliable = await new GetNewsFeed().invoke(new Param(300, 0));
 
         if (feedsReliable.type == Type.FAILED || !feedsReliable.data) {
@@ -20,8 +22,39 @@ export class FindTrends {
             return Reliable.Failed(trendInKeywords.message, trendInKeywords.error);
         }
 
-        // TODO: Maybe a vntk entity-named-recognition scanning the new feeds here
+        // TODO: Maybe add a vntk entity-named-recognition scanning the new feeds here
         // to find more keywords
+        const vnktKeywords: Array<string> = [];
+        
+        try {
+            const ner = vntk.ner();
+
+            var name = ""
+            feedsReliable.data.forEach(it => {
+                const result = ner.tag(it.title + " " + it.summary);
+                if (Array.isArray(result)) {
+                    result.forEach(self => {
+                        if (Array.isArray(self) && self.length >= 4) {
+                            if (self[3].startsWith("B-")) {
+                                name = self[0]
+                            } else if (self[3].startsWith("I-")) {
+                                name = name + " " + self[0]
+                            } else if (name.trim() != "") {
+                                vnktKeywords.push(name)
+                                name = ""
+                            } else {
+                                name = ""
+                            }
+                        }
+                    })
+
+                }
+
+            }
+            );
+        } catch (e) { }
+
+        vnktKeywords.forEach(it => LoggingUtil.consoleLog(it))
 
         // enhance trending words by news feed title and summary
         const trends = trendInKeywords.data.map(trend => trend.text);
